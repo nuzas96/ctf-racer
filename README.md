@@ -11,9 +11,9 @@ This milestone intentionally does **not** use multiple agents for the same chall
 1. Reads a local authorized CTF challenge definition.
 2. Creates `runs/<challenge-id>/workspace/`.
 3. Copies challenge artifacts into that workspace.
-4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, `FINDINGS.md`, and run state.
+4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, selectively retrieved `SKILLS.md`, `FINDINGS.md`, and run state.
 5. Runs deterministic category-aware preflight before the Codex agent starts.
-6. Starts one Codex SDK thread with `workspace-write` sandboxing and keeps that same thread for continuation rounds.
+6. Starts one Codex SDK thread with `workspace-write` sandboxing and keeps that same thread for continuation rounds. V1 benchmarks pin GPT-5.6 Luna at medium reasoning unless policy overrides it.
 7. Detects `CTF_RACER_FLAG=<flag>` or a configured flag regex.
 8. Saves each final agent response and run state for later benchmarking.
 
@@ -92,7 +92,7 @@ V1 defaults are conservative:
 - auto-submit: off
 - Codex sandbox: `workspace-write`
 - approval policy: `never`
-- one persistent Codex thread per challenge
+- one persistent Codex thread per challenge\n- benchmark model: `gpt-5.6-luna`\n- benchmark reasoning effort: `medium`
 
 `max_continuation_rounds` is a cost/runaway guardrail, **not** a difficulty estimate. No point value or solve count is used to decide challenge difficulty.
 
@@ -114,4 +114,10 @@ runs/<id>/
     └── solve/
 ```
 
-Milestone 2A adds deterministic preflight. The first crypto detector identifies repeated nonce/IV use in JSON artifacts and highlights AES-CTR keystream reuse before Codex begins. Future milestones will add broader category preflight, skills retrieval, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
+Milestone 2A adds deterministic preflight. The first crypto detector identifies repeated nonce/IV use in JSON artifacts and highlights AES-CTR keystream reuse before Codex begins.
+
+Milestone 2B adds selective V2 skill retrieval. The runner auto-discovers a sibling `codex-skills` or `codex-skills-github` repository (or `CTF_RACER_SKILLS_PATH`) and copies only relevant technique sections into `SKILLS.md`. For CTR nonce reuse this includes the crypto router, nonce-reuse guidance, and many-time-pad crib-dragging technique instead of loading the entire crypto library.
+
+Before a fresh solve, the previous run is moved to `runs/_history/<challenge-id>/<timestamp>/` so benchmark traces are preserved.
+
+Future milestones will add broader category preflight, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
