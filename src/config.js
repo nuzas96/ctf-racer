@@ -8,7 +8,7 @@ export const DEFAULT_POLICY = {
   auto_submit: false,
   sandbox_mode: "workspace-write",
   approval_policy: "never",
-  model: "gpt-5.6-luna",
+  model: "gpt-6-luna",
   model_reasoning_effort: "medium",
   max_continuation_rounds: 4,
 };
