@@ -58,7 +58,8 @@ const session = await CodexAgentSession.create(state.workspace, policy);
 
 console.log(`[ctf-racer] challenge: ${challenge.title}`);
 console.log(`[ctf-racer] workspace: ${state.workspace}`);
-console.log(`[ctf-racer] model: Codex default/profile`);
+console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
+console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
 console.log(`[ctf-racer] policy: one challenge -> one persistent Codex thread`);
 console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
 console.log(`[ctf-racer] skills: ${skills.sections} section(s)${skills.foundLibrary ? ` from ${skills.source}` : " (library not found)"}`);
