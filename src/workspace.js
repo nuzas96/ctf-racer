@@ -33,6 +33,7 @@ export function makeAgentInstructions() {
     `Rules:\n` +
     `- This workspace is for an authorized CTF challenge only.\n` +
     `- Read PREFLIGHT.md before broad exploration; it contains deterministic triage evidence generated before you start.\n` +
+    `- Read SKILLS.md next; it contains selectively retrieved V2 technique guidance relevant to current evidence.\n` +
     `- Work only on the challenge described in CHALLENGE.md and artifacts in artifacts/.\n` +
     `- Prefer evidence-driven experiments over speculation.\n` +
     `- Keep useful scripts under solve/.\n` +
@@ -48,9 +49,14 @@ export function prepareWorkspace(projectRoot, sourceDir, challenge) {
   const workspace = path.join(runRoot, "workspace");
   const artifacts = path.join(workspace, "artifacts");
 
-  // V1 has no resume command yet. Every explicit solve invocation starts clean
-  // so benchmark reruns cannot inherit old FINDINGS.md, solve scripts, or flags.
-  fs.rmSync(runRoot, { recursive: true, force: true });
+  // Every explicit solve invocation starts with a clean workspace, but preserve
+  // the previous run for benchmark comparison instead of deleting its evidence.
+  if (fs.existsSync(runRoot)) {
+    const historyRoot = path.join(projectRoot, "runs", "_history", safeChallengeId(challenge.id));
+    fs.mkdirSync(historyRoot, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    fs.renameSync(runRoot, path.join(historyRoot, stamp));
+  }
 
   fs.mkdirSync(path.join(workspace, "solve"), { recursive: true });
   fs.mkdirSync(artifacts, { recursive: true });
