@@ -1,0 +1,14 @@
+{
+  "name": "ctf-racer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One challenge -> one persistent Codex agent CTF runner (V1)",
+  "scripts": {
+    "racer": "node src/cli.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@openai/codex-sdk": "latest"
+  }
+}
