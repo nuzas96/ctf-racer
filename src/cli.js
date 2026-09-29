@@ -7,6 +7,7 @@ import { loadPolicy } from "./config.js";
 import { CodexAgentSession } from "./agent.js";
 import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
+import { retrieveSkills } from "./skills.js";
 import { solveChallenge } from "./runner.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,19 @@ state.preflight = {
   finding_count: preflight.findingCount,
   high_count: preflight.highCount,
 };
+
+const skills = retrieveSkills({
+  projectRoot,
+  workspace: state.workspace,
+  challenge,
+  preflight,
+  policy,
+});
+state.skills = {
+  found_library: skills.foundLibrary,
+  source: skills.source,
+  sections: skills.sections,
+};
 writeState(runRoot, state);
 
 const session = await CodexAgentSession.create(state.workspace, policy);
@@ -47,6 +61,7 @@ console.log(`[ctf-racer] workspace: ${state.workspace}`);
 console.log(`[ctf-racer] model: Codex default/profile`);
 console.log(`[ctf-racer] policy: one challenge -> one persistent Codex thread`);
 console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
+console.log(`[ctf-racer] skills: ${skills.sections} section(s)${skills.foundLibrary ? ` from ${skills.source}` : " (library not found)"}`);
 
 const result = await solveChallenge({ challenge, policy, state, runRoot, session });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
