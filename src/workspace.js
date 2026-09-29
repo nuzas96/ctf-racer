@@ -32,6 +32,7 @@ export function makeAgentInstructions() {
     `You are the single persistent solver assigned to this challenge.\n\n` +
     `Rules:\n` +
     `- This workspace is for an authorized CTF challenge only.\n` +
+    `- Read PREFLIGHT.md before broad exploration; it contains deterministic triage evidence generated before you start.\n` +
     `- Work only on the challenge described in CHALLENGE.md and artifacts in artifacts/.\n` +
     `- Prefer evidence-driven experiments over speculation.\n` +
     `- Keep useful scripts under solve/.\n` +
