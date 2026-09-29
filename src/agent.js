@@ -10,6 +10,8 @@ export class CodexAgentSession {
       workingDirectory,
       sandboxMode: policy.sandbox_mode,
       approvalPolicy: policy.approval_policy,
+      model: policy.model,
+      modelReasoningEffort: policy.model_reasoning_effort,
     });
     return new CodexAgentSession(thread);
   }
