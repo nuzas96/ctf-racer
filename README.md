@@ -11,9 +11,9 @@ This milestone intentionally does **not** use multiple agents for the same chall
 1. Reads a local authorized CTF challenge definition.
 2. Creates `runs/<challenge-id>/workspace/`.
 3. Copies challenge artifacts into that workspace.
-4. Creates `CHALLENGE.md`, `AGENTS.md`, `FINDINGS.md`, and run state.
-5. Starts one Codex SDK thread with `workspace-write` sandboxing.
-6. Keeps the same thread for continuation rounds.
+4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, `FINDINGS.md`, and run state.
+5. Runs deterministic category-aware preflight before the Codex agent starts.
+6. Starts one Codex SDK thread with `workspace-write` sandboxing and keeps that same thread for continuation rounds.
 7. Detects `CTF_RACER_FLAG=<flag>` or a configured flag regex.
 8. Saves each final agent response and run state for later benchmarking.
 
@@ -114,4 +114,4 @@ runs/<id>/
     └── solve/
 ```
 
-Future milestones will add deterministic preflight, richer tools, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
+Milestone 2A adds deterministic preflight. The first crypto detector identifies repeated nonce/IV use in JSON artifacts and highlights AES-CTR keystream reuse before Codex begins. Future milestones will add broader category preflight, skills retrieval, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
