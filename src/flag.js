@@ -4,13 +4,9 @@ function normalizeCandidate(value) {
 
 function isPlaceholder(candidate, flagFormat) {
   if (!candidate) return true;
-
   const normalized = candidate.trim();
   if (flagFormat && normalized === flagFormat.trim()) return true;
-
-  // Common challenge-format placeholders must never count as solved flags.
   if (/\{\s*(?:\.{3,}|…|<[^>]+>|placeholder)\s*\}/i.test(normalized)) return true;
-
   return false;
 }
 
@@ -25,7 +21,6 @@ function matchesConfiguredRegex(candidate, configuredRegex) {
 
 export function extractFlag(response, configuredRegex, flagFormat) {
   const candidates = [];
-
   const explicit = response.match(/^CTF_RACER_FLAG=(.+)$/m)?.[1];
   if (explicit) candidates.push(normalizeCandidate(explicit));
 
@@ -36,7 +31,7 @@ export function extractFlag(response, configuredRegex, flagFormat) {
         if (match?.[0]) candidates.push(normalizeCandidate(match[0]));
       }
     } catch {
-      // Invalid challenge regex should not crash a solve run or accept a bad flag.
+      // Invalid regex should fail closed.
     }
   }
 
@@ -45,6 +40,5 @@ export function extractFlag(response, configuredRegex, flagFormat) {
     if (!matchesConfiguredRegex(candidate, configuredRegex)) continue;
     return candidate;
   }
-
   return undefined;
 }
