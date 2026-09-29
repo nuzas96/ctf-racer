@@ -1,0 +1,8 @@
+{
+  "id": "hello-flag-local",
+  "title": "Hello Flag (Local Smoke Test)",
+  "category": "misc",
+  "description": "A harmless local smoke-test challenge. Recover the hidden CTF flag from the supplied artifact. No network access is required.",
+  "flag_format": "NADI{...}",
+  "flag_regex": "NADI\\{[A-Za-z0-9_:-]+\\}"
+}
