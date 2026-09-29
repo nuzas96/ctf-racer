@@ -27,7 +27,7 @@ This milestone intentionally does **not** use multiple agents for the same chall
 
 Codex uses progressive skill disclosure: the session initially sees skill names/descriptions and loads the full `SKILL.md` when the skill is selected.
 
-Current Codex local skill discovery locations include repository-scoped `.agents/skills`, user-scoped `$HOME/.agents/skills`, admin `/etc/codex/skills`, and bundled system skills.
+Current Codex skill installs may be visible under repository-scoped `.agents/skills`, user-scoped `$HOME/.agents/skills`, and existing user installs under `$HOME/.codex/skills`; the runner checks both user paths for diagnostics.
 
 ## Install
 
@@ -74,7 +74,7 @@ solve / continuation rounds
 The runner asks the agent to create `SKILL_PROOF.md` after loading the routed skill. The CLI verifies that the reported `SKILL.md` path exists and prints one of:
 
 ```text
-[ctf-racer] skill proof: verified (/home/.../.agents/skills/ctf-crypto/SKILL.md)
+[ctf-racer] skill proof: verified (/home/.../.codex/skills/ctf-crypto/SKILL.md)
 ```
 
 or a non-verified status. This is diagnostic evidence for benchmark runs; it does not replace the Codex skill system.
@@ -116,7 +116,7 @@ V1 defaults:
 - Codex sandbox: `workspace-write`
 - approval policy: `never`
 - one persistent Codex thread per challenge
-- benchmark model: `gpt-5.6-luna`
+- benchmark model: `gpt-6-luna`
 - benchmark reasoning effort: `medium`
 
 `max_continuation_rounds` is a runaway/cost guardrail, **not** a difficulty estimate.
