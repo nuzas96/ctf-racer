@@ -38,6 +38,7 @@ export function detectInstalledSkill(skillName, cwd = process.cwd()) {
   const checked = [
     ...repoSkillCandidates(cwd, skillName),
     path.join(os.homedir(), ".agents", "skills", skillName, "SKILL.md"),
+    path.join(os.homedir(), ".codex", "skills", skillName, "SKILL.md"),
   ];
 
   for (const candidate of checked) {
