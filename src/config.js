@@ -10,6 +10,8 @@ export const DEFAULT_POLICY = {
   approval_policy: "never",
   model: "gpt-6-luna",
   model_reasoning_effort: "medium",
+  stall_similarity_threshold: 0.82,
+  max_consecutive_stalls: 2,
   max_continuation_rounds: 4,
 };
 
