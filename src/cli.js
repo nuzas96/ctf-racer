@@ -14,7 +14,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
 
 function usage() {
-  console.error("Usage: npm run racer -- solve <challenge-directory>");
+  console.error("Usage:");
+  console.error("  npm run racer -- solve <challenge-directory>");
+  console.error("  npm run racer -- inspect <challenge-directory>");
   process.exit(2);
 }
 
@@ -22,11 +24,81 @@ function seconds(ms) {
   return (ms / 1000).toFixed(2);
 }
 
+function listFiles(root, base = root) {
+  if (!fs.existsSync(root)) return [];
+  const out = [];
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const full = path.join(root, entry.name);
+    if (entry.isDirectory()) out.push(...listFiles(full, base));
+    else if (entry.isFile()) out.push(path.relative(base, full));
+  }
+  return out.sort();
+}
+
+function inspectRun(sourceDir) {
+  const challenge = loadChallenge(sourceDir);
+  const runRoot = path.join(projectRoot, "runs", safeChallengeId(challenge.id));
+  const statePath = path.join(runRoot, "state.json");
+
+  if (!fs.existsSync(statePath)) {
+    throw new Error(`No current run state found for ${challenge.id}: ${statePath}`);
+  }
+
+  const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+  const workspace = state.workspace || path.join(runRoot, "workspace");
+  const findingsPath = path.join(workspace, "FINDINGS.md");
+  const solveDir = path.join(workspace, "solve");
+
+  console.log(`[ctf-racer] inspect: ${challenge.title}`);
+  console.log(`[ctf-racer] status: ${state.status}`);
+  console.log(`[ctf-racer] rounds: ${state.rounds ?? 0}`);
+  console.log(`[ctf-racer] elapsed: ${seconds(state.elapsed_ms ?? 0)}s`);
+  console.log(`[ctf-racer] stalls: ${state.stall_count ?? 0}`);
+
+  const diagnostics = state.round_diagnostics ?? [];
+  console.log("\n[ctf-racer] round diagnostics:");
+  if (diagnostics.length === 0) {
+    console.log("  (none recorded)");
+  } else {
+    for (const d of diagnostics) {
+      const signal = d.progress_marker
+        ? `progress=${d.progress_marker}`
+        : d.stalled_marker
+          ? `stalled=${d.stalled_marker}`
+          : "no marker";
+      const reasons = d.reasons?.length ? ` reasons=${d.reasons.join(" | ")}` : "";
+      console.log(
+        `  r${d.round}: stalled=${d.stalled} workspace_changed=${d.workspace_changed} similarity=${d.max_response_similarity} ${signal}${reasons}`
+      );
+    }
+  }
+
+  console.log("\n[ctf-racer] FINDINGS.md:");
+  if (fs.existsSync(findingsPath)) {
+    const findings = fs.readFileSync(findingsPath, "utf8").trim();
+    console.log(findings || "(empty)");
+  } else {
+    console.log("(missing)");
+  }
+
+  console.log("\n[ctf-racer] solve/ files:");
+  const files = listFiles(solveDir, solveDir);
+  if (files.length === 0) console.log("  (none)");
+  else for (const file of files) console.log(`  - ${file}`);
+
+  console.log(`\n[ctf-racer] full run: ${runRoot}`);
+}
+
 const [, , command, sourceArg] = process.argv;
-if (command !== "solve" || !sourceArg) usage();
+if (!["solve", "inspect"].includes(command) || !sourceArg) usage();
 
 const sourceDir = path.resolve(process.cwd(), sourceArg);
 if (!fs.existsSync(sourceDir)) throw new Error(`Challenge directory not found: ${sourceDir}`);
+
+if (command === "inspect") {
+  inspectRun(sourceDir);
+  process.exit(0);
+}
 
 const challenge = loadChallenge(sourceDir);
 const policy = loadPolicy(projectRoot);
@@ -55,9 +127,9 @@ console.log(`[ctf-racer] challenge: ${challenge.title}`);
 console.log(`[ctf-racer] workspace: ${state.workspace}`);
 console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
 console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
-console.log(`[ctf-racer] policy: one challenge -> one persistent Codex thread`);
+console.log("[ctf-racer] policy: one challenge -> one persistent Codex thread");
 console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
-console.log(`[ctf-racer] skill route: ${skillName ? `${skillName}` : "none"}${installedSkill.found ? ` (${installedSkill.path})` : " (not detected in local documented paths)"}`);
+console.log(`[ctf-racer] skill route: ${skillName ? `$${skillName}` : "none"}${installedSkill.found ? ` (${installedSkill.path})` : " (not detected in local documented paths)"}`);
 
 const result = await solveChallenge({ challenge, policy, state, runRoot, session, skillName });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
