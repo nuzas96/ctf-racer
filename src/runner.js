@@ -11,7 +11,7 @@ function finishState(state, runRoot, startedMs) {
   writeState(runRoot, state);
 }
 
-export async function solveChallenge({ challenge, policy, state, runRoot, session }) {
+export async function solveChallenge({ challenge, policy, state, runRoot, session, skillName }) {
   const responses = [];
   const startedMs = Date.now();
 
@@ -26,7 +26,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
       writeState(runRoot, state);
       appendRunLog(runRoot, `round ${round} started`);
 
-      const prompt = round === 1 ? initialPrompt(challenge, policy) : continuationPrompt(round);
+      const prompt = round === 1 ? initialPrompt(challenge, policy, skillName) : continuationPrompt(round, skillName);
       const turn = await session.run(prompt);
       responses.push(turn.finalResponse);
 
