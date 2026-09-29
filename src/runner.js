@@ -34,7 +34,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
       fs.writeFileSync(responseFile, turn.finalResponse + "\n");
       state.last_response_file = responseFile;
 
-      const flag = extractFlag(turn.finalResponse, challenge.flag_regex);
+      const flag = extractFlag(turn.finalResponse, challenge.flag_regex, challenge.flag_format);
       if (flag) {
         state.status = "solved";
         state.flag = flag;
