@@ -16,6 +16,10 @@ function usage() {
   process.exit(2);
 }
 
+function seconds(ms) {
+  return (ms / 1000).toFixed(2);
+}
+
 const [, , command, sourceArg] = process.argv;
 if (command !== "solve" || !sourceArg) usage();
 
@@ -36,6 +40,9 @@ console.log(`[ctf-racer] model: Codex default/profile`);
 console.log(`[ctf-racer] policy: one challenge -> one persistent Codex thread`);
 
 const result = await solveChallenge({ challenge, policy, state, runRoot, session });
+console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
+console.log(`[ctf-racer] elapsed: ${seconds(result.state.elapsed_ms ?? 0)}s`);
+
 if (result.state.status === "solved") {
   console.log(`\n[ctf-racer] SOLVED: ${result.state.flag}`);
   process.exit(0);
