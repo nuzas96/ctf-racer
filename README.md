@@ -178,3 +178,14 @@ Relevant policy fields:
 Round-level diagnostics are written into `state.json`.
 
 Future work: broader preflight modules, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
+
+
+## Inspect an existing run without calling the model
+
+Use the current saved run to inspect round-level progress/stall diagnostics without spending tokens:
+
+```bash
+npm run racer -- inspect benchmarks/meridian-vault-2
+```
+
+This prints the run status, timing, stall count, per-round diagnostics, current `FINDINGS.md`, and files created under `solve/`.
