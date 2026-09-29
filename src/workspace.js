@@ -47,15 +47,17 @@ export function prepareWorkspace(projectRoot, sourceDir, challenge) {
   const workspace = path.join(runRoot, "workspace");
   const artifacts = path.join(workspace, "artifacts");
 
+  // V1 has no resume command yet. Every explicit solve invocation starts clean
+  // so benchmark reruns cannot inherit old FINDINGS.md, solve scripts, or flags.
+  fs.rmSync(runRoot, { recursive: true, force: true });
+
   fs.mkdirSync(path.join(workspace, "solve"), { recursive: true });
   fs.mkdirSync(artifacts, { recursive: true });
   copyDirContents(path.join(sourceDir, challenge.files_dir ?? "files"), artifacts);
 
   fs.writeFileSync(path.join(workspace, "CHALLENGE.md"), makeChallengeMarkdown(challenge));
   fs.writeFileSync(path.join(workspace, "AGENTS.md"), makeAgentInstructions());
-  if (!fs.existsSync(path.join(workspace, "FINDINGS.md"))) {
-    fs.writeFileSync(path.join(workspace, "FINDINGS.md"), "# Validated findings\n\n");
-  }
+  fs.writeFileSync(path.join(workspace, "FINDINGS.md"), "# Validated findings\n\n");
 
   const now = new Date().toISOString();
   const state = {
