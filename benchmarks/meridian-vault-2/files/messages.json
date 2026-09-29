@@ -1,0 +1,32 @@
+{
+  "batch_id": "REL-BATCH-0417",
+  "cipher": "AES-CTR",
+  "key_id": "session-key-0417 (not included)",
+  "messages": [
+    {
+      "sender": "ops-console",
+      "nonce": "0252e4bbde927661",
+      "ciphertext": "Cb+36lalvu8vrqYsoRGK6zuC6HAeLd4nGWf7WWCwkT7ImHZbx1bH9jxWBu8LhKsXrQmhTA=="
+    },
+    {
+      "sender": "monitor-agent",
+      "nonce": "bf7523c3e93728f8",
+      "ciphertext": "PbgzVSsJ8LohxlOJmHZKbzQFYvZ6oS7VbAgTynL5sX/MSZ8l"
+    },
+    {
+      "sender": "vault-relay",
+      "nonce": "3e36c8d1691b1f9d",
+      "ciphertext": "fmH0DlXV9dSJe08kYEkzlScyPcmqeJbFHYU8t8YUJV9XC2gMsl+Y5spHCw5f8VfEBodeUVgj12c6Fy0XhI33k8WVp+6P0RqYPSM8vLiJwY4q0YvfSBSNgQSUH+kgabSWWmYNtKT/CIVC9376gaG98v5dckHy3cz0CjC8tZHXU0GQA59+RH0plznQvOiqmVyPQUcJyTAtcK6pOCRdeo8Lou2BBg=="
+    },
+    {
+      "sender": "billing-svc",
+      "nonce": "965c22ee871b119e",
+      "ciphertext": "5LUZHgZlYyddk1ualbRy0irPqrx7h6Ry5hLZ3/+g6LemcPTkmZxLu1vrqxGN74KyTTWi2/M8vw+jug=="
+    },
+    {
+      "sender": "heartbeat-bot",
+      "nonce": "3e36c8d1691b1f9d",
+      "ciphertext": "Y3njamDoxP6zXRl7TFMZogoDDPqbNLT9eNMKguwfFXoPN141k3i3zY13Aw5Q/TXSHJJOUk1AsmAmHyp/9PqT8rDh0/L1qGjLXiItr8f7iaMW4qrodGfQrC6saN8LRumnc1063OrMLb9kvyHO4IiW1tV0K2KT++3bKwX0xaT7ciiwLdVGcVUU/gT+9taCs3/mbWFQ+hlJXoiFX3p5Wrk7jsfoIQDdTKQ1K1Y/+EFrjSmNfkOT1Okh+y+HUD0Zrec7gjkjYtA+ffY8aDk5IWe9pcbVhnv7hg=="
+    }
+  ]
+}
