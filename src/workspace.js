@@ -33,7 +33,7 @@ export function makeAgentInstructions() {
     `Rules:\n` +
     `- This workspace is for an authorized CTF challenge only.\n` +
     `- Read PREFLIGHT.md before broad exploration; it contains deterministic triage evidence generated before you start.\n` +
-    `- Read SKILLS.md next; it contains selectively retrieved V2 technique guidance relevant to current evidence.\n` +
+    `- Use the installed Codex category skill selected by the runner; do not expect copied skill content in this workspace.\n` +
     `- Work only on the challenge described in CHALLENGE.md and artifacts in artifacts/.\n` +
     `- Prefer evidence-driven experiments over speculation.\n` +
     `- Keep useful scripts under solve/.\n` +
