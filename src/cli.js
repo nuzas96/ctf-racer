@@ -7,7 +7,7 @@ import { loadPolicy } from "./config.js";
 import { CodexAgentSession } from "./agent.js";
 import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
-import { retrieveSkills } from "./skills.js";
+import { detectInstalledSkill, skillNameForChallenge, verifySkillProof } from "./skill-route.js";
 import { solveChallenge } from "./runner.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -40,17 +40,12 @@ state.preflight = {
   high_count: preflight.highCount,
 };
 
-const skills = retrieveSkills({
-  projectRoot,
-  workspace: state.workspace,
-  challenge,
-  preflight,
-  policy,
-});
-state.skills = {
-  found_library: skills.foundLibrary,
-  source: skills.source,
-  sections: skills.sections,
+const skillName = skillNameForChallenge(challenge);
+const installedSkill = detectInstalledSkill(skillName, state.workspace);
+state.skill_route = {
+  expected_skill: skillName,
+  local_detected: installedSkill.found,
+  local_path: installedSkill.path,
 };
 writeState(runRoot, state);
 
@@ -62,11 +57,22 @@ console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
 console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
 console.log(`[ctf-racer] policy: one challenge -> one persistent Codex thread`);
 console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
-console.log(`[ctf-racer] skills: ${skills.sections} section(s)${skills.foundLibrary ? ` from ${skills.source}` : " (library not found)"}`);
+console.log(`[ctf-racer] skill route: ${skillName ? `${skillName}` : "none"}${installedSkill.found ? ` (${installedSkill.path})` : " (not detected in local documented paths)"}`);
 
-const result = await solveChallenge({ challenge, policy, state, runRoot, session });
+const result = await solveChallenge({ challenge, policy, state, runRoot, session, skillName });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
 console.log(`[ctf-racer] elapsed: ${seconds(result.state.elapsed_ms ?? 0)}s`);
+
+if (skillName) {
+  const proof = verifySkillProof(state.workspace, skillName);
+  result.state.skill_proof = {
+    verified: proof.verified,
+    status: proof.status,
+    path: proof.skillPath,
+  };
+  writeState(runRoot, result.state);
+  console.log(`[ctf-racer] skill proof: ${proof.status}${proof.skillPath ? ` (${proof.skillPath})` : ""}`);
+}
 
 if (result.state.status === "solved") {
   console.log(`\n[ctf-racer] SOLVED: ${result.state.flag}`);
