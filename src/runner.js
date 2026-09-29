@@ -4,9 +4,19 @@ import { appendRunLog, writeState } from "./workspace.js";
 import { extractFlag } from "./flag.js";
 import { continuationPrompt, initialPrompt } from "./prompt.js";
 
+function finishState(state, runRoot, startedMs) {
+  const finishedMs = Date.now();
+  state.finished_at = new Date(finishedMs).toISOString();
+  state.elapsed_ms = finishedMs - startedMs;
+  writeState(runRoot, state);
+}
+
 export async function solveChallenge({ challenge, policy, state, runRoot, session }) {
   const responses = [];
+  const startedMs = Date.now();
+
   state.status = "running";
+  state.started_at = new Date(startedMs).toISOString();
   writeState(runRoot, state);
   appendRunLog(runRoot, "agent started");
 
@@ -28,7 +38,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
       if (flag) {
         state.status = "solved";
         state.flag = flag;
-        writeState(runRoot, state);
+        finishState(state, runRoot, startedMs);
         appendRunLog(runRoot, `flag detected: ${flag}`);
         return { state, responses };
       }
@@ -37,13 +47,13 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
     }
 
     state.status = "unsolved";
-    writeState(runRoot, state);
+    finishState(state, runRoot, startedMs);
     appendRunLog(runRoot, "run ended without verified flag");
     return { state, responses };
   } catch (error) {
     state.status = "error";
     state.error = error instanceof Error ? error.message : String(error);
-    writeState(runRoot, state);
+    finishState(state, runRoot, startedMs);
     appendRunLog(runRoot, `error: ${state.error}`);
     throw error;
   }
