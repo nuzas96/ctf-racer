@@ -155,5 +155,26 @@ so benchmark traces are preserved.
 - V1.1: real archived benchmark
 - V2A: deterministic crypto preflight
 - V2B: **installed Codex skill routing** (no duplicated manual skill injection)
+- V3: **stall detection + same-agent steering**
 
-Future work: broader preflight modules, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
+## Stall detection
+
+After each unsolved round, the runner compares:
+- changes to `FINDINGS.md` and files under `solve/`;
+- an explicit `CTF_RACER_PROGRESS=...` or `CTF_RACER_STALLED=...` marker;
+- response similarity against earlier rounds.
+
+If a round stalls, the **same persistent Codex thread** receives a steering prompt that forbids repeating the same hypothesis or commands and requires a materially different experiment. By default, two consecutive stalled rounds stop the run as `STALLED` rather than wasting the remaining continuation budget.
+
+Relevant policy fields:
+
+```json
+{
+  "stall_similarity_threshold": 0.82,
+  "max_consecutive_stalls": 2
+}
+```
+
+Round-level diagnostics are written into `state.json`.
+
+Future work: broader preflight modules, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
