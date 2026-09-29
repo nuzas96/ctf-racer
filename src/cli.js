@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
 import { loadPolicy } from "./config.js";
 import { CodexAgentSession } from "./agent.js";
-import { prepareWorkspace } from "./workspace.js";
+import { prepareWorkspace, writeState } from "./workspace.js";
+import { runPreflight } from "./preflight.js";
 import { solveChallenge } from "./runner.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -32,12 +33,20 @@ if (!policy.authorized_ctf_only) throw new Error("V1 requires authorized_ctf_onl
 
 const state = prepareWorkspace(projectRoot, sourceDir, challenge);
 const runRoot = path.join(projectRoot, "runs", safeChallengeId(challenge.id));
+const preflight = runPreflight(state.workspace, challenge);
+state.preflight = {
+  finding_count: preflight.findingCount,
+  high_count: preflight.highCount,
+};
+writeState(runRoot, state);
+
 const session = await CodexAgentSession.create(state.workspace, policy);
 
 console.log(`[ctf-racer] challenge: ${challenge.title}`);
 console.log(`[ctf-racer] workspace: ${state.workspace}`);
 console.log(`[ctf-racer] model: Codex default/profile`);
 console.log(`[ctf-racer] policy: one challenge -> one persistent Codex thread`);
+console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
 
 const result = await solveChallenge({ challenge, policy, state, runRoot, session });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
