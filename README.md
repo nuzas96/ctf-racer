@@ -11,19 +11,23 @@ This milestone intentionally does **not** use multiple agents for the same chall
 1. Reads a local authorized CTF challenge definition.
 2. Creates `runs/<challenge-id>/workspace/`.
 3. Copies challenge artifacts into that workspace.
-4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, selectively retrieved `SKILLS.md`, `FINDINGS.md`, and run state.
+4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, `FINDINGS.md`, and run state.
 5. Runs deterministic category-aware preflight before the Codex agent starts.
-6. Starts one Codex SDK thread with `workspace-write` sandboxing and keeps that same thread for continuation rounds. V1 benchmarks pin GPT-5.6 Luna at medium reasoning unless policy overrides it.
-7. Detects `CTF_RACER_FLAG=<flag>` or a configured flag regex.
-8. Saves each final agent response and run state for later benchmarking.
+6. Routes the challenge to the user's **installed Codex skill** (for example `$ctf-crypto`) instead of copying skill content into the workspace.
+7. Starts one persistent Codex SDK thread with `workspace-write` sandboxing.
+8. Rejects advertised flag placeholders such as `NADI{...}` before marking a run solved.
+9. Saves responses, run state, timing, skill proof, and prior-run history for benchmarking.
 
 ## Requirements
 
 - Node.js 22+ (Node 24 is fine)
 - npm
 - Codex authentication already working on the machine
+- The user's CTF skills installed in Codex
 
-OpenAI's Codex SDK runs the same Codex harness used by the CLI and supports persistent thread context. The runner uses the locally configured/default Codex model.
+Codex uses progressive skill disclosure: the session initially sees skill names/descriptions and loads the full `SKILL.md` when the skill is selected.
+
+Current Codex local skill discovery locations include repository-scoped `.agents/skills`, user-scoped `$HOME/.agents/skills`, admin `/etc/codex/skills`, and bundled system skills.
 
 ## Install
 
@@ -39,11 +43,41 @@ npm test
 npm run racer -- solve examples/hello-flag
 ```
 
-Expected flag from the harmless local smoke test:
+Expected flag:
 
 ```text
 NADI{ctf_racer_v1_smoke_test}
 ```
+
+## Real benchmark
+
+```bash
+npm run racer -- solve benchmarks/meridian-vault-2
+```
+
+For this benchmark the flow is:
+
+```text
+Meridian Vault Systems {2}
+        ↓
+deterministic crypto preflight
+        ↓
+route $ctf-crypto
+        ↓
+Codex loads the installed ctf-crypto skill
+        ↓
+one persistent Luna agent
+        ↓
+solve / continuation rounds
+```
+
+The runner asks the agent to create `SKILL_PROOF.md` after loading the routed skill. The CLI verifies that the reported `SKILL.md` path exists and prints one of:
+
+```text
+[ctf-racer] skill proof: verified (/home/.../.agents/skills/ctf-crypto/SKILL.md)
+```
+
+or a non-verified status. This is diagnostic evidence for benchmark runs; it does not replace the Codex skill system.
 
 ## Challenge directory format
 
@@ -56,7 +90,7 @@ my-challenge/
     └── capture.pcapng
 ```
 
-Example `challenge.json`:
+Example:
 
 ```json
 {
@@ -69,32 +103,23 @@ Example `challenge.json`:
 }
 ```
 
-A target can be included later:
-
-```json
-{
-  "target": {
-    "url": "https://ctf.example/challenge-instance"
-  }
-}
-```
-
-The default policy disables challenge network access. Do not enable it unless the competition rules authorize it.
-
 ## Policy
 
 Edit `config/policy.json`.
 
-V1 defaults are conservative:
+V1 defaults:
 
+- authorized CTF only
 - external web research: off
 - challenge network access: off
 - auto-submit: off
 - Codex sandbox: `workspace-write`
 - approval policy: `never`
-- one persistent Codex thread per challenge\n- benchmark model: `gpt-5.6-luna`\n- benchmark reasoning effort: `medium`
+- one persistent Codex thread per challenge
+- benchmark model: `gpt-5.6-luna`
+- benchmark reasoning effort: `medium`
 
-`max_continuation_rounds` is a cost/runaway guardrail, **not** a difficulty estimate. No point value or solve count is used to decide challenge difficulty.
+`max_continuation_rounds` is a runaway/cost guardrail, **not** a difficulty estimate.
 
 ## Workspace state
 
@@ -109,15 +134,26 @@ runs/<id>/
 └── workspace/
     ├── AGENTS.md
     ├── CHALLENGE.md
+    ├── PREFLIGHT.md
+    ├── SKILL_PROOF.md   # created by Codex when skill routing succeeds
     ├── FINDINGS.md
     ├── artifacts/
     └── solve/
 ```
 
-Milestone 2A adds deterministic preflight. The first crypto detector identifies repeated nonce/IV use in JSON artifacts and highlights AES-CTR keystream reuse before Codex begins.
+Before a fresh solve, the previous run is moved to:
 
-Milestone 2B adds selective V2 skill retrieval. The runner auto-discovers a sibling `codex-skills` or `codex-skills-github` repository (or `CTF_RACER_SKILLS_PATH`) and copies only relevant technique sections into `SKILLS.md`. For CTR nonce reuse this includes the crypto router, nonce-reuse guidance, and many-time-pad crib-dragging technique instead of loading the entire crypto library.
+```text
+runs/_history/<challenge-id>/<timestamp>/
+```
 
-Before a fresh solve, the previous run is moved to `runs/_history/<challenge-id>/<timestamp>/` so benchmark traces are preserved.
+so benchmark traces are preserved.
 
-Future milestones will add broader category preflight, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
+## Current milestones
+
+- V1: one challenge → one persistent Codex agent
+- V1.1: real archived benchmark
+- V2A: deterministic crypto preflight
+- V2B: **installed Codex skill routing** (no duplicated manual skill injection)
+
+Future work: broader preflight modules, stall detection, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
