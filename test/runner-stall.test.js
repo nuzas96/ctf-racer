@@ -20,7 +20,7 @@ class RepeatingSession {
 test("stops after repeated stalled rounds while reusing the same session", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-runner-stall-"));
   fs.mkdirSync(path.join(root, "solve"), { recursive: true });
-  fs.writeFileSync(path.join(root, "FINDINGS.md"), "# Validated findings\n\n");
+  fs.writeFileSync(path.join(root, "PROGRESS.md"), "# Validated findings\n\n");
 
   const state = {
     challenge_id: "stall-test",
