@@ -29,19 +29,15 @@ export function makeChallengeMarkdown(challenge) {
 
 export function makeAgentInstructions() {
   return `# CTF Racer Agent Instructions\n\n` +
-    `You are the single persistent solver assigned to this challenge.\n\n` +
-    `Rules:\n` +
-    `- This workspace is for an authorized CTF challenge only.\n` +
-    `- Read PREFLIGHT.md before broad exploration; it contains deterministic triage evidence generated before you start.\n` +
-    `- Use the installed Codex category skill selected by the runner; do not expect copied skill content in this workspace.\n` +
-    `- Work only on the challenge described in CHALLENGE.md and artifacts in artifacts/.\n` +
-    `- Prefer evidence-driven experiments over speculation.\n` +
-    `- Keep useful scripts under solve/.\n` +
-    `- Record concise validated discoveries in FINDINGS.md.\n` +
-    `- Do not erase useful prior state unless replacing it with a better result.\n` +
-    `- When you have a candidate flag, verify it locally when possible.\n` +
-    `- When verified, include exactly one line in your final response: CTF_RACER_FLAG=<flag>\n` +
-    `- If not solved yet, state the strongest confirmed primitive/evidence and the next experiment.\n`;
+    `You are the single persistent solver assigned to this authorized CTF challenge.\n\n` +
+    `- Use $ctf-solve for solve lifecycle, evidence-first iterations, PROGRESS.md discipline, pivots and stuck recovery.\n` +
+    `- Use exactly one primary category skill unless concrete evidence proves a cross-category boundary.\n` +
+    `- Read PREFLIGHT.md as deterministic observation supplied by the controller.\n` +
+    `- PROGRESS.md is the canonical persistent solve log; append important evidence instead of rewriting history.\n` +
+    `- Work only on CHALLENGE.md and artifacts/.\n` +
+    `- Keep useful scripts/results under solve/.\n` +
+    `- Verify candidate flags locally when possible.\n` +
+    `- When verified, include exactly one final line: CTF_RACER_FLAG=<flag>\n`;
 }
 
 export function prepareWorkspace(projectRoot, sourceDir, challenge) {
@@ -49,8 +45,6 @@ export function prepareWorkspace(projectRoot, sourceDir, challenge) {
   const workspace = path.join(runRoot, "workspace");
   const artifacts = path.join(workspace, "artifacts");
 
-  // Every explicit solve invocation starts with a clean workspace, but preserve
-  // the previous run for benchmark comparison instead of deleting its evidence.
   if (fs.existsSync(runRoot)) {
     const historyRoot = path.join(projectRoot, "runs", "_history", safeChallengeId(challenge.id));
     fs.mkdirSync(historyRoot, { recursive: true });
@@ -64,7 +58,7 @@ export function prepareWorkspace(projectRoot, sourceDir, challenge) {
 
   fs.writeFileSync(path.join(workspace, "CHALLENGE.md"), makeChallengeMarkdown(challenge));
   fs.writeFileSync(path.join(workspace, "AGENTS.md"), makeAgentInstructions());
-  fs.writeFileSync(path.join(workspace, "FINDINGS.md"), "# Validated findings\n\n");
+  fs.writeFileSync(path.join(workspace, "PROGRESS.md"), "# Progress\n\n");
 
   const now = new Date().toISOString();
   const state = {
