@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { appendRunLog, writeState } from "./workspace.js";
-import { extractFlag } from "./flag.js";
+import { extractFlag, verifyFlagCandidate } from "./flag.js";
 import { continuationPrompt, initialPrompt } from "./prompt.js";
 import { evaluateRound, snapshotProgress } from "./stall.js";
 
@@ -66,11 +66,26 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
 
       const flag = extractFlag(turn.finalResponse, challenge.flag_regex, challenge.flag_format);
       if (flag) {
-        state.status = "solved";
         state.flag = flag;
         state.consecutive_stalls = 0;
+
+        if (challenge.flag_sha256) {
+          state.flag_verified = verifyFlagCandidate(flag, challenge.flag_sha256);
+          state.status = state.flag_verified ? "solved" : "candidate";
+          finishState(state, runRoot, startedMs);
+          appendRunLog(
+            runRoot,
+            state.flag_verified
+              ? `verified flag: ${flag}`
+              : `unverified flag candidate rejected by benchmark hash: ${flag}`
+          );
+          return { state, responses };
+        }
+
+        state.flag_verified = false;
+        state.status = "candidate";
         finishState(state, runRoot, startedMs);
-        appendRunLog(runRoot, `flag detected: ${flag}`);
+        appendRunLog(runRoot, `unverified flag candidate: ${flag}`);
         return { state, responses };
       }
 
