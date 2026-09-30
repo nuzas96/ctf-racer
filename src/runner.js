@@ -12,7 +12,7 @@ function finishState(state, runRoot, startedMs) {
   writeState(runRoot, state);
 }
 
-export async function solveChallenge({ challenge, policy, state, runRoot, session, skillName }) {
+export async function solveChallenge({ challenge, policy, state, runRoot, session, skillNames }) {
   const responses = [];
   const startedMs = Date.now();
   let consecutiveStalls = 0;
@@ -34,8 +34,8 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
 
       const before = snapshotProgress(state.workspace);
       const prompt = round === 1
-        ? initialPrompt(challenge, policy, skillName)
-        : continuationPrompt(round, skillName, previousAssessment);
+        ? initialPrompt(challenge, policy, skillNames)
+        : continuationPrompt(round, skillNames, previousAssessment);
 
       const turn = await session.run(prompt);
       const after = snapshotProgress(state.workspace);
