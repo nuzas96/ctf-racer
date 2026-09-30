@@ -1,5 +1,7 @@
+import crypto from "node:crypto";
+
 function normalizeCandidate(value) {
-  return typeof value === "string" ? value.trim().replace(/^\`+|\`+$/g, "") : "";
+  return typeof value === "string" ? value.trim().replace(/^`+|`+$/g, "") : "";
 }
 
 function isPlaceholder(candidate, flagFormat) {
@@ -41,4 +43,11 @@ export function extractFlag(response, configuredRegex, flagFormat) {
     return candidate;
   }
   return undefined;
+}
+
+export function verifyFlagCandidate(candidate, expectedSha256) {
+  if (!candidate || !expectedSha256) return false;
+  if (!/^[a-f0-9]{64}$/i.test(expectedSha256)) return false;
+  const actual = crypto.createHash("sha256").update(candidate, "utf8").digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(actual, "hex"), Buffer.from(expectedSha256.toLowerCase(), "hex"));
 }
