@@ -74,7 +74,7 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
   const cliPath = path.join(projectRoot, "src", "cli.js");
 
   for (let index = 1; index <= runs; index++) {
-    console.log("\\n[ctf-racer] benchmark run " + index + "/" + runs);
+    console.log("\n[ctf-racer] benchmark run " + index + "/" + runs);
     const child = spawnSync(
       process.execPath,
       [cliPath, "solve", sourceDir],
@@ -112,6 +112,6 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
     runs: results,
   };
 
-  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + "\\n");
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + "\n");
   return { report, outputPath };
 }
