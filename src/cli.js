@@ -138,9 +138,9 @@ console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
 console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
 console.log("[ctf-racer] policy: one challenge -> one persistent Codex thread");
 console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
-console.log(`[ctf-racer] skill route: ${skillNames.map((name) => `${name}`).join(" + ")}`);
+console.log(`[ctf-racer] skill route: ${skillNames.map((name) => `$${name}`).join(" + ")}`);
 for (const skill of installedSkills) {
-  console.log(`[ctf-racer] skill local: ${skill.name} ${skill.found ? skill.path : "(not detected in local documented paths)"}`);
+  console.log(`[ctf-racer] skill local: $${skill.name} ${skill.found ? skill.path : "(not detected in local documented paths)"}`);
 }
 
 const result = await solveChallenge({ challenge, policy, state, runRoot, session, skillNames });
@@ -157,7 +157,7 @@ if (skillNames.length > 0) {
   writeState(runRoot, result.state);
   console.log(`[ctf-racer] skill proof: ${proof.status}`);
   for (const skill of proof.skills) {
-    console.log(`[ctf-racer] skill proof item: ${skill.name} ${skill.verified ? skill.path : "(not verified)"}`);
+    console.log(`[ctf-racer] skill proof item: $${skill.name} ${skill.verified ? skill.path : "(not verified)"}`);
   }
 }
 
