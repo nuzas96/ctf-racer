@@ -9,6 +9,7 @@ import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
 import { detectInstalledSkill, skillNamesForChallenge, verifySkillProof } from "./skill-route.js";
 import { solveChallenge } from "./runner.js";
+import { runBenchmark } from "./benchmark.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -17,6 +18,7 @@ function usage() {
   console.error("Usage:");
   console.error("  npm run racer -- solve <challenge-directory>");
   console.error("  npm run racer -- inspect <challenge-directory>");
+  console.error("  npm run racer -- benchmark <challenge-directory> [--runs N]");
   process.exit(2);
 }
 
@@ -92,14 +94,39 @@ function inspectRun(sourceDir) {
   console.log(`\n[ctf-racer] full run: ${runRoot}`);
 }
 
-const [, , command, sourceArg] = process.argv;
-if (!["solve", "inspect"].includes(command) || !sourceArg) usage();
+const [, , command, sourceArg, ...restArgs] = process.argv;
+if (!["solve", "inspect", "benchmark"].includes(command) || !sourceArg) usage();
+
+function parseBenchmarkRuns(args) {
+  const index = args.indexOf("--runs");
+  if (index === -1) return 5;
+  const value = Number(args[index + 1]);
+  if (!Number.isInteger(value) || value < 1 || value > 50) {
+    throw new Error("--runs must be an integer from 1 to 50");
+  }
+  return value;
+}
 
 const sourceDir = path.resolve(process.cwd(), sourceArg);
 if (!fs.existsSync(sourceDir)) throw new Error(`Challenge directory not found: ${sourceDir}`);
 
 if (command === "inspect") {
   inspectRun(sourceDir);
+  process.exit(0);
+}
+
+if (command === "benchmark") {
+  const runs = parseBenchmarkRuns(restArgs);
+  const { report, outputPath } = runBenchmark({ projectRoot, sourceDir, runs });
+  console.log("\n[ctf-racer] benchmark summary");
+  console.log("[ctf-racer] verified solves: " + report.summary.verified_solves + "/" + report.summary.total_runs);
+  console.log("[ctf-racer] verified solve rate: " + (report.summary.verified_solve_rate * 100).toFixed(1) + "%");
+  console.log("[ctf-racer] median verified TTF: " + (report.summary.median_verified_ttf_ms === null ? "n/a" : seconds(report.summary.median_verified_ttf_ms) + "s"));
+  console.log("[ctf-racer] median all-run time: " + (report.summary.median_all_elapsed_ms === null ? "n/a" : seconds(report.summary.median_all_elapsed_ms) + "s"));
+  console.log("[ctf-racer] mean rounds: " + (report.summary.mean_rounds ?? "n/a"));
+  console.log("[ctf-racer] stalls: " + report.summary.total_stalls);
+  console.log("[ctf-racer] rejected candidates: " + report.summary.total_rejected_candidates);
+  console.log("[ctf-racer] report: " + outputPath);
   process.exit(0);
 }
 
