@@ -17,9 +17,19 @@ function progressContract() {
 }
 
 function steeringInstruction(previousAssessment) {
-  if (!previousAssessment?.stalled) return "";
-  const reasons = previousAssessment.reasons?.join("; ") || "no measurable progress";
-  return `The controller detected a stall in the previous round: ${reasons}. Keep the same persistent solve state. Use $ctf-solve's evidence-first and stuck-recovery discipline to choose the next justified path; do not repeat the same command/payload/hypothesis without new evidence. Preserve validated evidence in PROGRESS.md. Do not declare the challenge blocked until the canonical stuck-recovery gate has been applied when appropriate.\n\n`;
+  if (!previousAssessment) return "";
+
+  let instruction = "";
+  if (previousAssessment.rejectedFlag) {
+    instruction += `The controller independently rejected the previous flag candidate ${previousAssessment.rejectedFlag}. Treat that candidate as disproven evidence; do not emit it again unless new evidence changes the verifier result. Continue from the strongest validated state.\n\n`;
+  }
+
+  if (previousAssessment.stalled) {
+    const reasons = previousAssessment.reasons?.join("; ") || "no measurable progress";
+    instruction += `The controller detected a stall in the previous round: ${reasons}. Keep the same persistent solve state. Use $ctf-solve's evidence-first and stuck-recovery discipline to choose the next justified path; do not repeat the same command/payload/hypothesis without new evidence. Preserve validated evidence in PROGRESS.md. Do not declare the challenge blocked until the canonical stuck-recovery gate has been applied when appropriate.\n\n`;
+  }
+
+  return instruction;
 }
 
 export function initialPrompt(challenge, policy, skillNames = []) {
