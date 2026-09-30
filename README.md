@@ -11,9 +11,9 @@ This milestone intentionally does **not** use multiple agents for the same chall
 1. Reads a local authorized CTF challenge definition.
 2. Creates `runs/<challenge-id>/workspace/`.
 3. Copies challenge artifacts into that workspace.
-4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, `FINDINGS.md`, and run state.
+4. Creates `CHALLENGE.md`, `AGENTS.md`, `PREFLIGHT.md`, minimal canonical `PROGRESS.md`, and run state.
 5. Runs deterministic category-aware preflight before the Codex agent starts.
-6. Routes the challenge to the user's **installed Codex skill** (for example `$ctf-crypto`) instead of copying skill content into the workspace.
+6. Routes the solve through the installed **`$ctf-solve` lifecycle skill plus exactly one primary category skill** (for example `$ctf-crypto`) instead of copying skill content into the workspace.
 7. Starts one persistent Codex SDK thread with `workspace-write` sandboxing.
 8. Rejects advertised flag placeholders such as `NADI{...}` before marking a run solved.
 9. Saves responses, run state, timing, skill proof, and prior-run history for benchmarking.
@@ -62,11 +62,11 @@ Meridian Vault Systems {2}
         ↓
 deterministic crypto preflight
         ↓
-route $ctf-crypto
+route $ctf-solve + $ctf-crypto
         ↓
-Codex loads the installed ctf-crypto skill
+Codex loads the installed ctf-solve lifecycle skill and ctf-crypto category skill
         ↓
-one persistent Luna agent
+one persistent GPT-6 Luna agent
         ↓
 solve / continuation rounds
 ```
@@ -136,7 +136,7 @@ runs/<id>/
     ├── CHALLENGE.md
     ├── PREFLIGHT.md
     ├── SKILL_PROOF.md   # created by Codex when skill routing succeeds
-    ├── FINDINGS.md
+    ├── PROGRESS.md
     ├── artifacts/
     └── solve/
 ```
@@ -154,17 +154,17 @@ so benchmark traces are preserved.
 - V1: one challenge → one persistent Codex agent
 - V1.1: real archived benchmark
 - V2A: deterministic crypto preflight
-- V2B: **installed Codex skill routing** (no duplicated manual skill injection)
+- V2B: **installed Codex skill routing** using the canonical `ctf-solve + ONE category skill` activation model
 - V3: **stall detection + same-agent steering**
 
 ## Stall detection
 
 After each unsolved round, the runner compares:
-- changes to `FINDINGS.md` and files under `solve/`;
+- changes to `PROGRESS.md` and files under `solve/`;
 - an explicit `CTF_RACER_PROGRESS=...` or `CTF_RACER_STALLED=...` marker;
 - response similarity against earlier rounds.
 
-If a round stalls, the **same persistent Codex thread** receives a steering prompt that forbids repeating the same hypothesis or commands and requires a materially different experiment. By default, two consecutive stalled rounds stop the run as `STALLED` rather than wasting the remaining continuation budget.
+If a round stalls, the **same persistent Codex thread** is steered back through `$ctf-solve`'s evidence-first and stuck-recovery discipline; CTF Racer detects the stall but does not duplicate the recovery methodology. By default, two consecutive stalled rounds stop the run as `STALLED` rather than wasting the remaining continuation budget.
 
 Relevant policy fields:
 
@@ -188,4 +188,4 @@ Use the current saved run to inspect round-level progress/stall diagnostics with
 npm run racer -- inspect benchmarks/meridian-vault-2
 ```
 
-This prints the run status, timing, stall count, per-round diagnostics, current `FINDINGS.md`, and files created under `solve/`.
+This prints the run status, timing, stall count, per-round diagnostics, current `PROGRESS.md`, and files created under `solve/`.
