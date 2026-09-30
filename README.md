@@ -234,3 +234,20 @@ runs/_benchmarks/<challenge-id>/<timestamp>.json
 ```
 
 Use at least several repeated runs before drawing model or architecture conclusions from stochastic outcomes.
+
+
+### Inspect the latest benchmark without model calls
+
+After a repeat benchmark, compare the saved traces without invoking Codex:
+
+```bash
+npm run racer -- benchmark-inspect benchmarks/meridian-vault-2
+```
+
+This reconstructs the runs associated with the latest benchmark report from the current run plus archived histories and prints, for each run:
+
+- status, elapsed time, rounds, stalls, rejected candidates, and skill-proof state;
+- per-round progress/stall markers and response similarity;
+- a compact summary of canonical `PROGRESS.md`.
+
+Use this before changing prompts, skills, preflight, or model settings after a poor benchmark result.
