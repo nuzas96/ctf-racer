@@ -54,7 +54,7 @@ test("stops after repeated stalled rounds while reusing the same session", async
     state,
     runRoot: root,
     session,
-    skillName: null,
+    skillNames: [],
   });
 
   assert.equal(result.state.status, "stalled");
