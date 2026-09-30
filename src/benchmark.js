@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
+import { loadPolicy } from "./config.js";
 
 function median(values) {
   if (values.length === 0) return null;
@@ -80,13 +81,9 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
       {
         cwd: projectRoot,
         env: process.env,
-        encoding: "utf8",
-        stdio: ["inherit", "pipe", "pipe"],
+        stdio: "inherit",
       }
     );
-
-    if (child.stdout) process.stdout.write(child.stdout);
-    if (child.stderr) process.stderr.write(child.stderr);
 
     const statePath = path.join(projectRoot, "runs", challengeId, "state.json");
     if (!fs.existsSync(statePath)) {
@@ -98,6 +95,7 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
   }
 
   const summary = summarizeRuns(results);
+  const policy = loadPolicy(projectRoot);
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const outputDir = path.join(projectRoot, "runs", "_benchmarks", challengeId);
   fs.mkdirSync(outputDir, { recursive: true });
@@ -108,6 +106,8 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
     challenge_title: challenge.title,
     created_at: new Date().toISOString(),
     requested_runs: runs,
+    model: policy.model,
+    reasoning: policy.model_reasoning_effort,
     summary,
     runs: results,
   };
