@@ -25,10 +25,12 @@ function digestFiles(files, base) {
 }
 
 export function snapshotProgress(workspace) {
-  const findings = path.join(workspace, "FINDINGS.md");
+  const progress = path.join(workspace, "PROGRESS.md");
+  const legacyFindings = path.join(workspace, "FINDINGS.md");
   const solveDir = path.join(workspace, "solve");
   const files = [];
-  if (fs.existsSync(findings)) files.push(findings);
+  if (fs.existsSync(progress)) files.push(progress);
+  else if (fs.existsSync(legacyFindings)) files.push(legacyFindings);
   files.push(...walk(solveDir));
 
   return {
