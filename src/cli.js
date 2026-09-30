@@ -9,7 +9,7 @@ import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
 import { detectInstalledSkill, skillNamesForChallenge, verifySkillProof } from "./skill-route.js";
 import { solveChallenge } from "./runner.js";
-import { runBenchmark } from "./benchmark.js";
+import { inspectLatestBenchmark, runBenchmark } from "./benchmark.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -19,6 +19,7 @@ function usage() {
   console.error("  npm run racer -- solve <challenge-directory>");
   console.error("  npm run racer -- inspect <challenge-directory>");
   console.error("  npm run racer -- benchmark <challenge-directory> [--runs N]");
+  console.error("  npm run racer -- benchmark-inspect <challenge-directory>");
   process.exit(2);
 }
 
@@ -95,7 +96,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect"].includes(command) || !sourceArg) usage();
 
 function parseBenchmarkRuns(args) {
   const index = args.indexOf("--runs");
@@ -127,6 +128,36 @@ if (command === "benchmark") {
   console.log("[ctf-racer] stalls: " + report.summary.total_stalls);
   console.log("[ctf-racer] rejected candidates: " + report.summary.total_rejected_candidates);
   console.log("[ctf-racer] report: " + outputPath);
+  process.exit(0);
+}
+
+if (command === "benchmark-inspect") {
+  const inspected = inspectLatestBenchmark({ projectRoot, sourceDir });
+  console.log("[ctf-racer] benchmark report: " + inspected.reportPath);
+  for (const run of inspected.runs) {
+    console.log("\n=== RUN " + run.run + " ===");
+    console.log("status=" + run.status +
+      " elapsed=" + (run.elapsed_ms === null ? "n/a" : seconds(run.elapsed_ms) + "s") +
+      " rounds=" + run.rounds +
+      " stalls=" + run.stall_count +
+      " rejected=" + run.rejected_candidates.length +
+      " skill_proof=" + run.skill_proof_verified);
+    for (const diag of run.diagnostics) {
+      const signal = diag.progress_marker
+        ? "progress=" + diag.progress_marker
+        : diag.stalled_marker
+          ? "stalled=" + diag.stalled_marker
+          : "no-marker";
+      console.log("r" + diag.round +
+        " stalled=" + diag.stalled +
+        " similarity=" + diag.max_response_similarity +
+        " " + signal +
+        (diag.rejected_flag_candidate ? " rejected_flag=" + diag.rejected_flag_candidate : ""));
+    }
+    console.log("-- progress summary --");
+    if (run.progress_summary.length === 0) console.log("(none)");
+    else for (const line of run.progress_summary) console.log(line);
+  }
   process.exit(0);
 }
 
