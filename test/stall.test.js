@@ -12,10 +12,10 @@ import {
 test("workspace changes count as measurable progress", () => {
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-stall-"));
   fs.mkdirSync(path.join(workspace, "solve"), { recursive: true });
-  fs.writeFileSync(path.join(workspace, "FINDINGS.md"), "# findings\n");
+  fs.writeFileSync(path.join(workspace, "PROGRESS.md"), "# findings\n");
 
   const before = snapshotProgress(workspace);
-  fs.appendFileSync(path.join(workspace, "FINDINGS.md"), "Recovered nonce reuse primitive.\n");
+  fs.appendFileSync(path.join(workspace, "PROGRESS.md"), "Recovered nonce reuse primitive.\n");
   const after = snapshotProgress(workspace);
 
   const result = evaluateRound({
