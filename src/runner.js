@@ -17,6 +17,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
   const startedMs = Date.now();
   let consecutiveStalls = 0;
   let previousAssessment = null;
+  state.rejected_candidates = [];
 
   state.status = "running";
   state.started_at = new Date(startedMs).toISOString();
@@ -71,22 +72,26 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
 
         if (challenge.flag_sha256) {
           state.flag_verified = verifyFlagCandidate(flag, challenge.flag_sha256);
-          state.status = state.flag_verified ? "solved" : "candidate";
+          if (state.flag_verified) {
+            state.status = "solved";
+            finishState(state, runRoot, startedMs);
+            appendRunLog(runRoot, `verified flag: ${flag}`);
+            return { state, responses };
+          }
+
+          state.rejected_candidates.push({ round, candidate: flag });
+          state.flag = undefined;
+          state.flag_verified = false;
+          assessment.rejectedFlag = flag;
+          state.round_diagnostics[state.round_diagnostics.length - 1].rejected_flag_candidate = flag;
+          appendRunLog(runRoot, `benchmark verifier rejected flag candidate: ${flag}`);
+        } else {
+          state.flag_verified = false;
+          state.status = "candidate";
           finishState(state, runRoot, startedMs);
-          appendRunLog(
-            runRoot,
-            state.flag_verified
-              ? `verified flag: ${flag}`
-              : `unverified flag candidate rejected by benchmark hash: ${flag}`
-          );
+          appendRunLog(runRoot, `unverified flag candidate: ${flag}`);
           return { state, responses };
         }
-
-        state.flag_verified = false;
-        state.status = "candidate";
-        finishState(state, runRoot, startedMs);
-        appendRunLog(runRoot, `unverified flag candidate: ${flag}`);
-        return { state, responses };
       }
 
       if (assessment.stalled) {
