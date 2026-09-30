@@ -161,8 +161,12 @@ if (skillNames.length > 0) {
 }
 
 if (result.state.status === "solved") {
-  console.log(`\n[ctf-racer] SOLVED: ${result.state.flag}`);
+  console.log(`\n[ctf-racer] SOLVED (verified): ${result.state.flag}`);
   process.exit(0);
+}
+
+if (result.state.status === "candidate") {
+  console.log(`\n[ctf-racer] CANDIDATE (not independently verified): ${result.state.flag}`);
 }
 
 console.log(`\n[ctf-racer] ${result.state.status.toUpperCase()} after ${result.state.rounds} persistent rounds.`);
