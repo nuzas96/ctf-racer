@@ -15,7 +15,7 @@ This milestone intentionally does **not** use multiple agents for the same chall
 5. Runs deterministic category-aware preflight before the Codex agent starts.
 6. Routes the solve through the installed **`$ctf-solve` lifecycle skill plus exactly one primary category skill** (for example `$ctf-crypto`) instead of copying skill content into the workspace.
 7. Starts one persistent Codex SDK thread with `workspace-write` sandboxing.
-8. Rejects advertised flag placeholders such as `NADI{...}` before marking a run solved.
+8. Rejects advertised flag placeholders and separates extracted candidates from independently verified benchmark flags.
 9. Saves responses, run state, timing, skill proof, and prior-run history for benchmarking.
 
 ## Requirements
@@ -191,3 +191,16 @@ npm run racer -- inspect benchmarks/meridian-vault-2
 ```
 
 This prints the run status, timing, stall count, per-round diagnostics, current `PROGRESS.md`, and files created under `solve/`.
+
+
+## Candidate vs verified flag
+
+CTF Racer now separates model-produced flag candidates from independently verified solves.
+
+- `flag_regex` and `CTF_RACER_FLAG=...` identify a **candidate** only.
+- Archived benchmarks and local fixtures can include a controller-side `flag_sha256`. The raw flag is not placed in the agent workspace.
+- A candidate whose SHA-256 matches the benchmark hash becomes `SOLVED (verified)`.
+- A benchmark candidate that fails verification is recorded under `rejected_candidates` and the **same persistent Codex thread continues** with verifier feedback.
+- A live challenge without an independent verifier stops at `CANDIDATE`; later competition-platform submission can become the authoritative verifier when that integration is enabled.
+
+This prevents plausible-looking or truncated flags from being counted as solved benchmarks.
