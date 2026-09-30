@@ -60,8 +60,12 @@ test("verified benchmark flag becomes solved", async () => {
   assert.equal(result.state.flag, "FLAG{done}");
 });
 
-test("wrong benchmark flag becomes candidate, not solved", async () => {
+test("wrong benchmark flag is rejected and the same session continues", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-test-"));
+  const session = new MockSession([
+    "CTF_RACER_FLAG=FLAG{wrong}",
+    "CTF_RACER_FLAG=FLAG{done}",
+  ]);
   const result = await solveChallenge({
     challenge: {
       id: "x",
@@ -73,12 +77,17 @@ test("wrong benchmark flag becomes candidate, not solved", async () => {
     policy: basePolicy(),
     state: baseState(root),
     runRoot: root,
-    session: new MockSession(["CTF_RACER_FLAG=FLAG{wrong}"]),
+    session,
     skillNames: [],
   });
 
-  assert.equal(result.state.status, "candidate");
-  assert.equal(result.state.flag_verified, false);
+  assert.equal(result.state.status, "solved");
+  assert.equal(result.state.rounds, 2);
+  assert.equal(result.state.flag, "FLAG{done}");
+  assert.equal(result.state.flag_verified, true);
+  assert.deepEqual(result.state.rejected_candidates, [
+    { round: 1, candidate: "FLAG{wrong}" },
+  ]);
 });
 
 test("live challenge without verifier remains candidate", async () => {
