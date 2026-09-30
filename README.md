@@ -74,7 +74,9 @@ solve / continuation rounds
 The runner asks the agent to create `SKILL_PROOF.md` after loading the routed skill. The CLI verifies that the reported `SKILL.md` path exists and prints one of:
 
 ```text
-[ctf-racer] skill proof: verified (/home/.../.codex/skills/ctf-crypto/SKILL.md)
+[ctf-racer] skill proof: verified
+[ctf-racer] skill proof item: $ctf-solve /home/.../.codex/skills/ctf-solve/SKILL.md
+[ctf-racer] skill proof item: $ctf-crypto /home/.../.codex/skills/ctf-crypto/SKILL.md
 ```
 
 or a non-verified status. This is diagnostic evidence for benchmark runs; it does not replace the Codex skill system.
