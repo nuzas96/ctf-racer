@@ -54,7 +54,7 @@ function inspectRun(sourceDir) {
   console.log(`[ctf-racer] status: ${state.status}`);
   console.log(`[ctf-racer] rounds: ${state.rounds ?? 0}`);
   console.log(`[ctf-racer] elapsed: ${seconds(state.elapsed_ms ?? 0)}s`);
-  console.log(`[ctf-racer] stalls: ${state.stall_count ?? 0}`);
+  console.log(`[ctf-racer] stalls: ${state.stall_count ?? 0}`);\n  console.log(`[ctf-racer] rejected candidates: ${(state.rejected_candidates ?? []).length}`);
 
   const diagnostics = state.round_diagnostics ?? [];
   console.log("\n[ctf-racer] round diagnostics:");
