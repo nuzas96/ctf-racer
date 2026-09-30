@@ -158,6 +158,7 @@ so benchmark traces are preserved.
 - V2A: deterministic crypto preflight
 - V2B: **installed Codex skill routing** using the canonical `ctf-solve + ONE category skill` activation model
 - V3: **stall detection + same-agent steering**
+- V3.1: **repeatable verified benchmark harness**
 
 ## Stall detection
 
@@ -179,7 +180,7 @@ Relevant policy fields:
 
 Round-level diagnostics are written into `state.json`.
 
-Future work: broader preflight modules, multi-challenge concurrency, CTFd intake, dashboarding, and benchmark metrics.
+Future work: broader preflight modules, multi-challenge concurrency, CTFd intake, and dashboarding.
 
 
 ## Inspect an existing run without calling the model
@@ -204,3 +205,32 @@ CTF Racer now separates model-produced flag candidates from independently verifi
 - A live challenge without an independent verifier stops at `CANDIDATE`; later competition-platform submission can become the authoritative verifier when that integration is enabled.
 
 This prevents plausible-looking or truncated flags from being counted as solved benchmarks.
+
+
+## Repeatable benchmark harness
+
+Use sequential repeat runs to measure architecture consistency before enabling multi-challenge concurrency:
+
+```bash
+npm run racer -- benchmark benchmarks/meridian-vault-2 --runs 5
+```
+
+The harness requires `flag_sha256` so only independently verified solves count toward solve rate. Each repetition remains one challenge -> one persistent Codex thread; runs are executed sequentially.
+
+The summary records:
+
+- verified solve count and verified solve rate;
+- median verified Time-To-Flag;
+- median elapsed time across all runs;
+- mean continuation rounds;
+- total stalls;
+- total rejected flag candidates;
+- per-run skill-proof status and exit code.
+
+Reports are saved under:
+
+```text
+runs/_benchmarks/<challenge-id>/<timestamp>.json
+```
+
+Use at least several repeated runs before drawing model or architecture conclusions from stochastic outcomes.
