@@ -7,7 +7,7 @@ import { loadPolicy } from "./config.js";
 import { CodexAgentSession } from "./agent.js";
 import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
-import { detectInstalledSkill, skillNameForChallenge, verifySkillProof } from "./skill-route.js";
+import { detectInstalledSkill, skillNamesForChallenge, verifySkillProof } from "./skill-route.js";
 import { solveChallenge } from "./runner.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -46,7 +46,8 @@ function inspectRun(sourceDir) {
 
   const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
   const workspace = state.workspace || path.join(runRoot, "workspace");
-  const findingsPath = path.join(workspace, "FINDINGS.md");
+  const progressPath = path.join(workspace, "PROGRESS.md");
+  const legacyFindingsPath = path.join(workspace, "FINDINGS.md");
   const solveDir = path.join(workspace, "solve");
 
   console.log(`[ctf-racer] inspect: ${challenge.title}`);
@@ -73,10 +74,11 @@ function inspectRun(sourceDir) {
     }
   }
 
-  console.log("\n[ctf-racer] FINDINGS.md:");
-  if (fs.existsSync(findingsPath)) {
-    const findings = fs.readFileSync(findingsPath, "utf8").trim();
-    console.log(findings || "(empty)");
+  console.log("\n[ctf-racer] PROGRESS.md:");
+  const progressFile = fs.existsSync(progressPath) ? progressPath : legacyFindingsPath;
+  if (fs.existsSync(progressFile)) {
+    const progress = fs.readFileSync(progressFile, "utf8").trim();
+    console.log(progress || "(empty)");
   } else {
     console.log("(missing)");
   }
@@ -112,12 +114,18 @@ state.preflight = {
   high_count: preflight.highCount,
 };
 
-const skillName = skillNameForChallenge(challenge);
-const installedSkill = detectInstalledSkill(skillName, state.workspace);
+const skillNames = skillNamesForChallenge(challenge);
+const installedSkills = skillNames.map((name) => ({
+  name,
+  ...detectInstalledSkill(name, state.workspace),
+}));
 state.skill_route = {
-  expected_skill: skillName,
-  local_detected: installedSkill.found,
-  local_path: installedSkill.path,
+  expected_skills: skillNames,
+  installed: installedSkills.map((skill) => ({
+    name: skill.name,
+    local_detected: skill.found,
+    local_path: skill.path,
+  })),
 };
 writeState(runRoot, state);
 
@@ -129,21 +137,27 @@ console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
 console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
 console.log("[ctf-racer] policy: one challenge -> one persistent Codex thread");
 console.log(`[ctf-racer] preflight: ${preflight.findingCount} finding(s), ${preflight.highCount} high-confidence`);
-console.log(`[ctf-racer] skill route: ${skillName ? `$${skillName}` : "none"}${installedSkill.found ? ` (${installedSkill.path})` : " (not detected in local documented paths)"}`);
+console.log(`[ctf-racer] skill route: ${skillNames.map((name) => `${name}`).join(" + ")}`);
+for (const skill of installedSkills) {
+  console.log(`[ctf-racer] skill local: ${skill.name} ${skill.found ? skill.path : "(not detected in local documented paths)"}`);
+}
 
-const result = await solveChallenge({ challenge, policy, state, runRoot, session, skillName });
+const result = await solveChallenge({ challenge, policy, state, runRoot, session, skillNames });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
 console.log(`[ctf-racer] elapsed: ${seconds(result.state.elapsed_ms ?? 0)}s`);
 
-if (skillName) {
-  const proof = verifySkillProof(state.workspace, skillName);
+if (skillNames.length > 0) {
+  const proof = verifySkillProof(state.workspace, skillNames);
   result.state.skill_proof = {
     verified: proof.verified,
     status: proof.status,
-    path: proof.skillPath,
+    skills: proof.skills,
   };
   writeState(runRoot, result.state);
-  console.log(`[ctf-racer] skill proof: ${proof.status}${proof.skillPath ? ` (${proof.skillPath})` : ""}`);
+  console.log(`[ctf-racer] skill proof: ${proof.status}`);
+  for (const skill of proof.skills) {
+    console.log(`[ctf-racer] skill proof item: ${skill.name} ${skill.verified ? skill.path : "(not verified)"}`);
+  }
 }
 
 if (result.state.status === "solved") {
