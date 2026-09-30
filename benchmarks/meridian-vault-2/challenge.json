@@ -4,5 +4,6 @@
   "category": "crypto",
   "description": "The {1} fragment came from a larger forensic pull that also included a batch of encrypted relay messages recovered from the same server. The service encrypts each outbound message with a stream-style AES mode before forwarding it. The engineering team maintains this is safe because the message key is refreshed daily and never leaves the box.",
   "flag_format": "NADI{...}",
-  "flag_regex": "NADI\\{[^}]+\\}"
+  "flag_regex": "NADI\\{[^}]+\\}",
+  "flag_sha256": "7c0b81f6de188eea8c5f3a3b44ff364d7d9cd108f2eb62d00995e1653602a72d"
 }
