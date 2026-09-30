@@ -12,6 +12,9 @@ export function loadChallenge(sourceDir) {
   const file = path.join(sourceDir, "challenge.json");
   if (!fs.existsSync(file)) throw new Error(`Missing ${file}`);
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
+  if (raw.flag_sha256 !== undefined && !/^[a-f0-9]{64}$/i.test(String(raw.flag_sha256))) {
+    throw new Error("challenge.json: flag_sha256 must be a 64-character SHA-256 hex digest");
+  }
   return {
     ...raw,
     id: requiredString(raw.id, "id"),
