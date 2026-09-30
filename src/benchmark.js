@@ -115,3 +115,103 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
   fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + "\n");
   return { report, outputPath };
 }
+
+
+function readJson(file) {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+function latestJsonFile(dir) {
+  if (!fs.existsSync(dir)) return null;
+  const files = fs.readdirSync(dir)
+    .filter((name) => name.endsWith(".json"))
+    .sort();
+  return files.length ? path.join(dir, files[files.length - 1]) : null;
+}
+
+function progressSummary(runRoot) {
+  const progressPath = path.join(runRoot, "workspace", "PROGRESS.md");
+  const legacyPath = path.join(runRoot, "workspace", "FINDINGS.md");
+  const file = fs.existsSync(progressPath) ? progressPath : legacyPath;
+  if (!fs.existsSync(file)) return [];
+
+  return fs.readFileSync(file, "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("## ") || line.startsWith("- "))
+    .slice(-24);
+}
+
+function runSnapshots(projectRoot, challengeId) {
+  const snapshots = [];
+  const currentRoot = path.join(projectRoot, "runs", challengeId);
+  const currentState = path.join(currentRoot, "state.json");
+  if (fs.existsSync(currentState)) {
+    snapshots.push({ root: currentRoot, state: readJson(currentState) });
+  }
+
+  const historyRoot = path.join(projectRoot, "runs", "_history", challengeId);
+  if (fs.existsSync(historyRoot)) {
+    for (const name of fs.readdirSync(historyRoot).sort()) {
+      const root = path.join(historyRoot, name);
+      const statePath = path.join(root, "state.json");
+      if (fs.existsSync(statePath)) {
+        snapshots.push({ root, state: readJson(statePath) });
+      }
+    }
+  }
+
+  return snapshots;
+}
+
+export function inspectLatestBenchmark({ projectRoot, sourceDir }) {
+  const challenge = loadChallenge(sourceDir);
+  const challengeId = safeChallengeId(challenge.id);
+  const reportDir = path.join(projectRoot, "runs", "_benchmarks", challengeId);
+  const reportPath = latestJsonFile(reportDir);
+  if (!reportPath) {
+    throw new Error("no benchmark report found for " + challenge.id);
+  }
+
+  const report = readJson(reportPath);
+  const reportTime = Date.parse(report.created_at);
+  const candidates = runSnapshots(projectRoot, challengeId)
+    .filter(({ state }) => {
+      const finished = Date.parse(state.finished_at ?? state.updated_at ?? "");
+      return Number.isFinite(finished) && finished <= reportTime + 5000;
+    })
+    .sort((a, b) => {
+      const left = Date.parse(a.state.finished_at ?? a.state.updated_at ?? "");
+      const right = Date.parse(b.state.finished_at ?? b.state.updated_at ?? "");
+      return left - right;
+    });
+
+  const selected = candidates.slice(-report.requested_runs);
+  if (selected.length !== report.requested_runs) {
+    throw new Error(
+      "expected " + report.requested_runs + " run snapshots but found " + selected.length
+    );
+  }
+
+  const runs = selected.map(({ root, state }, index) => ({
+    run: index + 1,
+    root,
+    status: state.status,
+    elapsed_ms: state.elapsed_ms ?? null,
+    rounds: state.rounds ?? 0,
+    stall_count: state.stall_count ?? 0,
+    rejected_candidates: state.rejected_candidates ?? [],
+    skill_proof_verified: state.skill_proof?.verified === true,
+    diagnostics: (state.round_diagnostics ?? []).map((item) => ({
+      round: item.round,
+      stalled: item.stalled,
+      progress_marker: item.progress_marker ?? null,
+      stalled_marker: item.stalled_marker ?? null,
+      rejected_flag_candidate: item.rejected_flag_candidate ?? null,
+      max_response_similarity: item.max_response_similarity ?? null,
+    })),
+    progress_summary: progressSummary(root),
+  }));
+
+  return { reportPath, report, runs };
+}
