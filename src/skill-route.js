@@ -2,6 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+export const ORCHESTRATOR_SKILL = "ctf-solve";
+
 const CATEGORY_SKILLS = {
   crypto: "ctf-crypto",
   web: "ctf-web",
@@ -11,12 +13,19 @@ const CATEGORY_SKILLS = {
   forensics: "ctf-forensics",
   osint: "ctf-osint",
   misc: "ctf-misc",
+  malware: "ctf-malware",
+  "ai-ml": "ctf-ai-ml",
   boot2root: "ctf-boot2root",
 };
 
 export function skillNameForChallenge(challenge) {
   const category = String(challenge?.category ?? "").trim().toLowerCase();
   return CATEGORY_SKILLS[category] ?? null;
+}
+
+export function skillNamesForChallenge(challenge) {
+  const categorySkill = skillNameForChallenge(challenge);
+  return categorySkill ? [ORCHESTRATOR_SKILL, categorySkill] : [ORCHESTRATOR_SKILL];
 }
 
 function repoSkillCandidates(cwd, skillName) {
@@ -51,36 +60,58 @@ export function detectInstalledSkill(skillName, cwd = process.cwd()) {
 }
 
 function parseProof(text) {
-  const values = {};
+  const skills = [];
   for (const line of text.split(/\r?\n/)) {
-    const index = line.indexOf("=");
-    if (index < 1) continue;
-    values[line.slice(0, index).trim()] = line.slice(index + 1).trim();
+    if (line.startsWith("CTF_RACER_SKILL=")) {
+      const raw = line.slice("CTF_RACER_SKILL=".length).trim();
+      const divider = raw.indexOf("|");
+      if (divider > 0) {
+        skills.push({
+          name: raw.slice(0, divider).trim(),
+          path: raw.slice(divider + 1).trim(),
+        });
+      }
+    }
   }
-  return values;
+
+  // Backward compatibility with the first single-skill proof format.
+  const legacyName = text.match(/^CTF_RACER_SKILL_NAME=(.+)$/m)?.[1]?.trim();
+  const legacyPath = text.match(/^CTF_RACER_SKILL_PATH=(.+)$/m)?.[1]?.trim();
+  if (legacyName && legacyPath) skills.push({ name: legacyName, path: legacyPath });
+
+  return skills;
 }
 
-export function verifySkillProof(workspace, expectedSkillName) {
+export function verifySkillProof(workspace, expectedSkillNames) {
+  const expected = Array.isArray(expectedSkillNames)
+    ? expectedSkillNames.filter(Boolean)
+    : [expectedSkillNames].filter(Boolean);
   const proofPath = path.join(workspace, "SKILL_PROOF.md");
+
   if (!fs.existsSync(proofPath)) {
-    return { verified: false, status: "missing", proofPath, skillPath: null };
+    return { verified: false, status: "missing", proofPath, skills: [] };
   }
 
-  const values = parseProof(fs.readFileSync(proofPath, "utf8"));
-  const name = values.CTF_RACER_SKILL_NAME;
-  const skillPath = values.CTF_RACER_SKILL_PATH;
+  const reported = parseProof(fs.readFileSync(proofPath, "utf8"));
+  const skills = expected.map((name) => {
+    const match = reported.find((item) => item.name === name);
+    const validPath = Boolean(
+      match?.path &&
+      path.isAbsolute(match.path) &&
+      fs.existsSync(match.path)
+    );
+    return {
+      name,
+      path: match?.path ?? null,
+      verified: validPath,
+    };
+  });
 
-  if (name !== expectedSkillName) {
-    return { verified: false, status: "wrong-name", proofPath, skillPath: skillPath ?? null };
-  }
-  if (!skillPath || !path.isAbsolute(skillPath) || !fs.existsSync(skillPath)) {
-    return { verified: false, status: "path-not-verifiable", proofPath, skillPath: skillPath ?? null };
+  const verified = skills.length > 0 && skills.every((skill) => skill.verified);
+  let status = "verified";
+  if (!verified) {
+    status = skills.some((skill) => !skill.path) ? "missing-skill-proof" : "path-not-verifiable";
   }
 
-  return {
-    verified: true,
-    status: "verified",
-    proofPath,
-    skillPath: path.resolve(skillPath),
-  };
+  return { verified, status, proofPath, skills };
 }
