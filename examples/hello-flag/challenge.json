@@ -4,5 +4,6 @@
   "category": "misc",
   "description": "A harmless local smoke-test challenge. Recover the hidden CTF flag from the supplied artifact. No network access is required.",
   "flag_format": "NADI{...}",
-  "flag_regex": "NADI\\{[A-Za-z0-9_:-]+\\}"
+  "flag_regex": "NADI\\{[A-Za-z0-9_:-]+\\}",
+  "flag_sha256": "f2f19b06f56d824d8635a9ba881a6f5f329e89fcb8b9ccd1cc028f7dbc468637"
 }
