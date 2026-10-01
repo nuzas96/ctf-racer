@@ -139,3 +139,23 @@ Aggregate: 5/5 verified, 100.0% for this single clean pass.
 Report: `runs/_suites/csaw-five-category-v1/2026-10-01T12-11-45-430Z.json`.
 
 This is now the official broad architecture baseline across Crypto, Forensics, Reverse, Web, and Pwn. It is still not a robustness estimate. Keep the architecture frozen and move next to repeated-run consistency/variance measurement before considering fresh independent retries, stronger model/reasoning, or multi-agent racing.
+
+
+## Three-run robustness sample
+
+On 2026-10-01, the five-category suite completed three fresh runs per benchmark under the unchanged frozen architecture.
+
+Aggregate: 14/15 verified = 93.3%.
+
+Per category:
+- Secret Treaties — crypto — 2/3 verified.
+- Ghost in the Machine — forensics — 3/3 verified.
+- Autobahn — reverse — 3/3 verified.
+- TrustDinOIDC — Web — 3/3 verified.
+- Diamond Dogs — Pwn — 3/3 verified.
+
+The sole failure was Secret Treaties run 1: 4 rounds / 723.10 s / unsolved. Runs 2 and 3 solved in one round at 94.64 s and 178.87 s.
+
+Suite report: `runs/_suites/csaw-five-category-v1/2026-10-01T13-24-03-495Z.json`.
+
+Do not rerun the whole suite or change architecture yet. Next gate: zero-token inspection of the failed Secret Treaties archived run. Live agent telemetry is a separate operator-observability improvement and should not alter the solver policy.
