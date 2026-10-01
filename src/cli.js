@@ -11,7 +11,7 @@ import { detectInstalledSkill, skillNamesForChallenge, verifySkillProof } from "
 import { solveChallenge } from "./runner.js";
 import { inspectLatestBenchmark, runBenchmark } from "./benchmark.js";
 import { assertChallengeArtifacts, importSingleArtifact } from "./artifacts.js";
-import { precheckSuite, runSuite } from "./suite.js";
+import { fetchSuiteArtifacts, precheckSuite, runSuite } from "./suite.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -23,6 +23,7 @@ function usage() {
   console.error("  npm run racer -- benchmark <challenge-directory> [--runs N]");
   console.error("  npm run racer -- benchmark-inspect <challenge-directory>");
   console.error("  npm run racer -- benchmark-import <challenge-directory> --source <artifact>");
+  console.error("  npm run racer -- suite-fetch <suite.json>");
   console.error("  npm run racer -- suite-check <suite.json>");
   console.error("  npm run racer -- suite <suite.json> [--runs N]");
   process.exit(2);
@@ -101,7 +102,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-check", "suite"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite"].includes(command) || !sourceArg) usage();
 
 function parseBenchmarkRuns(args, defaultRuns = 5) {
   const index = args.indexOf("--runs");
@@ -113,9 +114,18 @@ function parseBenchmarkRuns(args, defaultRuns = 5) {
   return value;
 }
 
-if (command === "suite-check" || command === "suite") {
+if (command === "suite-fetch" || command === "suite-check" || command === "suite") {
   const suitePath = path.resolve(process.cwd(), sourceArg);
   if (!fs.existsSync(suitePath)) throw new Error("Suite file not found: " + suitePath);
+
+  if (command === "suite-fetch") {
+    const fetched = await fetchSuiteArtifacts(projectRoot, suitePath);
+    console.log("[ctf-racer] suite: " + fetched.suite_id);
+    for (const item of fetched.results) {
+      console.log("[ctf-racer] " + item.path + " status=" + item.status + " fetched=" + item.fetched);
+    }
+    process.exit(0);
+  }
 
   if (command === "suite-check") {
     const check = precheckSuite(projectRoot, suitePath);
