@@ -13,6 +13,7 @@ export const DEFAULT_POLICY = {
   live_telemetry: true,
   competition_concurrency: 5,
   fresh_retry_attempts: 1,
+  watch_poll_ms: 1000,
   stall_similarity_threshold: 0.82,
   max_consecutive_stalls: 2,
   max_continuation_rounds: 4,
