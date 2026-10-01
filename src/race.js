@@ -84,7 +84,7 @@ function compactState(state, exitCode, attempt) {
   };
 }
 
-async function spawnSolve({ projectRoot, sourceDir, challenge, attempt }) {
+export async function spawnSolve({ projectRoot, sourceDir, challenge, attempt }) {
   const cliPath = path.join(projectRoot, "src", "cli.js");
   const challengeId = safeChallengeId(challenge.id);
   const statePath = path.join(projectRoot, "runs", challengeId, "state.json");
