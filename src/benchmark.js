@@ -56,6 +56,8 @@ function compactRun(index, state, exitCode) {
     stall_count: state.stall_count ?? 0,
     rejected_candidates: state.rejected_candidates?.length ?? 0,
     skill_proof_verified: state.skill_proof?.verified === true,
+    focused_reference_status: state.skill_proof?.reference_status ?? "unknown",
+    focused_reference_count: state.skill_proof?.references?.length ?? 0,
     exit_code: exitCode,
   };
 }
