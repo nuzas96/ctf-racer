@@ -283,6 +283,6 @@ Then run one attempt per benchmark by default:
 npm run racer -- suite benchmarks/suite.json
 ```
 
-Use `--runs N` only when repeated per-challenge evidence is intentionally needed. Suite execution prechecks all required artifacts before the first model call.
+Use `--runs N` only when repeated per-challenge evidence is intentionally needed. Suite execution prechecks all required artifacts before the first model call. Aggregate suite reports are saved under `runs/_suites/<suite-id>/<timestamp>.json` alongside each challenge's normal benchmark report.
 
 The suite exists to prevent architecture overfitting to Meridian or any other single challenge.
