@@ -1,0 +1,19 @@
+{
+  "id": "csaw-ghost-in-the-machine",
+  "title": "Ghost in the Machine",
+  "category": "forensics",
+  "description": "We intercepted a host quietly beaconing out of a locked-down network. The firewall logs every byte that leaves — and every byte here is boring. Same source, same destination, the same little PING payload, over and over.\n\nAnd yet something is getting out. It's buried in the noise, it's scrambled, and the operator left just enough on the wire to unscramble it — if you know which columns to trust.\n\nFind the message.\n\nHint: look at the columns you usually ignore. Not every packet is telling the truth — some are just there to throw off your averages. Once you read the signal, it still will not look like a flag until you find what it was mixed with.",
+  "flag_format": "csaw{...}",
+  "flag_regex": "csaw\\{[A-Za-z0-9_:-]+\\}",
+  "flag_sha256": "7e0879ca50b54771f7c2987dab29fb36a1d71727660d49da9af7ba2601944aaf",
+  "source_repository": "osirislab/CSAW-CTF-2026-Quals-Public",
+  "source_path": "forensics/ghost-in-the-machine",
+  "artifact_manifest": [
+    {
+      "path": "capture.pcap",
+      "size": 31272,
+      "git_blob_sha1": "73f6bab07cd75e7ca132ba238d1c4e8119f15489",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/forensics/ghost-in-the-machine/files/capture.pcap"
+    }
+  ]
+}
