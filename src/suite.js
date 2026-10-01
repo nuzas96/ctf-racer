@@ -65,11 +65,23 @@ export function runSuite({ projectRoot, suitePath, runs = 1 }) {
   const totalAttempts = results.reduce((sum, item) => sum + item.summary.total_runs, 0);
   const verifiedSolves = results.reduce((sum, item) => sum + item.summary.verified_solves, 0);
 
-  return {
+  const report = {
     suite_id: check.suite.id,
+    suite_description: check.suite.description ?? null,
+    created_at: new Date().toISOString(),
+    runs_per_benchmark: runs,
     benchmarks: results,
     total_attempts: totalAttempts,
     verified_solves: verifiedSolves,
     verified_solve_rate: totalAttempts ? verifiedSolves / totalAttempts : 0,
   };
+
+  const safeSuiteId = String(check.suite.id ?? "suite").replace(/[^a-zA-Z0-9._-]/g, "-");
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const outputDir = path.join(projectRoot, "runs", "_suites", safeSuiteId);
+  fs.mkdirSync(outputDir, { recursive: true });
+  const outputPath = path.join(outputDir, stamp + ".json");
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + "\n");
+
+  return { ...report, output_path: outputPath };
 }
