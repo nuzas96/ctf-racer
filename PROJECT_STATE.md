@@ -262,9 +262,12 @@ A platform-neutral intake layer is now implemented.
 Commands:
 
 ```bash
+npm run racer -- intake-check <challenge-root>
 npm run racer -- intake <challenge-root> --concurrency N --fresh-retries N
 npm run racer -- race-status <suite-or-intake.json>
 ```
+
+`intake-check` is a zero-token dry run that performs discovery and readiness checks without launching Codex.
 
 Intake behavior:
 - recursively discovers challenge directories containing `challenge.json`;
