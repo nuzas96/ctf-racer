@@ -13,6 +13,7 @@ import { inspectLatestBenchmark, runBenchmark } from "./benchmark.js";
 import { assertChallengeArtifacts, fetchChallengeArtifacts, importSingleArtifact } from "./artifacts.js";
 import { fetchSuiteArtifacts, precheckSuite, runSuite } from "./suite.js";
 import { assertChallengeServiceFiles, fetchChallengeServiceFiles, startChallengeService, stopChallengeService, withChallengeService } from "./service.js";
+import { runRace } from "./race.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -27,6 +28,7 @@ function usage() {
   console.error("  npm run racer -- suite-fetch <suite.json>");
   console.error("  npm run racer -- suite-check <suite.json>");
   console.error("  npm run racer -- suite <suite.json> [--runs N]");
+  console.error("  npm run racer -- race <suite.json> [--concurrency N] [--fresh-retries N]");
   console.error("  npm run racer -- service-fetch <challenge-directory>");
   console.error("  npm run racer -- service-check <challenge-directory>");
   console.error("  npm run racer -- service-smoke <challenge-directory>");
@@ -106,7 +108,17 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
+
+function parseIntegerOption(args, name, { min, max, fallback }) {
+  const index = args.indexOf(name);
+  if (index === -1) return fallback;
+  const value = Number(args[index + 1]);
+  if (!Number.isInteger(value) || value < min || value > max) {
+    throw new Error(`${name} must be an integer from ${min} to ${max}`);
+  }
+  return value;
+}
 
 function parseBenchmarkRuns(args, defaultRuns = 5) {
   const index = args.indexOf("--runs");
@@ -116,6 +128,33 @@ function parseBenchmarkRuns(args, defaultRuns = 5) {
     throw new Error("--runs must be an integer from 1 to 50");
   }
   return value;
+}
+
+if (command === "race") {
+  const suitePath = path.resolve(process.cwd(), sourceArg);
+  if (!fs.existsSync(suitePath)) throw new Error("Suite file not found: " + suitePath);
+
+  const concurrency = parseIntegerOption(restArgs, "--concurrency", { min: 1, max: 32, fallback: undefined });
+  const freshRetries = parseIntegerOption(restArgs, "--fresh-retries", { min: 0, max: 3, fallback: undefined });
+  const result = await runRace({ projectRoot, suitePath, concurrency, freshRetries });
+
+  console.log("\n[ctf-racer] race summary");
+  console.log("[ctf-racer] race id: " + result.race_id);
+  console.log("[ctf-racer] verified challenges: " + result.verified_challenges + "/" + result.total_challenges);
+  console.log("[ctf-racer] verified challenge rate: " + (result.verified_challenge_rate * 100).toFixed(1) + "%");
+  console.log("[ctf-racer] total solver attempts: " + result.total_attempts);
+  console.log("[ctf-racer] wall elapsed: " + seconds(result.wall_elapsed_ms) + "s");
+  for (const item of result.challenges) {
+    console.log(
+      "[ctf-racer] " + item.path +
+      " category=" + item.category +
+      " verified=" + item.verified +
+      " attempts=" + item.attempts.length +
+      (item.winning_attempt ? " winning_attempt=" + item.winning_attempt : "")
+    );
+  }
+  console.log("[ctf-racer] race report: " + result.output_path);
+  process.exit(result.verified_challenges === result.total_challenges ? 0 : 3);
 }
 
 if (command === "suite-fetch" || command === "suite-check" || command === "suite") {
