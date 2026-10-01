@@ -387,3 +387,22 @@ runs/_races/<suite-id>/<timestamp>.json
 ```
 
 The existing `suite` and `benchmark` commands remain sequential measurement tools and are not changed by competition mode.
+
+
+### First five-category race result
+
+The first real five-category competition race completed **5/5 verified on primary attempts** with `--concurrency 5 --fresh-retries 1`. No fresh retry was needed.
+
+```text
+Crypto      verified  primary  127.70 s
+Forensics  verified  primary  259.75 s
+Reverse     verified  primary  103.41 s
+Web         verified  primary  167.39 s
+Pwn         verified  primary  309.80 s
+
+Race wall time: 335.15 s
+Total attempts: 5
+Fresh retries used: 0
+```
+
+This validates cross-challenge concurrency and live multi-solver telemetry. It does not establish a benefit for same-challenge parallel swarms.
