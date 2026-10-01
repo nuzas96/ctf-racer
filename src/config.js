@@ -11,6 +11,8 @@ export const DEFAULT_POLICY = {
   model: "gpt-6-luna",
   model_reasoning_effort: "medium",
   live_telemetry: true,
+  competition_concurrency: 5,
+  fresh_retry_attempts: 1,
   stall_similarity_threshold: 0.82,
   max_consecutive_stalls: 2,
   max_continuation_rounds: 4,
