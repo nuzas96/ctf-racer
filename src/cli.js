@@ -10,6 +10,8 @@ import { runPreflight } from "./preflight.js";
 import { detectInstalledSkill, skillNamesForChallenge, verifySkillProof } from "./skill-route.js";
 import { solveChallenge } from "./runner.js";
 import { inspectLatestBenchmark, runBenchmark } from "./benchmark.js";
+import { assertChallengeArtifacts, importSingleArtifact } from "./artifacts.js";
+import { precheckSuite, runSuite } from "./suite.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -20,6 +22,9 @@ function usage() {
   console.error("  npm run racer -- inspect <challenge-directory>");
   console.error("  npm run racer -- benchmark <challenge-directory> [--runs N]");
   console.error("  npm run racer -- benchmark-inspect <challenge-directory>");
+  console.error("  npm run racer -- benchmark-import <challenge-directory> --source <artifact>");
+  console.error("  npm run racer -- suite-check <suite.json>");
+  console.error("  npm run racer -- suite <suite.json> [--runs N]");
   process.exit(2);
 }
 
@@ -96,7 +101,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-check", "suite"].includes(command) || !sourceArg) usage();
 
 function parseBenchmarkRuns(args) {
   const index = args.indexOf("--runs");
@@ -108,8 +113,59 @@ function parseBenchmarkRuns(args) {
   return value;
 }
 
+if (command === "suite-check" || command === "suite") {
+  const suitePath = path.resolve(process.cwd(), sourceArg);
+  if (!fs.existsSync(suitePath)) throw new Error("Suite file not found: " + suitePath);
+
+  if (command === "suite-check") {
+    const check = precheckSuite(projectRoot, suitePath);
+    console.log("[ctf-racer] suite: " + check.suite.id);
+    for (const entry of check.entries) {
+      console.log(
+        "[ctf-racer] " + entry.path +
+        " category=" + entry.category +
+        " required=" + entry.required +
+        " artifacts=" + entry.artifact_status +
+        (entry.error ? " error=" + entry.error : "")
+      );
+    }
+    const blocked = check.entries.some((entry) => entry.required && entry.artifact_status !== "ok");
+    process.exit(blocked ? 3 : 0);
+  }
+
+  const runs = parseBenchmarkRuns(restArgs);
+  const result = runSuite({ projectRoot, suitePath, runs });
+  console.log("\n[ctf-racer] suite summary");
+  console.log("[ctf-racer] suite id: " + result.suite_id);
+  console.log("[ctf-racer] verified solves: " + result.verified_solves + "/" + result.total_attempts);
+  console.log("[ctf-racer] verified solve rate: " + (result.verified_solve_rate * 100).toFixed(1) + "%");
+  for (const item of result.benchmarks) {
+    console.log(
+      "[ctf-racer] " + item.path +
+      " category=" + item.category +
+      " verified=" + item.summary.verified_solves + "/" + item.summary.total_runs +
+      " median_verified_ttf=" +
+      (item.summary.median_verified_ttf_ms === null ? "n/a" : seconds(item.summary.median_verified_ttf_ms) + "s")
+    );
+  }
+  process.exit(0);
+}
+
 const sourceDir = path.resolve(process.cwd(), sourceArg);
 if (!fs.existsSync(sourceDir)) throw new Error(`Challenge directory not found: ${sourceDir}`);
+
+if (command === "benchmark-import") {
+  const sourceIndex = restArgs.indexOf("--source");
+  if (sourceIndex === -1 || !restArgs[sourceIndex + 1]) {
+    throw new Error("benchmark-import requires --source <artifact>");
+  }
+  const challenge = loadChallenge(sourceDir);
+  const imported = importSingleArtifact(sourceDir, challenge, path.resolve(process.cwd(), restArgs[sourceIndex + 1]));
+  console.log("[ctf-racer] imported: " + imported.destination);
+  console.log("[ctf-racer] size: " + imported.size);
+  console.log("[ctf-racer] sha256: " + imported.sha256);
+  process.exit(0);
+}
 
 if (command === "inspect") {
   inspectRun(sourceDir);
@@ -162,6 +218,7 @@ if (command === "benchmark-inspect") {
 }
 
 const challenge = loadChallenge(sourceDir);
+assertChallengeArtifacts(sourceDir, challenge);
 const policy = loadPolicy(projectRoot);
 if (!policy.authorized_ctf_only) throw new Error("V1 requires authorized_ctf_only=true");
 
