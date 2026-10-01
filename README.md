@@ -449,7 +449,7 @@ npm run racer -- watch ./incoming-ctf \
   --poll-ms 1000
 ```
 
-Challenge directories can appear at any time beneath `./incoming-ctf`. The watcher does not require the directory to be complete immediately:
+The watch root is created automatically if it does not exist yet. Challenge directories can appear at any time beneath `./incoming-ctf`. The watcher does not require the directory to be complete immediately:
 
 ```text
 discovered -> waiting -> queued -> running -> solved
