@@ -1,0 +1,21 @@
+{
+  "id": "csaw-trustdinoidc",
+  "title": "TrustDinOIDC",
+  "category": "web",
+  "description": "TrustDinOIDC sells dinosaur posters to anyone who can prove they're logged in. The Flagosaurus print is for admins only.",
+  "flag_format": "csaw{...}",
+  "flag_regex": "csaw\\{[A-Za-z0-9_:-]+\\}",
+  "benchmark_status": "pending-service-harness",
+  "source_repository": "osirislab/CSAW-CTF-2026-Quals-Public",
+  "source_path": "web/TrustDinOIDC",
+  "target": {
+    "url": "http://127.0.0.1:18990"
+  },
+  "service_plan": {
+    "kind": "docker-compose",
+    "upstream_directory": "web/TrustDinOIDC/deployment",
+    "local_port": 18990,
+    "solver_surface": "target-only",
+    "dynamic_flag": true
+  }
+}
