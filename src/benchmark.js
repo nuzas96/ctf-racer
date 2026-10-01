@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
+import { assertChallengeArtifacts } from "./artifacts.js";
 import { loadPolicy } from "./config.js";
 
 function median(values) {
@@ -65,6 +66,7 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
   }
 
   const challenge = loadChallenge(sourceDir);
+  assertChallengeArtifacts(sourceDir, challenge);
   if (!challenge.flag_sha256) {
     throw new Error("repeatable benchmark requires challenge.flag_sha256");
   }
