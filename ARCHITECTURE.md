@@ -80,4 +80,8 @@ Current baseline:
 - same-thread continuation while progressing;
 - no within-challenge multi-agent racing yet.
 
-Next gate: establish multi-challenge baseline evidence before implementing escalation or concurrency policy.
+Current evidence gate: a clean CSAW static-v1 pass has demonstrated 3/3 verified solves across crypto, forensics, and reverse engineering under the frozen architecture. The next gate is broader category coverage with Web + Pwn/service-oriented benchmarks before repeated-run robustness measurement or any escalation/concurrency change.
+
+## Grounded project checkpoint
+
+Read `PROJECT_STATE.md` before proposing architecture or benchmark changes. It records the current official baseline, environment lessons, active suite, and pending Web/Pwn expansion state.
