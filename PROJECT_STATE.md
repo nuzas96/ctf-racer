@@ -221,3 +221,35 @@ Default policy: `competition_concurrency=5`, `fresh_retry_attempts=1`.
 This does not alter the sequential `suite` or `benchmark` measurement harnesses. True same-challenge parallel multi-agent racing is still deliberately deferred.
 
 CI after the scheduler/tests landed: 41 tests, 41 passed, 0 failed.
+
+
+## First real five-category competition race
+
+The first real `race` execution across `benchmarks/suite-five-category.json` completed successfully with:
+
+- concurrency: 5;
+- fresh retries available: 1 per challenge;
+- verified challenges: 5/5;
+- verified challenge rate: 100.0%;
+- total solver attempts: 5;
+- fresh retries actually consumed: 0;
+- wall elapsed: 335.15 s.
+
+Every category solved on its primary autonomous agent:
+- Secret Treaties / Crypto — 127.70 s;
+- Ghost in the Machine / Forensics — 259.75 s;
+- Autobahn / Reverse — 103.41 s;
+- TrustDinOIDC / Web — 167.39 s;
+- Diamond Dogs / Pwn — 309.80 s.
+
+Race report:
+`runs/_races/csaw-five-category-v1/2026-10-01T16-39-30-586Z.json`.
+
+The sum of per-challenge elapsed times was about 968.05 s, versus 335.15 s controller wall time, giving about 2.9x effective wall-clock compression from overlapping work within this race.
+
+Interpretation:
+- cross-challenge concurrency is now empirically validated;
+- primary-first incurred zero retry cost in this race;
+- live telemetry remained usable under five concurrent solvers;
+- this does NOT validate same-challenge parallel swarms;
+- same-challenge racing remains a later escalation experiment only if future evidence shows fresh-retry latency is too costly.
