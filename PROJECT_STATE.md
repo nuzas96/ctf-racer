@@ -170,3 +170,12 @@ The successful runs instead used a binary-centered 73-dimensional knapsack embed
 This is classified as a reusable skill-methodology/trajectory gap, not a controller architecture failure. Canonical `ctf-crypto/lattice-and-lwe.md` was strengthened in codex-skills commit `7a4bcdaf5fa93eec6253ef4c048ef9c7dda853ee`.
 
 Do not rerun the full 15-attempt suite solely for this patch. Sync the skill, then continue to operator observability/live telemetry before further architecture experiments.
+
+
+## Live operator telemetry
+
+CTF Racer now uses Codex SDK streamed turn events for operator observability. This change is intentionally policy-neutral: the same persistent thread, prompts, model, reasoning effort, skills, round limits, and verifier behavior remain in place.
+
+The terminal and `runs/<challenge-id>/telemetry.log` now expose redacted/summarized command execution, file changes, todo/progress state, agent messages, tool names, errors, and token usage while a round is running. Reasoning-content events and full command output are not surfaced. Dynamic service flags pass through the existing redactor before display/persistence.
+
+This feature exists so a human operator can distinguish healthy progress from a bad trajectory during live CTF racing without exposing private model reasoning or changing solver behavior.
