@@ -10,5 +10,6 @@
   "model_reasoning_effort": "medium",
   "max_continuation_rounds": 4,
   "stall_similarity_threshold": 0.82,
-  "max_consecutive_stalls": 2
+  "max_consecutive_stalls": 2,
+  "live_telemetry": true
 }
