@@ -61,6 +61,7 @@ export function detectInstalledSkill(skillName, cwd = process.cwd()) {
 
 function parseProof(text) {
   const skills = [];
+  const references = [];
   for (const line of text.split(/\r?\n/)) {
     if (line.startsWith("CTF_RACER_SKILL=")) {
       const raw = line.slice("CTF_RACER_SKILL=".length).trim();
@@ -72,6 +73,16 @@ function parseProof(text) {
         });
       }
     }
+    if (line.startsWith("CTF_RACER_REF=")) {
+      const raw = line.slice("CTF_RACER_REF=".length).trim();
+      const divider = raw.indexOf("|");
+      if (divider > 0) {
+        references.push({
+          skill: raw.slice(0, divider).trim(),
+          path: raw.slice(divider + 1).trim(),
+        });
+      }
+    }
   }
 
   // Backward compatibility with the first single-skill proof format.
@@ -79,7 +90,7 @@ function parseProof(text) {
   const legacyPath = text.match(/^CTF_RACER_SKILL_PATH=(.+)$/m)?.[1]?.trim();
   if (legacyName && legacyPath) skills.push({ name: legacyName, path: legacyPath });
 
-  return skills;
+  return { skills, references };
 }
 
 export function verifySkillProof(workspace, expectedSkillNames) {
@@ -89,12 +100,12 @@ export function verifySkillProof(workspace, expectedSkillNames) {
   const proofPath = path.join(workspace, "SKILL_PROOF.md");
 
   if (!fs.existsSync(proofPath)) {
-    return { verified: false, status: "missing", proofPath, skills: [] };
+    return { verified: false, status: "missing", proofPath, skills: [], references: [], referenceStatus: "none-reported" };
   }
 
   const reported = parseProof(fs.readFileSync(proofPath, "utf8"));
   const skills = expected.map((name) => {
-    const match = reported.find((item) => item.name === name);
+    const match = reported.skills.find((item) => item.name === name);
     const validPath = Boolean(
       match?.path &&
       path.isAbsolute(match.path) &&
@@ -107,11 +118,33 @@ export function verifySkillProof(workspace, expectedSkillNames) {
     };
   });
 
+  const references = reported.references.map((item) => {
+    const owner = skills.find((skill) => skill.name === item.skill && skill.verified);
+    const root = owner?.path ? path.dirname(owner.path) : null;
+    const refPath = item.path && path.isAbsolute(item.path) ? path.resolve(item.path) : null;
+    const insideOwner = Boolean(
+      root &&
+      refPath &&
+      (refPath === root || refPath.startsWith(root + path.sep))
+    );
+    const valid = Boolean(insideOwner && fs.existsSync(refPath) && fs.statSync(refPath).isFile());
+    return {
+      skill: item.skill,
+      path: item.path ?? null,
+      verified: valid,
+    };
+  });
+
   const verified = skills.length > 0 && skills.every((skill) => skill.verified);
   let status = "verified";
   if (!verified) {
     status = skills.some((skill) => !skill.path) ? "missing-skill-proof" : "path-not-verifiable";
   }
 
-  return { verified, status, proofPath, skills };
+  const referenceStatus =
+    references.length === 0 ? "none-reported" :
+    references.every((item) => item.verified) ? "verified" :
+    "path-not-verifiable";
+
+  return { verified, status, proofPath, skills, references, referenceStatus };
 }
