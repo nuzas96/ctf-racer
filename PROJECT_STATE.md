@@ -122,3 +122,20 @@ The five-category suite contains:
 - Diamond Dogs — Pwn.
 
 All five categories have individually demonstrated verified solves under the frozen autonomous-first architecture. This is not yet an aggregate 5/5 baseline until one clean suite pass succeeds under one synchronized state.
+
+
+## Official five-category baseline
+
+On 2026-10-01, `benchmarks/suite-five-category.json` completed one clean synchronized aggregate pass under the frozen architecture.
+
+Results:
+- Secret Treaties — crypto — VERIFIED — 1 round — 411.36 s.
+- Ghost in the Machine — forensics — VERIFIED — 1 round — 277.74 s.
+- Autobahn — reverse — VERIFIED — 1 round — 95.09 s.
+- TrustDinOIDC — Web — VERIFIED — 1 round — 270.20 s.
+- Diamond Dogs — Pwn — VERIFIED — 1 round — 367.83 s.
+
+Aggregate: 5/5 verified, 100.0% for this single clean pass.
+Report: `runs/_suites/csaw-five-category-v1/2026-10-01T12-11-45-430Z.json`.
+
+This is now the official broad architecture baseline across Crypto, Forensics, Reverse, Web, and Pwn. It is still not a robustness estimate. Keep the architecture frozen and move next to repeated-run consistency/variance measurement before considering fresh independent retries, stronger model/reasoning, or multi-agent racing.
