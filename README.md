@@ -406,3 +406,30 @@ Fresh retries used: 0
 ```
 
 This validates cross-challenge concurrency and live multi-solver telemetry. It does not establish a benefit for same-challenge parallel swarms.
+
+
+## Generic competition intake
+
+CTF Racer now has a platform-neutral intake layer. Point it at a directory containing one or more challenge directories with `challenge.json`; it discovers them recursively, validates duplicate IDs and local artifacts/service files before any model call, generates an intake manifest, and passes the set to the existing competition race scheduler.
+
+```bash
+npm run racer -- intake ./incoming-ctf --concurrency 5 --fresh-retries 1
+```
+
+Generated manifests are stored under:
+
+```text
+runs/_intake/intake-<name>-<timestamp>.json
+```
+
+This keeps platform-specific watchers thin: CTFd, custom APIs, or manual downloads only need to materialize normalized challenge directories. The solver/race core remains platform-agnostic.
+
+### Zero-token race status
+
+Use a second terminal to inspect current challenge state without calling Codex:
+
+```bash
+npm run racer -- race-status benchmarks/suite-five-category.json
+```
+
+or pass a generated intake manifest. The status view prints challenge/category, current status, rounds, elapsed time, stalls, and the latest safe telemetry line.
