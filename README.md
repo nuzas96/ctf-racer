@@ -349,3 +349,41 @@ Telemetry defaults to enabled. Set `"live_telemetry": false` in `config/policy.j
 ### Live telemetry validation
 
 Local validation: **38/38 tests passed**. A real Codex smoke solve using `examples/hello-flag` then confirmed live turn, agent-message, command, file-change, and token-usage events in the terminal and completed with a verified flag in one round. This establishes that telemetry works on the local execution path as well as in CI.
+
+
+## Competition race mode
+
+Use `race` when several independent challenges should start solving at the same time:
+
+```bash
+npm run racer -- race benchmarks/suite-five-category.json --concurrency 5 --fresh-retries 1
+```
+
+Competition behavior:
+
+```text
+challenge A -> primary agent ---------------- solved
+challenge B -> primary agent -> fresh retry - solved
+challenge C -> primary agent ---------------- solved
+challenge D -> primary agent ---------------- solved
+challenge E -> primary agent -> fresh retry - unsolved
+```
+
+Different challenges can run concurrently. A single challenge still starts with one primary autonomous solver; if it fails, a fresh independent retry may start after the failed attempt exits. Same-challenge attempts are not run in parallel yet.
+
+Defaults in policy:
+
+```json
+{
+  "competition_concurrency": 5,
+  "fresh_retry_attempts": 1
+}
+```
+
+Each active child's live telemetry is prefixed with `[race][challenge-id#attempt]` so multiple solvers remain readable in one terminal. Race reports are isolated under:
+
+```text
+runs/_races/<suite-id>/<timestamp>.json
+```
+
+The existing `suite` and `benchmark` commands remain sequential measurement tools and are not changed by competition mode.
