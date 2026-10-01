@@ -196,3 +196,28 @@ The operator then ran `npm run racer -- solve examples/hello-flag` and confirmed
 The smoke challenge solved in one round / 51.13 s with an independently verified flag. Skill proof verified `ctf-solve + ctf-misc` and focused reference `ctf-misc/encodings.md`.
 
 Live telemetry is therefore validated in real local Codex execution, not only through unit tests/CI. It remains observability-only and does not change solver prompts, model/reasoning, skill routing, round policy, or verification.
+
+
+## Competition race scheduler
+
+The first competition orchestration layer is implemented and CI-validated.
+
+New command:
+
+```bash
+npm run racer -- race <suite.json> --concurrency N --fresh-retries N
+```
+
+Semantics:
+- distinct challenges run concurrently up to the configured cap;
+- one primary autonomous solver starts per challenge;
+- a failed challenge can receive a bounded fresh independent retry;
+- same-challenge attempts remain sequential and isolated;
+- live telemetry is challenge/attempt-prefixed;
+- competition reports are separate from benchmark reports under `runs/_races/`.
+
+Default policy: `competition_concurrency=5`, `fresh_retry_attempts=1`.
+
+This does not alter the sequential `suite` or `benchmark` measurement harnesses. True same-challenge parallel multi-agent racing is still deliberately deferred.
+
+CI after the scheduler/tests landed: 41 tests, 41 passed, 0 failed.
