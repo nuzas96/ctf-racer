@@ -31,6 +31,7 @@ function usage() {
   console.error("  npm run racer -- suite <suite.json> [--runs N]");
   console.error("  npm run racer -- race <suite.json> [--concurrency N] [--fresh-retries N]");
   console.error("  npm run racer -- intake <challenge-root> [--concurrency N] [--fresh-retries N]");
+  console.error("  npm run racer -- intake-check <challenge-root>");
   console.error("  npm run racer -- race-status <suite-or-intake.json>");
   console.error("  npm run racer -- service-fetch <challenge-directory>");
   console.error("  npm run racer -- service-check <challenge-directory>");
@@ -111,7 +112,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "intake", "race-status", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "intake", "intake-check", "race-status", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
 
 function parseIntegerOption(args, name, { min, max, fallback }) {
   const index = args.indexOf(name);
@@ -131,6 +132,18 @@ function parseBenchmarkRuns(args, defaultRuns = 5) {
     throw new Error("--runs must be an integer from 1 to 50");
   }
   return value;
+}
+
+if (command === "intake-check") {
+  const intakeRoot = path.resolve(process.cwd(), sourceArg);
+  const discovered = discoverIntakeChallenges(intakeRoot);
+  console.log("[ctf-racer] intake check: ok");
+  console.log("[ctf-racer] intake root: " + discovered.root);
+  console.log("[ctf-racer] discovered challenges: " + discovered.entries.length);
+  for (const entry of discovered.entries) {
+    console.log("[ctf-racer] intake: " + entry.challenge_id + " category=" + entry.category + " path=" + entry.path);
+  }
+  process.exit(0);
 }
 
 if (command === "intake") {
