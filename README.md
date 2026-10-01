@@ -413,8 +413,11 @@ This validates cross-challenge concurrency and live multi-solver telemetry. It d
 CTF Racer now has a platform-neutral intake layer. Point it at a directory containing one or more challenge directories with `challenge.json`; it discovers them recursively, validates duplicate IDs and local artifacts/service files before any model call, generates an intake manifest, and passes the set to the existing competition race scheduler.
 
 ```bash
+npm run racer -- intake-check ./incoming-ctf
 npm run racer -- intake ./incoming-ctf --concurrency 5 --fresh-retries 1
 ```
+
+`intake-check` performs the same discovery/readiness validation but stops before any model call.
 
 Generated manifests are stored under:
 
