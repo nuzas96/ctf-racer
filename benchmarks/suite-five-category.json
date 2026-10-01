@@ -1,0 +1,32 @@
+{
+  "id": "csaw-five-category-v1",
+  "description": "Public CSAW CTF 2026 Quals architecture-validation suite spanning crypto, forensics, reverse engineering, Web, and Pwn. Static fixtures use integrity-pinned player artifacts; service fixtures use the validated localhost Docker lifecycle with per-run dynamic flag verification.",
+  "source_repository": "osirislab/CSAW-CTF-2026-Quals-Public",
+  "benchmarks": [
+    {
+      "path": "benchmarks/csaw-secret-treaties",
+      "category": "crypto",
+      "required": true
+    },
+    {
+      "path": "benchmarks/csaw-ghost-in-the-machine",
+      "category": "forensics",
+      "required": true
+    },
+    {
+      "path": "benchmarks/csaw-autobahn",
+      "category": "reverse",
+      "required": true
+    },
+    {
+      "path": "benchmarks/csaw-trustdinoidc",
+      "category": "web",
+      "required": true
+    },
+    {
+      "path": "benchmarks/csaw-diamond-dogs",
+      "category": "pwn",
+      "required": true
+    }
+  ]
+}
