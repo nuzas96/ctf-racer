@@ -1,0 +1,25 @@
+{
+  "id": "csaw-secret-treaties",
+  "title": "Secret Treaties",
+  "category": "crypto",
+  "description": "We built a \"quantum-resistant\" public-key scheme from the good old subset-sum problem. Subset-sum is NP-complete, so surely nobody can read our messages without the private key... right?\n\nWe encrypted the flag nine bytes at a time. Each 72-bit block became a single number: the sum of the public-key entries selected by that block's bits.\n\nRecover the flag.\n\nNotes: bits are MSB-first within each byte. Brute force is 2^72 per block and meet-in-the-middle is approximately 2^36 time and memory.",
+  "flag_format": "csaw{...}",
+  "flag_regex": "csaw\\{[A-Za-z0-9_:-]+\\}",
+  "flag_sha256": "5274bed333a3ac66ed51e86c8b1895ee08daf461b1bd35cff0a93961f7f3bdfd",
+  "source_repository": "osirislab/CSAW-CTF-2026-Quals-Public",
+  "source_path": "crypto/secret-treaties",
+  "artifact_manifest": [
+    {
+      "path": "pubkey.txt",
+      "size": 2309,
+      "git_blob_sha1": "9386799ea6a036ae880b85fe1a92d272b4a8af62",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/crypto/secret-treaties/files/pubkey.txt"
+    },
+    {
+      "path": "ciphertext.txt",
+      "size": 257,
+      "git_blob_sha1": "c7e9db5fc074de0ac4a18dbd51103f57da58fe63",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/crypto/secret-treaties/files/ciphertext.txt"
+    }
+  ]
+}
