@@ -159,3 +159,14 @@ The sole failure was Secret Treaties run 1: 4 rounds / 723.10 s / unsolved. Runs
 Suite report: `runs/_suites/csaw-five-category-v1/2026-10-01T13-24-03-495Z.json`.
 
 Do not rerun the whole suite or change architecture yet. Next gate: zero-token inspection of the failed Secret Treaties archived run. Live agent telemetry is a separate operator-observability improvement and should not alter the solver policy.
+
+
+## Secret Treaties robustness failure diagnosis
+
+Zero-token inspection of the sole failed attempt in the 14/15 robustness sample showed continuous progress in every round, so stall detection was not the problem. The failed trajectory used weaker/raw subset-sum embeddings plus escalating BKZ, Z3, CVP/Babai, and plaintext-constrained MITM, recovering only the first block before the four-round budget ended.
+
+The successful runs instead used a binary-centered 73-dimensional knapsack embedding with rows `[2I | 2a]` and final row `[1,...,1 | 2t]`, exact weighted-sum verification, modest targeted BKZ, and deterministic reduction-order variants when needed.
+
+This is classified as a reusable skill-methodology/trajectory gap, not a controller architecture failure. Canonical `ctf-crypto/lattice-and-lwe.md` was strengthened in codex-skills commit `7a4bcdaf5fa93eec6253ef4c048ef9c7dda853ee`.
+
+Do not rerun the full 15-attempt suite solely for this patch. Sync the skill, then continue to operator observability/live telemetry before further architecture experiments.
