@@ -107,4 +107,18 @@ On 2026-10-01, the staged TrustDinOIDC and Diamond Dogs definitions were invoked
 
 TrustDinOIDC: VERIFIED under the frozen architecture after synchronizing the canonical Web skill fix for multi-issuer x5c trust. Final rerun: 1 round, 122.97 s, focused references oauth-oidc.md and jwt.md. The previous valid run was 4 rounds / 817.14 s / unsolved. No controller, model, round-budget, or multi-agent change was required.
 
-Current demonstrated categories: crypto, forensics, reverse, Web. Next gate: Diamond Dogs Pwn.
+Current demonstrated categories: crypto, forensics, reverse, Web, Pwn. Diamond Dogs: VERIFIED on the first valid Pwn service run in 1 round / 370.69 s with focused reference ctf-pwn/heap-techniques.md. The next gate is one clean aggregate pass of benchmarks/suite-five-category.json before repeated-run robustness testing.
+
+
+## Five-category suite gate
+
+A separate suite definition now exists at `benchmarks/suite-five-category.json` so the historical clean static 3/3 baseline remains reproducible through `benchmarks/suite.json`.
+
+The five-category suite contains:
+- Secret Treaties — crypto;
+- Ghost in the Machine — forensics;
+- Autobahn — reverse;
+- TrustDinOIDC — Web;
+- Diamond Dogs — Pwn.
+
+All five categories have individually demonstrated verified solves under the frozen autonomous-first architecture. This is not yet an aggregate 5/5 baseline until one clean suite pass succeeds under one synchronized state.
