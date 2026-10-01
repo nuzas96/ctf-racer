@@ -1,0 +1,12 @@
+services:
+  challenge:
+    build: .
+    init: true
+    ports:
+      - "127.0.0.1:11025:1025"
+    volumes:
+      - "${RUNTIME_FLAG_FILE:?runtime flag required}:/home/ctf/flag.txt:ro"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

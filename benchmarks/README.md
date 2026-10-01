@@ -40,4 +40,4 @@ These are staged for the next category-expansion gate but are **not active** yet
 - `csaw-trustdinoidc` — Web / OIDC-JWT trust boundary.
 - `csaw-diamond-dogs` — Pwn / glibc 2.31 UAF.
 
-They require a validated local-service lifecycle and challenge-network path before joining `benchmarks/suite.json`. Do not include them in aggregate solve-rate claims until that wiring exists and the fixtures pass precheck/run end-to-end.
+The generic service lifecycle is implemented, with `service-fetch`, `service-check`, and `service-smoke` commands. Both Docker smoke checks passed, and a non-solving Codex thread reached the TrustDinOIDC localhost HTTP target. The fixtures remain pending solver runs and suite activation. The active static suite is unchanged. Do not include them in aggregate solve-rate claims yet.

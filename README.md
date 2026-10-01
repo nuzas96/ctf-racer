@@ -299,3 +299,19 @@ npm run racer -- suite benchmarks/suite.json
 Use `--runs N` only when repeated per-challenge evidence is intentionally needed. Aggregate suite reports are saved under `runs/_suites/<suite-id>/<timestamp>.json`; individual reports remain under `runs/_benchmarks/`.
 
 Historical benchmarks such as Meridian remain available for diagnostics, but they no longer define the active architecture gate by themselves.
+
+## Local service benchmark infrastructure
+
+A challenge may declare a controller-side Docker Compose service. The controller stages only declared deployment files in a temporary directory, creates a fresh runtime flag, starts and healthchecks the localhost service before Codex starts, and removes containers, volumes, and the runtime directory in `finally`. The dynamic flag hash is the independent verifier; the raw flag is excluded from state, reports, logs, and copied player artifacts.
+
+Run infrastructure checks without a solver:
+
+```bash
+npm run racer -- service-fetch benchmarks/csaw-trustdinoidc
+npm run racer -- service-check benchmarks/csaw-trustdinoidc
+npm run racer -- service-smoke benchmarks/csaw-trustdinoidc
+npm run racer -- service-check benchmarks/csaw-diamond-dogs
+npm run racer -- service-smoke benchmarks/csaw-diamond-dogs
+```
+
+The installed Codex SDK uses `networkAccessEnabled` with `workspace-write`; it is enabled only for a service that explicitly requests challenge network access. External web research remains disabled. The active static suite and its official 3/3 baseline are unchanged.

@@ -85,7 +85,7 @@ The current runner can:
 - verify flags;
 - persist metrics and reference proof.
 
-The current CLI/suite runner does not yet have a validated generic local-service lifecycle wired end-to-end. An unwired prototype file may exist in source history/current tree, but it is not an active capability and must not be treated as one. Service orchestration/network enabling remains pending implementation.
+A generic local Docker Compose service lifecycle is implemented: controller-side deployment files, per-run dynamic flag and SHA-256 verification, localhost healthchecks, cleanup, and an infrastructure-only smoke command. Both Docker smokes and a non-solving Codex localhost HTTP check passed. Web/Pwn remain outside the active suite; no Web/Pwn solver run or solve-rate claim has been made.
 
 ## Decision gate after Web + Pwn
 

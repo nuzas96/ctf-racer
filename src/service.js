@@ -1,261 +1,226 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import http from "node:http";
-import https from "node:https";
 import net from "node:net";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { assertChallengeArtifacts } from "./artifacts.js";
 
-function safeServicePath(rootDir, relativePath) {
-  if (!relativePath || path.isAbsolute(relativePath)) {
-    throw new Error("service path must be a non-empty relative path");
-  }
-  const root = path.resolve(rootDir);
-  const full = path.resolve(root, relativePath);
-  if (full !== root && !full.startsWith(root + path.sep)) {
-    throw new Error("service path escapes service directory");
+const hash = (data) => crypto.createHash("sha256").update(data).digest("hex");
+const blobHash = (data) => crypto.createHash("sha1").update(Buffer.from(`blob ${data.length}\0`)).update(data).digest("hex");
+
+export function safeServicePath(root, relative) {
+  if (typeof relative !== "string" || !relative || path.isAbsolute(relative)) throw new Error("invalid service path");
+  const base = path.resolve(root);
+  const full = path.resolve(base, relative);
+  if (!full.startsWith(base + path.sep)) throw new Error("service path traversal");
+  let current = base;
+  for (const part of path.relative(base, full).split(path.sep)) {
+    current = path.join(current, part);
+    if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) throw new Error("service symlink rejected");
   }
   return full;
 }
 
-function sha256Buffer(data) {
-  return crypto.createHash("sha256").update(data).digest("hex");
-}
-
-function gitBlobSha1Buffer(data) {
-  const header = Buffer.from("blob " + data.length + "\0", "utf8");
-  return crypto.createHash("sha1").update(header).update(data).digest("hex");
-}
-
 function serviceRoot(sourceDir, challenge) {
-  return path.join(sourceDir, challenge.service?.directory ?? "service");
+  return safeServicePath(sourceDir, challenge.service.directory ?? "service");
 }
 
 export function serviceFileStatus(sourceDir, challenge) {
-  const manifest = Array.isArray(challenge.service_manifest) ? challenge.service_manifest : [];
+  if (!challenge.service) return [];
   const root = serviceRoot(sourceDir, challenge);
-
-  return manifest.map((item) => {
-    const relativePath = String(item.path ?? "").trim();
-    let fullPath;
+  return (challenge.service_manifest ?? []).map((item) => {
     try {
-      fullPath = safeServicePath(root, relativePath);
-    } catch (error) {
-      return { path: relativePath, ok: false, reason: error instanceof Error ? error.message : String(error) };
-    }
-
-    const expectedSize = Number(item.size);
-    const expectedGitBlobSha1 = String(item.git_blob_sha1 ?? "").toLowerCase();
-    const expectedSha256 = String(item.sha256 ?? "").toLowerCase();
-    const hasGit = /^[a-f0-9]{40}$/.test(expectedGitBlobSha1);
-    const hasSha = /^[a-f0-9]{64}$/.test(expectedSha256);
-
-    if (!hasGit && !hasSha) return { path: relativePath, ok: false, reason: "manifest needs git_blob_sha1 or sha256" };
-    if (!Number.isInteger(expectedSize) || expectedSize < 0) return { path: relativePath, ok: false, reason: "invalid manifest size" };
-    if (!fs.existsSync(fullPath)) return { path: relativePath, full_path: fullPath, ok: false, reason: "missing" };
-
-    const data = fs.readFileSync(fullPath);
-    if (data.length !== expectedSize) {
-      return { path: relativePath, full_path: fullPath, ok: false, reason: "size mismatch", expected_size: expectedSize, actual_size: data.length };
-    }
-
-    const actualGit = gitBlobSha1Buffer(data);
-    if (hasGit && actualGit !== expectedGitBlobSha1) {
-      return { path: relativePath, full_path: fullPath, ok: false, reason: "git blob sha1 mismatch", expected_git_blob_sha1: expectedGitBlobSha1, actual_git_blob_sha1: actualGit };
-    }
-
-    const actualSha = sha256Buffer(data);
-    if (hasSha && actualSha !== expectedSha256) {
-      return { path: relativePath, full_path: fullPath, ok: false, reason: "sha256 mismatch", expected_sha256: expectedSha256, actual_sha256: actualSha };
-    }
-
-    return { path: relativePath, full_path: fullPath, ok: true, size: data.length, git_blob_sha1: actualGit, sha256: actualSha };
+      const file = safeServicePath(root, item.path);
+      if (!fs.existsSync(file) || !fs.statSync(file).isFile()) return { path: item.path, ok: false, reason: "missing" };
+      const data = fs.readFileSync(file);
+      const ok = data.length === item.size &&
+        (!item.git_blob_sha1 || blobHash(data) === item.git_blob_sha1) &&
+        (!item.sha256 || hash(data) === item.sha256) &&
+        Boolean(item.git_blob_sha1 || item.sha256);
+      return { path: item.path, ok, reason: ok ? undefined : "integrity mismatch" };
+    } catch (error) { return { path: item.path, ok: false, reason: error.message }; }
   });
 }
 
 export function assertChallengeServiceFiles(sourceDir, challenge) {
   if (!challenge.service) return [];
+  const service = challenge.service;
+  if (service.kind !== "docker-compose") throw new Error("unsupported service kind");
+  if (!Array.isArray(service.runtime_files) || !service.runtime_files.includes(service.compose_file ?? "compose.yaml")) throw new Error("service runtime_files must include compose file");
   const status = serviceFileStatus(sourceDir, challenge);
-  const failed = status.filter((item) => !item.ok);
-  if (failed.length > 0) {
-    throw new Error("challenge service verification failed: " + failed.map((item) => item.path + ": " + item.reason).join("; "));
-  }
-
+  const bad = status.find((item) => !item.ok);
+  if (bad) throw new Error(`service file ${bad.path}: ${bad.reason}`);
   const root = serviceRoot(sourceDir, challenge);
-  const composeFile = safeServicePath(root, challenge.service.compose_file ?? "compose.yaml");
-  if (!fs.existsSync(composeFile)) throw new Error("challenge service compose file missing: " + composeFile);
+  if ((service.runtime_artifacts ?? []).length) assertChallengeArtifacts(sourceDir, challenge);
+  if ((challenge.service_manifest ?? []).length && service.runtime_files.some((relative) => !challenge.service_manifest.some((item) => item.path === relative))) throw new Error("unverified service runtime file");
+  for (const relative of service.runtime_files) {
+    const file = safeServicePath(root, relative);
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) throw new Error(`missing service runtime file: ${relative}`);
+  }
+  for (const relative of service.runtime_artifacts ?? []) {
+    const file = safeServicePath(path.join(sourceDir, challenge.files_dir ?? "files"), relative);
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) throw new Error(`missing service artifact: ${relative}`);
+    if (!(challenge.artifact_manifest ?? []).some((item) => item.path === relative)) throw new Error(`unverified service artifact: ${relative}`);
+  }
+  const health = service.healthcheck;
+  if (!health || !["http", "tcp"].includes(health.kind)) throw new Error("service healthcheck required");
+  const host = health.kind === "http" ? new URL(health.url).hostname : health.host;
+  if (!["127.0.0.1", "localhost", "::1"].includes(host)) throw new Error("service healthcheck must use localhost");
+  if (!Number.isInteger(service.local_port) || service.local_port < 1 || service.local_port > 65535) throw new Error("invalid local service port");
+  const healthPort = health.kind === "http" ? Number(new URL(health.url).port || 80) : Number(health.port);
+  if (healthPort !== service.local_port) throw new Error("service healthcheck port must match local_port");
+  if (service.dynamic_flag_env && service.dynamic_flag_file) throw new Error("choose one dynamic flag injection method");
   return status;
 }
 
-function validateRawGithubUrl(rawUrl) {
-  const url = new URL(rawUrl);
-  if (url.protocol !== "https:" || url.hostname !== "raw.githubusercontent.com") {
-    throw new Error("service fetch only allows https://raw.githubusercontent.com");
-  }
-  return url;
-}
-
 export async function fetchChallengeServiceFiles(sourceDir, challenge) {
-  const manifest = Array.isArray(challenge.service_manifest) ? challenge.service_manifest : [];
-  if (manifest.length === 0) return [];
+  const manifest = challenge.service_manifest ?? [];
   const root = serviceRoot(sourceDir, challenge);
   const results = [];
-
   for (const item of manifest) {
-    const relativePath = String(item.path ?? "").trim();
-    const url = validateRawGithubUrl(String(item.url ?? ""));
-    const response = await fetch(url, { redirect: "follow", headers: { "user-agent": "ctf-racer-service-fetch" } });
-    if (!response.ok) throw new Error("service download failed for " + relativePath + ": HTTP " + response.status);
+    const destination = safeServicePath(root, item.path);
+    const url = new URL(item.url);
+    if (url.protocol !== "https:" || url.hostname !== "raw.githubusercontent.com") throw new Error("service fetch URL rejected");
+    const response = await fetch(url, { redirect: "error" });
+    if (!response.ok) throw new Error(`service fetch failed: ${item.path} HTTP ${response.status}`);
     const data = Buffer.from(await response.arrayBuffer());
-
-    if (data.length !== Number(item.size)) throw new Error("service size mismatch for " + relativePath);
-    if (item.git_blob_sha1 && gitBlobSha1Buffer(data) !== String(item.git_blob_sha1).toLowerCase()) {
-      throw new Error("service Git blob SHA-1 mismatch for " + relativePath);
-    }
-    if (item.sha256 && sha256Buffer(data) !== String(item.sha256).toLowerCase()) {
-      throw new Error("service SHA-256 mismatch for " + relativePath);
-    }
-
-    const destination = safeServicePath(root, relativePath);
+    if (data.length !== item.size || (item.git_blob_sha1 && blobHash(data) !== item.git_blob_sha1) || (item.sha256 && hash(data) !== item.sha256)) throw new Error(`service download integrity mismatch: ${item.path}`);
     fs.mkdirSync(path.dirname(destination), { recursive: true });
     fs.writeFileSync(destination, data);
-    results.push({ path: relativePath, destination, size: data.length });
+    results.push(item.path);
   }
-
   assertChallengeServiceFiles(sourceDir, challenge);
   return results;
 }
 
-export function challengeHasDynamicVerifier(challenge) {
-  return Boolean(challenge.service?.dynamic_flag_env);
-}
-
 export function createDynamicFlag(challenge) {
-  if (!challengeHasDynamicVerifier(challenge)) return null;
-  const prefix = challenge.service.flag_prefix ?? "csaw{racer_";
-  const suffix = challenge.service.flag_suffix ?? "}";
-  const raw = prefix + crypto.randomBytes(12).toString("hex") + suffix;
-  return { raw, sha256: sha256Buffer(Buffer.from(raw, "utf8")) };
+  if (!challenge.service?.dynamic_flag_env && !challenge.service?.dynamic_flag_file) return null;
+  const raw = `${challenge.service.flag_prefix ?? "FLAG{racer_"}${crypto.randomBytes(16).toString("hex")}${challenge.service.flag_suffix ?? "}"}`;
+  if (challenge.flag_regex && !new RegExp(`^(?:${challenge.flag_regex})$`).test(raw)) throw new Error("generated flag does not match challenge flag_regex");
+  return { raw, sha256: hash(raw) };
 }
 
-function composeArgs(challenge, action) {
-  const service = challenge.service;
-  const projectName = service.project_name ?? ("ctf-racer-" + challenge.id).replace(/[^a-zA-Z0-9_-]/g, "-");
-  const composeFile = service.compose_file ?? "compose.yaml";
-  if (action === "up") {
-    return ["compose", "-p", projectName, "-f", composeFile, "up", "-d", "--build", "--remove-orphans"];
-  }
-  return ["compose", "-p", projectName, "-f", composeFile, "down", "-v", "--remove-orphans"];
-}
-
-function runCompose(root, challenge, action, env) {
-  const result = spawnSync("docker", composeArgs(challenge, action), {
-    cwd: root,
-    env,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  if (result.status !== 0 && action === "up") {
-    throw new Error("docker compose up failed: " + (result.stderr || result.stdout || "unknown error").trim());
-  }
-  return result;
-}
-
-function waitTcp(host, port, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
+export function healthcheck(health) {
+  const timeout = health.timeout_ms ?? 60000;
+  const deadline = Date.now() + timeout;
   return new Promise((resolve, reject) => {
+    const retry = () => Date.now() >= deadline ? reject(new Error(`${health.kind} healthcheck timed out`)) : setTimeout(attempt, 300);
     const attempt = () => {
-      const socket = net.createConnection({ host, port });
-      let settled = false;
-      const fail = () => {
-        if (settled) return;
-        settled = true;
-        socket.destroy();
-        if (Date.now() >= deadline) reject(new Error("TCP service healthcheck timed out"));
-        else setTimeout(attempt, 400);
-      };
-      socket.setTimeout(1000, fail);
-      socket.once("error", fail);
-      socket.once("connect", () => {
-        if (settled) return;
-        settled = true;
-        socket.end();
-        resolve();
-      });
+      if (health.kind === "tcp") {
+        const socket = net.createConnection({ host: health.host, port: health.port });
+        let done = false;
+        const fail = () => { if (done) return; done = true; socket.destroy(); retry(); };
+        socket.setTimeout(1000, fail);
+        socket.once("error", fail);
+        socket.once("connect", () => { if (done) return; done = true; socket.end(); resolve(); });
+      } else if (health.kind === "http") {
+        const request = http.get(health.url, { timeout: 1500 }, (response) => {
+          response.resume();
+          response.statusCode === (health.expected_status ?? 200) ? resolve() : retry();
+        });
+        request.once("error", retry);
+        request.once("timeout", () => { request.destroy(); retry(); });
+      } else reject(new Error("unsupported healthcheck"));
     };
     attempt();
   });
 }
 
-function waitHttp(urlString, expectedStatus, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
-  return new Promise((resolve, reject) => {
-    const attempt = () => {
-      const url = new URL(urlString);
-      const lib = url.protocol === "https:" ? https : http;
-      const request = lib.get(url, { timeout: 1500 }, (response) => {
-        response.resume();
-        if (response.statusCode === expectedStatus) resolve();
-        else retry();
-      });
-      const retry = () => {
-        request.destroy();
-        if (Date.now() >= deadline) reject(new Error("HTTP service healthcheck timed out"));
-        else setTimeout(attempt, 400);
-      };
-      request.once("error", retry);
-      request.once("timeout", retry);
-    };
-    attempt();
-  });
+function compose(runtimeDir, project, file, action, env, secret) {
+  const args = ["compose", "-p", project, "-f", file, ...action];
+  const result = spawnSync("docker", args, { cwd: runtimeDir, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  if (result.status !== 0) throw new Error(`docker compose ${action[0]} failed: ${String(result.stderr || result.stdout || result.error || "unknown").replaceAll(secret ?? "\0", "[REDACTED]").trim()}`);
 }
 
-async function waitForHealth(challenge) {
-  const health = challenge.service?.healthcheck;
-  if (!health) return;
-  const timeoutMs = Number(health.timeout_ms ?? 60000);
-  if (health.kind === "tcp") {
-    await waitTcp(health.host ?? "127.0.0.1", Number(health.port), timeoutMs);
-    return;
-  }
-  if (health.kind === "http") {
-    await waitHttp(health.url, Number(health.expected_status ?? 200), timeoutMs);
-    return;
-  }
-  throw new Error("unsupported service healthcheck kind: " + health.kind);
+function assertLocalBindings(project, port, env) {
+  const result = spawnSync("docker", ["ps", "--filter", `label=com.docker.compose.project=${project}`, "--format", "{{.Ports}}"], { env, encoding: "utf8" });
+  if (result.status !== 0) throw new Error("could not inspect service port bindings");
+  const published = result.stdout.split(/[\n,]/).map((value) => value.trim()).filter((value) => value.includes("->"));
+  if (!published.some((value) => value.startsWith(`127.0.0.1:${port}->`))) throw new Error("service localhost port is not published");
+  if (published.some((value) => !/^127\.0\.0\.1:\d+->/.test(value) && !/^\[::1\]:\d+->/.test(value))) throw new Error("service exposes a non-localhost port");
 }
 
 export async function startChallengeService(sourceDir, challenge) {
   if (!challenge.service) return null;
-  if (challenge.service.kind !== "docker-compose") {
-    throw new Error("unsupported challenge service kind: " + challenge.service.kind);
-  }
-
   assertChallengeServiceFiles(sourceDir, challenge);
-  const root = serviceRoot(sourceDir, challenge);
-  const dynamicFlag = createDynamicFlag(challenge);
-  const env = { ...process.env, ...(challenge.service.environment ?? {}) };
-  if (dynamicFlag) env[challenge.service.dynamic_flag_env] = dynamicFlag.raw;
-
-  runCompose(root, challenge, "down", env);
+  const service = challenge.service;
+  const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-service-"));
+  fs.chmodSync(runtimeDir, 0o700);
+  const secretDir = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-secret-"));
+  fs.chmodSync(secretDir, 0o700);
+  const dynamic = createDynamicFlag(challenge);
+  const project = `racer-${crypto.randomBytes(8).toString("hex")}`;
+  const composeFile = service.compose_file ?? "compose.yaml";
+  const env = { ...process.env, ...(service.environment ?? {}) };
   try {
-    runCompose(root, challenge, "up", env);
-    await waitForHealth(challenge);
+    for (const relative of service.runtime_files) {
+      const src = safeServicePath(serviceRoot(sourceDir, challenge), relative);
+      const dst = safeServicePath(runtimeDir, relative);
+      fs.mkdirSync(path.dirname(dst), { recursive: true });
+      fs.copyFileSync(src, dst);
+    }
+    for (const relative of service.runtime_artifacts ?? []) {
+      const src = safeServicePath(path.join(sourceDir, challenge.files_dir ?? "files"), relative);
+      const dst = safeServicePath(runtimeDir, relative);
+      fs.mkdirSync(path.dirname(dst), { recursive: true });
+      fs.copyFileSync(src, dst);
+    }
+    if (dynamic && service.dynamic_flag_env) env[service.dynamic_flag_env] = dynamic.raw;
+    if (dynamic && service.dynamic_flag_file) {
+      const secretFile = safeServicePath(secretDir, service.dynamic_flag_file);
+      fs.writeFileSync(secretFile, dynamic.raw + "\n", { mode: 0o644 });
+      env.RUNTIME_FLAG_FILE = secretFile;
+    }
+    compose(runtimeDir, project, composeFile, ["up", "-d", "--build", "--remove-orphans"], env, dynamic?.raw);
+    assertLocalBindings(project, service.local_port, env);
+    await healthcheck(service.healthcheck);
+    return {
+      flag_sha256: dynamic?.sha256 ?? null,
+      network_access: service.network_access === true,
+      redact: (value) => dynamic ? String(value).replaceAll(dynamic.raw, "[REDACTED_FLAG]") : String(value),
+      scrubWorkspace: (workspace) => {
+        if (!dynamic) return;
+        const secretBytes = Buffer.from(dynamic.raw);
+        const visit = (dir) => {
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const file = path.join(dir, entry.name);
+            if (entry.isDirectory()) visit(file);
+            else if (entry.isFile()) {
+              const data = fs.readFileSync(file);
+              let index = data.indexOf(secretBytes);
+              if (index === -1) continue;
+              do {
+                data.fill(0x58, index, index + secretBytes.length);
+                index = data.indexOf(secretBytes, index + secretBytes.length);
+              } while (index !== -1);
+              fs.writeFileSync(file, data);
+            }
+          }
+        };
+        visit(workspace);
+      },
+      stop: () => {
+        try { compose(runtimeDir, project, composeFile, ["down", "-v", "--remove-orphans"], env, dynamic?.raw); }
+        finally { fs.rmSync(runtimeDir, { recursive: true, force: true }); fs.rmSync(secretDir, { recursive: true, force: true }); delete env[service.dynamic_flag_env]; }
+      },
+    };
   } catch (error) {
-    runCompose(root, challenge, "down", env);
+    try { compose(runtimeDir, project, composeFile, ["down", "-v", "--remove-orphans"], env, dynamic?.raw); }
+    catch { /* preserve startup error */ }
+    fs.rmSync(runtimeDir, { recursive: true, force: true });
+    fs.rmSync(secretDir, { recursive: true, force: true });
     throw error;
   }
-
-  return {
-    root,
-    challenge,
-    env,
-    flag_sha256: dynamicFlag?.sha256 ?? null,
-    network_access: challenge.service.network_access === true,
-  };
 }
 
 export async function stopChallengeService(handle) {
-  if (!handle) return;
-  runCompose(handle.root, handle.challenge, "down", handle.env);
+  if (handle) handle.stop();
+}
+
+export async function withChallengeService(sourceDir, challenge, run) {
+  const handle = await startChallengeService(sourceDir, challenge);
+  try { return await run(handle); }
+  finally { await stopChallengeService(handle); }
 }

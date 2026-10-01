@@ -3,15 +3,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
-import { loadPolicy } from "./config.js";
+import { loadPolicy, policyForChallenge } from "./config.js";
 import { CodexAgentSession } from "./agent.js";
 import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
 import { detectInstalledSkill, skillNamesForChallenge, verifySkillProof } from "./skill-route.js";
 import { solveChallenge } from "./runner.js";
 import { inspectLatestBenchmark, runBenchmark } from "./benchmark.js";
-import { assertChallengeArtifacts, importSingleArtifact } from "./artifacts.js";
+import { assertChallengeArtifacts, fetchChallengeArtifacts, importSingleArtifact } from "./artifacts.js";
 import { fetchSuiteArtifacts, precheckSuite, runSuite } from "./suite.js";
+import { assertChallengeServiceFiles, fetchChallengeServiceFiles, startChallengeService, stopChallengeService, withChallengeService } from "./service.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -26,6 +27,9 @@ function usage() {
   console.error("  npm run racer -- suite-fetch <suite.json>");
   console.error("  npm run racer -- suite-check <suite.json>");
   console.error("  npm run racer -- suite <suite.json> [--runs N]");
+  console.error("  npm run racer -- service-fetch <challenge-directory>");
+  console.error("  npm run racer -- service-check <challenge-directory>");
+  console.error("  npm run racer -- service-smoke <challenge-directory>");
   process.exit(2);
 }
 
@@ -102,7 +106,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
 
 function parseBenchmarkRuns(args, defaultRuns = 5) {
   const index = args.indexOf("--runs");
@@ -164,6 +168,30 @@ if (command === "suite-fetch" || command === "suite-check" || command === "suite
 
 const sourceDir = path.resolve(process.cwd(), sourceArg);
 if (!fs.existsSync(sourceDir)) throw new Error(`Challenge directory not found: ${sourceDir}`);
+
+if (["service-fetch", "service-check", "service-smoke"].includes(command)) {
+  const challenge = loadChallenge(sourceDir);
+  if (!challenge.service) throw new Error("challenge has no service");
+  if (command === "service-fetch") {
+    if (challenge.artifact_manifest?.length) {
+      try { assertChallengeArtifacts(sourceDir, challenge); }
+      catch { await fetchChallengeArtifacts(sourceDir, challenge); }
+    }
+    const fetched = await fetchChallengeServiceFiles(sourceDir, challenge);
+    assertChallengeArtifacts(sourceDir, challenge);
+    console.log(`[ctf-racer] service files fetched: ${fetched.length}`);
+  } else {
+    assertChallengeServiceFiles(sourceDir, challenge);
+    assertChallengeArtifacts(sourceDir, challenge);
+    if (command === "service-check") console.log("[ctf-racer] service files and player artifacts: ok");
+    else {
+      const handle = await startChallengeService(sourceDir, challenge);
+      try { console.log(`[ctf-racer] service smoke: healthy localhost:${challenge.service.local_port}`); }
+      finally { await stopChallengeService(handle); console.log("[ctf-racer] service smoke: stopped"); }
+    }
+  }
+  process.exit(0);
+}
 
 if (command === "benchmark-import") {
   const sourceIndex = restArgs.indexOf("--source");
@@ -230,9 +258,13 @@ if (command === "benchmark-inspect") {
 
 const challenge = loadChallenge(sourceDir);
 assertChallengeArtifacts(sourceDir, challenge);
+assertChallengeServiceFiles(sourceDir, challenge);
 const policy = loadPolicy(projectRoot);
 if (!policy.authorized_ctf_only) throw new Error("V1 requires authorized_ctf_only=true");
 
+await withChallengeService(sourceDir, challenge, async (service) => {
+const effectiveChallenge = service?.flag_sha256 ? { ...challenge, flag_sha256: service.flag_sha256 } : challenge;
+const effectivePolicy = policyForChallenge(policy, challenge, service);
 const state = prepareWorkspace(projectRoot, sourceDir, challenge);
 const runRoot = path.join(projectRoot, "runs", safeChallengeId(challenge.id));
 const preflight = runPreflight(state.workspace, challenge);
@@ -256,7 +288,7 @@ state.skill_route = {
 };
 writeState(runRoot, state);
 
-const session = await CodexAgentSession.create(state.workspace, policy);
+const session = await CodexAgentSession.create(state.workspace, effectivePolicy);
 
 console.log(`[ctf-racer] challenge: ${challenge.title}`);
 console.log(`[ctf-racer] workspace: ${state.workspace}`);
@@ -269,7 +301,7 @@ for (const skill of installedSkills) {
   console.log(`[ctf-racer] skill local: $${skill.name} ${skill.found ? skill.path : "(not detected in local documented paths)"}`);
 }
 
-const result = await solveChallenge({ challenge, policy, state, runRoot, session, skillNames });
+const result = await solveChallenge({ challenge: effectiveChallenge, policy: effectivePolicy, state, runRoot, session, skillNames, service });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
 console.log(`[ctf-racer] elapsed: ${seconds(result.state.elapsed_ms ?? 0)}s`);
 
@@ -294,8 +326,9 @@ if (skillNames.length > 0) {
 }
 
 if (result.state.status === "solved") {
-  console.log(`\n[ctf-racer] SOLVED (verified): ${result.state.flag}`);
-  process.exit(0);
+  console.log(service?.flag_sha256 ? "\n[ctf-racer] SOLVED (verified dynamic flag)" : `\n[ctf-racer] SOLVED (verified): ${result.state.flag}`);
+  process.exitCode = 0;
+  return;
 }
 
 if (result.state.status === "candidate") {
@@ -304,4 +337,6 @@ if (result.state.status === "candidate") {
 
 console.log(`\n[ctf-racer] ${result.state.status.toUpperCase()} after ${result.state.rounds} persistent rounds.`);
 console.log(`[ctf-racer] inspect: ${runRoot}`);
-process.exit(result.state.status === "error" ? 1 : 3);
+process.exitCode = result.state.status === "error" ? 1 : 3;
+
+});

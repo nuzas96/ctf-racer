@@ -10,3 +10,7 @@ benchmarks/muse-in-disguise/files/Muse.jar
 benchmarks/csaw-secret-treaties/files/
 benchmarks/csaw-ghost-in-the-machine/files/
 benchmarks/csaw-autobahn/files/
+
+# Controller-side fetched deployment files
+benchmarks/csaw-trustdinoidc/service/
+benchmarks/csaw-diamond-dogs/files/

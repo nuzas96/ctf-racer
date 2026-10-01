@@ -2,7 +2,7 @@
 
 Canonical upstream: `osirislab/CSAW-CTF-2026-Quals-Public/pwn/diamond-dogs`.
 
-Status: **pending local-service harness**.
+Status: **infrastructure validated; solver run pending**.
 
 Player-facing artifacts are integrity-pinned from upstream:
 - `guard-dog`
@@ -20,4 +20,4 @@ Planned runtime:
 - solver sees only the player handout plus the localhost target;
 - independent verification uses the per-run flag hash.
 
-This benchmark must not be added to the active suite until the service lifecycle and challenge-network path are validated end-to-end.
+The service smoke passed. The active suite remains unchanged; no solver run has been performed.

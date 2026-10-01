@@ -21,3 +21,11 @@ export function loadPolicy(projectRoot) {
   const parsed = JSON.parse(fs.readFileSync(policyPath, "utf8"));
   return { ...DEFAULT_POLICY, ...parsed };
 }
+
+export function policyForChallenge(policy, challenge, serviceHandle) {
+  return {
+    ...policy,
+    allow_external_web_research: false,
+    allow_challenge_network: challenge.service?.network_access === true && serviceHandle?.network_access === true,
+  };
+}

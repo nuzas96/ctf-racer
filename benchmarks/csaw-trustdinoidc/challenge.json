@@ -5,17 +5,74 @@
   "description": "TrustDinOIDC sells dinosaur posters to anyone who can prove they're logged in. The Flagosaurus print is for admins only.",
   "flag_format": "csaw{...}",
   "flag_regex": "csaw\\{[A-Za-z0-9_:-]+\\}",
-  "benchmark_status": "pending-service-harness",
+  "benchmark_status": "infrastructure-validated-pending-solver-run",
   "source_repository": "osirislab/CSAW-CTF-2026-Quals-Public",
   "source_path": "web/TrustDinOIDC",
   "target": {
     "url": "http://127.0.0.1:18990"
   },
-  "service_plan": {
+  "service_manifest": [
+    {
+      "path": "compose.yaml",
+      "size": 1139,
+      "git_blob_sha1": "5536dea1d7747c3f20bc6cf2174d6361897352c5",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/web/TrustDinOIDC/deployment/compose.yaml"
+    },
+    {
+      "path": "Dockerfile",
+      "size": 303,
+      "git_blob_sha1": "4e7153f3543d4488261738b21297de731c1f0b93",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/web/TrustDinOIDC/deployment/Dockerfile"
+    },
+    {
+      "path": "idp.py",
+      "size": 3252,
+      "git_blob_sha1": "18b1d1687a0256a9e9d77e1e1cd08269b81b9d86",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/web/TrustDinOIDC/deployment/idp.py"
+    },
+    {
+      "path": "main.py",
+      "size": 4491,
+      "git_blob_sha1": "72550912568c4bc09480b616ad7ff8af5aece166",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/web/TrustDinOIDC/deployment/main.py"
+    },
+    {
+      "path": "requirements.txt",
+      "size": 34,
+      "git_blob_sha1": "c450cdab36daf5a1b6fbd4e69bff349ff17aeb61",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/web/TrustDinOIDC/deployment/requirements.txt"
+    },
+    {
+      "path": "templates/index.html",
+      "size": 3028,
+      "git_blob_sha1": "a56ca45e9e01479535e6f6b806952d86ffae32fa",
+      "url": "https://raw.githubusercontent.com/osirislab/CSAW-CTF-2026-Quals-Public/main/web/TrustDinOIDC/deployment/templates/index.html"
+    }
+  ],
+  "service": {
     "kind": "docker-compose",
-    "upstream_directory": "web/TrustDinOIDC/deployment",
+    "directory": "service",
+    "compose_file": "compose.yaml",
+    "runtime_files": [
+      "compose.yaml",
+      "Dockerfile",
+      "idp.py",
+      "main.py",
+      "requirements.txt",
+      "templates/index.html"
+    ],
     "local_port": 18990,
-    "solver_surface": "target-only",
-    "dynamic_flag": true
+    "environment": {
+      "TRUSTDINOIDC_BIND": "127.0.0.1",
+      "TRUSTDINOIDC_PORT": "18990"
+    },
+    "dynamic_flag_env": "FLAG",
+    "network_access": true,
+    "healthcheck": {
+      "kind": "http",
+      "url": "http://127.0.0.1:18990/",
+      "expected_status": 200
+    },
+    "flag_prefix": "csaw{racer_"
   }
 }

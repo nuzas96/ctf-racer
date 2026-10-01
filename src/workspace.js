@@ -8,8 +8,9 @@ function copyDirContents(source, destination) {
   for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
     const src = path.join(source, entry.name);
     const dst = path.join(destination, entry.name);
-    if (entry.isDirectory()) fs.cpSync(src, dst, { recursive: true });
-    else fs.copyFileSync(src, dst);
+    if (entry.isDirectory()) fs.cpSync(src, dst, { recursive: true, dereference: false });
+    else if (entry.isFile()) fs.copyFileSync(src, dst);
+    else throw new Error("non-regular player artifact rejected");
   }
 }
 
@@ -27,7 +28,7 @@ export function makeChallengeMarkdown(challenge) {
     (challenge.notes ? `\n## Operator notes\n\n${challenge.notes}\n` : "");
 }
 
-export function makeAgentInstructions() {
+export function makeAgentInstructions(challenge = {}) {
   return `# CTF Racer Agent Instructions\n\n` +
     `You are the single persistent solver assigned to this authorized CTF challenge.\n\n` +
     `- Use $ctf-solve for solve lifecycle, evidence-first iterations, PROGRESS.md discipline, pivots and stuck recovery.\n` +
@@ -37,6 +38,7 @@ export function makeAgentInstructions() {
     `- Work only on CHALLENGE.md and artifacts/.\n` +
     `- Keep useful scripts/results under solve/.\n` +
     `- Verify candidate flags locally when possible.\n` +
+    (challenge.service?.dynamic_flag_env || challenge.service?.dynamic_flag_file ? `- Do not write a recovered raw flag into PROGRESS.md or other workspace files; return it only in the final CTF_RACER_FLAG line.\n` : "") +
     `- When verified, include exactly one final line: CTF_RACER_FLAG=<flag>\n`;
 }
 
@@ -54,10 +56,19 @@ export function prepareWorkspace(projectRoot, sourceDir, challenge) {
 
   fs.mkdirSync(path.join(workspace, "solve"), { recursive: true });
   fs.mkdirSync(artifacts, { recursive: true });
-  copyDirContents(path.join(sourceDir, challenge.files_dir ?? "files"), artifacts);
+  if (Array.isArray(challenge.solver_artifacts)) {
+    for (const relative of challenge.solver_artifacts) {
+      const root = path.resolve(sourceDir, challenge.files_dir ?? "files");
+      const source = path.resolve(root, relative);
+      if (!source.startsWith(root + path.sep) || !fs.statSync(source).isFile() || fs.lstatSync(source).isSymbolicLink()) throw new Error("invalid solver artifact");
+      const destination = path.resolve(artifacts, relative);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.copyFileSync(source, destination);
+    }
+  } else copyDirContents(path.join(sourceDir, challenge.files_dir ?? "files"), artifacts);
 
   fs.writeFileSync(path.join(workspace, "CHALLENGE.md"), makeChallengeMarkdown(challenge));
-  fs.writeFileSync(path.join(workspace, "AGENTS.md"), makeAgentInstructions());
+  fs.writeFileSync(path.join(workspace, "AGENTS.md"), makeAgentInstructions(challenge));
   fs.writeFileSync(path.join(workspace, "PROGRESS.md"), "# Progress\n\n");
 
   const now = new Date().toISOString();

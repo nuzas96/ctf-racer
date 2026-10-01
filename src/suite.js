@@ -3,6 +3,7 @@ import path from "node:path";
 import { loadChallenge } from "./challenge.js";
 import { assertChallengeArtifacts, fetchChallengeArtifacts } from "./artifacts.js";
 import { runBenchmark } from "./benchmark.js";
+import { assertChallengeServiceFiles, fetchChallengeServiceFiles } from "./service.js";
 
 export function loadSuite(projectRoot, suitePath) {
   const full = path.resolve(projectRoot, suitePath);
@@ -23,6 +24,7 @@ export function precheckSuite(projectRoot, suitePath) {
     let error = null;
     try {
       assertChallengeArtifacts(sourceDir, challenge);
+      assertChallengeServiceFiles(sourceDir, challenge);
     } catch (err) {
       artifactStatus = "error";
       error = err instanceof Error ? err.message : String(err);
@@ -94,6 +96,7 @@ export async function fetchSuiteArtifacts(projectRoot, suitePath) {
   for (const entry of loaded.suite.benchmarks) {
     const sourceDir = path.resolve(projectRoot, entry.path);
     const challenge = loadChallenge(sourceDir);
+    if (challenge.service_manifest?.length) await fetchChallengeServiceFiles(sourceDir, challenge);
     const manifest = Array.isArray(challenge.artifact_manifest) ? challenge.artifact_manifest : [];
 
     if (manifest.length === 0) {
