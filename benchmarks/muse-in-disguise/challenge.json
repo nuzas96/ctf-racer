@@ -1,0 +1,16 @@
+{
+  "id": "nadi-muse-in-disguise",
+  "title": "Muse in Disguise",
+  "category": "forensics",
+  "description": "A mysterious file named Muse.jar has been recovered. But something about it doesn't quite sound right. Investigate the file, uncover its true form, and discover the message hidden within.",
+  "flag_format": "NADI{...}",
+  "flag_regex": "NADI\\{[A-Za-z0-9_:-]+\\}",
+  "flag_sha256": "dcca3e83011ac37f010fa5269149efca366af36b2671fff27c78ecbb3e1d3fdc",
+  "artifact_manifest": [
+    {
+      "path": "Muse.jar",
+      "size": 2219736,
+      "sha256": "850f422a805a305dd0d4dd045eb1cad66294a522f3e9bf1a656e180ad105be65"
+    }
+  ]
+}
