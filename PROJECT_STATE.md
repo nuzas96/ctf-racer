@@ -310,3 +310,12 @@ Key behavior:
 This is the platform-independent continuous competition foundation. No CTFd-specific solver logic has been added.
 
 CI after watcher tests landed: 47 tests, 47 passed, 0 failed.
+
+
+## Watch root startup fix
+
+Local validation exposed a startup UX issue: `watch ./incoming-ctf` failed when the watched directory did not already exist.
+
+Watch mode now creates its intake root automatically before the first scan. This keeps the live-competition command self-starting while preserving the strict readiness behavior for challenge contents themselves. An empty new root simply remains idle until challenge directories appear.
+
+Regression coverage was added. CI after the fix: 48 tests, 48 passed, 0 failed.
