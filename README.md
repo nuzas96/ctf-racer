@@ -4,7 +4,11 @@ V1 architecture lock:
 
 > **One challenge = one persistent Codex agent = one isolated workspace.**
 
-This milestone intentionally does **not** use multiple agents for the same challenge, difficulty prediction, solve-count heuristics, or automatic CTF platform polling.\n\n## Architecture guardrail\n\nThe current execution principles are frozen in [`ARCHITECTURE.md`](ARCHITECTURE.md). General architecture changes require multi-challenge benchmark evidence; one challenge may expose a bug or reusable skill gap, but must not by itself drive a redesign.
+This milestone intentionally does **not** use multiple agents for the same challenge, difficulty prediction, solve-count heuristics, or automatic CTF platform polling.
+
+## Architecture guardrail
+
+The current execution principles are frozen in [`ARCHITECTURE.md`](ARCHITECTURE.md). General architecture changes require multi-challenge benchmark evidence; one challenge may expose a bug or reusable skill gap, but must not by itself drive a redesign.
 
 ## What V1 does
 
