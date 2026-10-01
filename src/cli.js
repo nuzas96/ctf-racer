@@ -279,11 +279,17 @@ if (skillNames.length > 0) {
     verified: proof.verified,
     status: proof.status,
     skills: proof.skills,
+    reference_status: proof.referenceStatus,
+    references: proof.references,
   };
   writeState(runRoot, result.state);
   console.log(`[ctf-racer] skill proof: ${proof.status}`);
   for (const skill of proof.skills) {
-    console.log(`[ctf-racer] skill proof item: $${skill.name} ${skill.verified ? skill.path : "(not verified)"}`);
+    console.log(`[ctf-racer] skill proof item: ${skill.name} ${skill.verified ? skill.path : "(not verified)"}`);
+  }
+  console.log(`[ctf-racer] focused references: ${proof.referenceStatus} (${proof.references.length})`);
+  for (const ref of proof.references) {
+    console.log(`[ctf-racer] reference proof item: ${ref.skill} ${ref.verified ? ref.path : "(not verified: " + ref.path + ")"}`);
   }
 }
 
