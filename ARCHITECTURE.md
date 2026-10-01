@@ -109,3 +109,10 @@ Competition mode is intentionally separate from benchmark mode.
 - race reports are stored separately under `runs/_races/`.
 
 This is the first competition-grade orchestration layer. Same-challenge multi-solver parallel racing remains a later escalation experiment, not a default policy.
+
+
+## First competition-race validation
+
+The first real five-category race completed 5/5 verified with concurrency 5 and one fresh retry available. All five challenges solved on their primary attempt, so zero retries were consumed. Controller wall time was 335.15 s.
+
+This validates cross-challenge concurrency as a competition optimization under the current architecture. It does not establish that same-challenge parallel racing is beneficial; primary-first plus bounded fresh retry remains the locked within-challenge policy until further evidence.
