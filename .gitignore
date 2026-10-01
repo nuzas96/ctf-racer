@@ -7,3 +7,6 @@ config/policy.json
 
 # Locally imported archived benchmark binaries
 benchmarks/muse-in-disguise/files/Muse.jar
+benchmarks/csaw-secret-treaties/files/
+benchmarks/csaw-ghost-in-the-machine/files/
+benchmarks/csaw-autobahn/files/
