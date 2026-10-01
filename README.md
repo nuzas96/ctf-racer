@@ -344,3 +344,8 @@ The telemetry layer is observability-only:
 - safe summaries are persisted to `runs/<challenge-id>/telemetry.log`.
 
 Telemetry defaults to enabled. Set `"live_telemetry": false` in `config/policy.json` if a quiet benchmark terminal is preferred.
+
+
+### Live telemetry validation
+
+Local validation: **38/38 tests passed**. A real Codex smoke solve using `examples/hello-flag` then confirmed live turn, agent-message, command, file-change, and token-usage events in the terminal and completed with a verified flag in one round. This establishes that telemetry works on the local execution path as well as in CI.
