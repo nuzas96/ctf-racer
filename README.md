@@ -274,7 +274,7 @@ Both staged service categories have now demonstrated verified solves individuall
 - `csaw-trustdinoidc` — Web / OIDC-JWT trust boundary;
 - `csaw-diamond-dogs` — Pwn / glibc 2.31 UAF.
 
-The historical static baseline remains `benchmarks/suite.json`. The next clean architecture gate is `benchmarks/suite-five-category.json`, which combines Crypto, Forensics, Reverse, Web, and Pwn. Do not call the five-category result official until that aggregate suite pass completes.
+The historical static baseline remains `benchmarks/suite.json`. The expanded `benchmarks/suite-five-category.json` has now completed an official clean synchronized **5/5 verified** pass across Crypto, Forensics, Reverse, Web, and Pwn. This remains a single-pass baseline rather than a robustness estimate; the next phase is repeated-run consistency/variance measurement under the same frozen architecture.
 
 Read `PROJECT_STATE.md` before changing architecture or benchmark scope.
 
