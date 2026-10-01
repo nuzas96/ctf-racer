@@ -4,3 +4,6 @@ runs/
 .env
 config/policy.json
 .DS_Store
+
+# Locally imported archived benchmark binaries
+benchmarks/muse-in-disguise/files/Muse.jar
