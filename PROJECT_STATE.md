@@ -253,3 +253,28 @@ Interpretation:
 - live telemetry remained usable under five concurrent solvers;
 - this does NOT validate same-challenge parallel swarms;
 - same-challenge racing remains a later escalation experiment only if future evidence shows fresh-retry latency is too costly.
+
+
+## Generic competition intake layer
+
+A platform-neutral intake layer is now implemented.
+
+Commands:
+
+```bash
+npm run racer -- intake <challenge-root> --concurrency N --fresh-retries N
+npm run racer -- race-status <suite-or-intake.json>
+```
+
+Intake behavior:
+- recursively discovers challenge directories containing `challenge.json`;
+- validates challenge definitions plus local artifact/service readiness before model calls;
+- rejects duplicate challenge IDs;
+- writes a generated manifest under `runs/_intake/`;
+- feeds the normalized challenge set into the existing concurrent `race` scheduler.
+
+`race-status` is a zero-token operator view that reads current state and latest telemetry for each challenge in a suite/intake manifest.
+
+This intentionally does not add a CTFd-specific watcher yet. Platform adapters should remain thin producers of normalized challenge directories so the solver core stays platform-independent.
+
+CI after intake/status tests landed: 44 tests, 44 passed, 0 failed.
