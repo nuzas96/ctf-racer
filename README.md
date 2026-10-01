@@ -184,7 +184,7 @@ Relevant policy fields:
 
 Round-level diagnostics are written into `state.json`.
 
-Future work: broader preflight modules, multi-challenge concurrency, CTFd intake, and dashboarding.
+Current next gate: add validated Web + Pwn/service benchmark coverage before repeated-run robustness testing or any multi-agent/concurrency change. Broader preflight modules, CTFd intake, and dashboarding remain future work.
 
 
 ## Inspect an existing run without calling the model
@@ -266,6 +266,15 @@ Current static/offline baseline:
 - `csaw-secret-treaties` — Crypto / subset-sum;
 - `csaw-ghost-in-the-machine` — Forensics / PCAP timing channel;
 - `csaw-autobahn` — Reverse Engineering / self-modifying ELF.
+
+Official synchronized clean pass (2026-10-01): **3/3 verified**. This is one clean aggregate pass, not a robustness estimate.
+
+Pending category expansion (not active in `benchmarks/suite.json` yet):
+
+- `csaw-trustdinoidc` — Web / OIDC-JWT trust boundary;
+- `csaw-diamond-dogs` — Pwn / glibc 2.31 UAF.
+
+Read `PROJECT_STATE.md` before changing architecture or benchmark scope.
 
 Fetch the exact public player artifacts directly from the canonical CSAW repository:
 
