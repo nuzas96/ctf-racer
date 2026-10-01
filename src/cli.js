@@ -103,9 +103,9 @@ function inspectRun(sourceDir) {
 const [, , command, sourceArg, ...restArgs] = process.argv;
 if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-check", "suite"].includes(command) || !sourceArg) usage();
 
-function parseBenchmarkRuns(args) {
+function parseBenchmarkRuns(args, defaultRuns = 5) {
   const index = args.indexOf("--runs");
-  if (index === -1) return 5;
+  if (index === -1) return defaultRuns;
   const value = Number(args[index + 1]);
   if (!Number.isInteger(value) || value < 1 || value > 50) {
     throw new Error("--runs must be an integer from 1 to 50");
@@ -133,7 +133,7 @@ if (command === "suite-check" || command === "suite") {
     process.exit(blocked ? 3 : 0);
   }
 
-  const runs = parseBenchmarkRuns(restArgs);
+  const runs = parseBenchmarkRuns(restArgs, 1);
   const result = runSuite({ projectRoot, suitePath, runs });
   console.log("\n[ctf-racer] suite summary");
   console.log("[ctf-racer] suite id: " + result.suite_id);
