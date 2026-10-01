@@ -9,7 +9,7 @@ export const DEFAULT_POLICY = {
   sandbox_mode: "workspace-write",
   approval_policy: "never",
   model: "gpt-6-luna",
-  model_reasoning_effort: "medium",
+  model_reasoning_effort: "medium",\n  live_telemetry: true,
   stall_similarity_threshold: 0.82,
   max_consecutive_stalls: 2,
   max_continuation_rounds: 4,
