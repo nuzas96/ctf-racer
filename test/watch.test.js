@@ -137,3 +137,25 @@ test("watch restart does not relaunch already solved challenges", async () => {
   assert.equal(status.counts.solved, 1);
   assert.equal(status.challenges[0].status, "solved");
 });
+
+
+test("watch auto-creates a missing intake root", async () => {
+  const root = tmp();
+  const incoming = path.join(root, "does-not-exist-yet");
+  assert.equal(fs.existsSync(incoming), false);
+
+  const status = await runWatch({
+    projectRoot: root,
+    intakeRoot: incoming,
+    concurrency: 1,
+    freshRetries: 0,
+    pollMs: 100,
+    idleExitMs: 120,
+    executeAttempt: async () => {
+      throw new Error("should not execute without challenges");
+    },
+  });
+
+  assert.equal(fs.existsSync(incoming), true);
+  assert.deepEqual(status.counts, {});
+});
