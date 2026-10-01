@@ -31,3 +31,13 @@ Fetched artifacts are verified by exact byte size plus the canonical Git blob ha
 - Architecture changes require evidence across multiple challenges/categories.
 
 Historical benchmark directories may remain in this repository for diagnostics, but are not automatically part of the active suite.
+
+
+## Pending service benchmarks
+
+These are staged for the next category-expansion gate but are **not active** yet:
+
+- `csaw-trustdinoidc` — Web / OIDC-JWT trust boundary.
+- `csaw-diamond-dogs` — Pwn / glibc 2.31 UAF.
+
+They require a validated local-service lifecycle and challenge-network path before joining `benchmarks/suite.json`. Do not include them in aggregate solve-rate claims until that wiring exists and the fixtures pass precheck/run end-to-end.
