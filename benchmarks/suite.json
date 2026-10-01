@@ -1,0 +1,16 @@
+{
+  "id": "baseline-v1",
+  "description": "Cross-category archived benchmark baseline used before changing CTF Racer execution architecture.",
+  "benchmarks": [
+    {
+      "path": "benchmarks/meridian-vault-2",
+      "category": "crypto",
+      "required": true
+    },
+    {
+      "path": "benchmarks/muse-in-disguise",
+      "category": "forensics",
+      "required": true
+    }
+  ]
+}
