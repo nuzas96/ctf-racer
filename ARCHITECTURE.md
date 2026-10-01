@@ -116,3 +116,12 @@ This is the first competition-grade orchestration layer. Same-challenge multi-so
 The first real five-category race completed 5/5 verified with concurrency 5 and one fresh retry available. All five challenges solved on their primary attempt, so zero retries were consumed. Controller wall time was 335.15 s.
 
 This validates cross-challenge concurrency as a competition optimization under the current architecture. It does not establish that same-challenge parallel racing is beneficial; primary-first plus bounded fresh retry remains the locked within-challenge policy until further evidence.
+
+
+## Intake boundary
+
+Competition intake is platform-neutral by design.
+
+The core accepts normalized challenge directories containing `challenge.json` plus player artifacts/service metadata. Generic intake discovery validates and queues these directories before solver launch. Platform-specific adapters (for example CTFd or a custom event API) should only fetch/normalize challenges into this format; they must not duplicate routing, solver, retry, verification, or race logic.
+
+This keeps future watcher/platform integrations replaceable while preserving one execution core.
