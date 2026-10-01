@@ -2,6 +2,18 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+function safeArtifactPath(filesDir, relativePath) {
+  if (!relativePath || path.isAbsolute(relativePath)) {
+    throw new Error("artifact path must be a non-empty relative path");
+  }
+  const root = path.resolve(filesDir);
+  const full = path.resolve(root, relativePath);
+  if (full !== root && !full.startsWith(root + path.sep)) {
+    throw new Error("artifact path escapes files directory");
+  }
+  return full;
+}
+
 function sha256File(file) {
   const hash = crypto.createHash("sha256");
   const data = fs.readFileSync(file);
@@ -17,7 +29,16 @@ export function artifactStatus(sourceDir, challenge) {
     const relativePath = String(item.path ?? "").trim();
     const expectedSha256 = String(item.sha256 ?? "").toLowerCase();
     const expectedSize = Number(item.size);
-    const fullPath = path.join(filesDir, relativePath);
+    let fullPath;
+    try {
+      fullPath = safeArtifactPath(filesDir, relativePath);
+    } catch (error) {
+      return {
+        path: relativePath,
+        ok: false,
+        reason: error instanceof Error ? error.message : String(error),
+      };
+    }
 
     if (!relativePath) {
       return { path: relativePath, ok: false, reason: "missing manifest path" };
@@ -104,7 +125,7 @@ export function importSingleArtifact(sourceDir, challenge, sourcePath) {
   }
 
   const filesDir = path.join(sourceDir, challenge.files_dir ?? "files");
-  const destination = path.join(filesDir, item.path);
+  const destination = safeArtifactPath(filesDir, String(item.path ?? "").trim());
   fs.mkdirSync(path.dirname(destination), { recursive: true });
   fs.copyFileSync(sourcePath, destination);
 
