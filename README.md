@@ -317,3 +317,30 @@ npm run racer -- service-smoke benchmarks/csaw-diamond-dogs
 ```
 
 The installed Codex SDK uses `networkAccessEnabled` with `workspace-write`; it is enabled only for a service that explicitly requests challenge network access. External web research remains disabled. The active static suite and its official 3/3 baseline are unchanged.
+
+
+## Live agent telemetry
+
+CTF Racer consumes Codex SDK `runStreamed()` events so the operator can see useful execution progress while a round is still running.
+
+Typical terminal output:
+
+```text
+[ctf-racer][live][r1][00:08] agent: I found a heap UAF path; checking the exact libc primitive next.
+[ctf-racer][live][r1][00:14] command: checksec --file=artifacts/guard-dog
+[ctf-racer][live][r1][00:15] command completed exit=0: checksec --file=artifacts/guard-dog
+[ctf-racer][live][r1][00:42] file add: solve/exploit.py
+[ctf-racer][live][r1][01:03] todo 2/4: test the exploit against localhost
+[ctf-racer][live][r1][01:41] turn completed tokens in=... cached=... out=... reasoning=...
+```
+
+The telemetry layer is observability-only:
+
+- it does not change prompts, model, reasoning effort, skill routing, round budgets, or verification;
+- model reasoning-content events are deliberately not surfaced;
+- command stdout/stderr is not dumped into the live feed;
+- dynamic service flags are redacted before display or persistence;
+- commands, file changes, todo/progress messages, public agent messages, tool names, errors, and token counts are summarized;
+- safe summaries are persisted to `runs/<challenge-id>/telemetry.log`.
+
+Telemetry defaults to enabled. Set `"live_telemetry": false` in `config/policy.json` if a quiet benchmark terminal is preferred.
