@@ -148,6 +148,7 @@ if (command === "suite-check" || command === "suite") {
       (item.summary.median_verified_ttf_ms === null ? "n/a" : seconds(item.summary.median_verified_ttf_ms) + "s")
     );
   }
+  console.log("[ctf-racer] suite report: " + result.output_path);
   process.exit(0);
 }
 
