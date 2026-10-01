@@ -125,3 +125,23 @@ Competition intake is platform-neutral by design.
 The core accepts normalized challenge directories containing `challenge.json` plus player artifacts/service metadata. Generic intake discovery validates and queues these directories before solver launch. Platform-specific adapters (for example CTFd or a custom event API) should only fetch/normalize challenges into this format; they must not duplicate routing, solver, retry, verification, or race logic.
 
 This keeps future watcher/platform integrations replaceable while preserving one execution core.
+
+
+## Continuous competition watch queue
+
+The platform-neutral intake layer now has a persistent watch scheduler for live competitions.
+
+`watch <challenge-root>` continuously scans for normalized challenge directories containing `challenge.json`. It is intentionally polling-based rather than relying only on filesystem events so partially downloaded or atomically replaced challenge trees are handled consistently.
+
+Watch semantics:
+- a discovered challenge with missing artifacts/service files remains `waiting`;
+- once readiness validation passes, it becomes `queued`;
+- queued challenges dispatch as solver slots become available;
+- cross-challenge concurrency uses the same bounded primary-first policy as race mode;
+- a challenge may receive the configured fresh retry only after its primary attempt exits;
+- local service ports are not overlapped when active challenges would conflict;
+- terminal restart does not relaunch challenges already persisted as `solved`;
+- persistent state lives under `runs/_watch/`;
+- `watch-status` provides a zero-token queue view.
+
+This layer still does not embed CTFd or another platform API into the solver core. Platform-specific adapters should materialize normalized challenge directories; watch mode owns readiness, queueing, dispatch, persistence, and retries.
