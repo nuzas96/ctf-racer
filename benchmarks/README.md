@@ -33,11 +33,20 @@ Fetched artifacts are verified by exact byte size plus the canonical Git blob ha
 Historical benchmark directories may remain in this repository for diagnostics, but are not automatically part of the active suite.
 
 
-## Pending service benchmarks
+## Five-category expansion
 
-These are staged for the next category-expansion gate but are **not active** yet:
+Both service benchmarks have now demonstrated verified solves under the frozen architecture:
 
-- `csaw-trustdinoidc` — Web / OIDC-JWT trust boundary.
+- `csaw-trustdinoidc` — Web / OIDC-JWT trust boundary;
 - `csaw-diamond-dogs` — Pwn / glibc 2.31 UAF.
 
-The generic service lifecycle is implemented, with `service-fetch`, `service-check`, and `service-smoke` commands. Both Docker smoke checks passed, and a non-solving Codex thread reached the TrustDinOIDC localhost HTTP target. The fixtures remain pending solver runs and suite activation. The active static suite is unchanged. Do not include them in aggregate solve-rate claims yet.
+The historical static baseline remains in `benchmarks/suite.json`. The broader architecture gate is staged separately in `benchmarks/suite-five-category.json` so the old 3/3 result remains reproducible.
+
+Run:
+
+```bash
+npm run racer -- suite-check benchmarks/suite-five-category.json
+npm run racer -- suite benchmarks/suite-five-category.json
+```
+
+Do not call the five-category baseline official until that clean aggregate pass completes.
