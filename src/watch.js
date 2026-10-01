@@ -25,6 +25,12 @@ function walk(root, out) {
   }
 }
 
+export function ensureWatchRoot(intakeRoot) {
+  const root = path.resolve(intakeRoot);
+  fs.mkdirSync(root, { recursive: true });
+  return root;
+}
+
 export function watchStatePath(projectRoot, intakeRoot) {
   const root = path.resolve(intakeRoot);
   const base = safe(path.basename(root) || "intake");
@@ -212,7 +218,8 @@ export async function runWatch({
     throw new Error("idle exit must be null or an integer >= 100 ms");
   }
 
-  const initial = scanWatchRoot(intakeRoot);
+  const ensuredRoot = ensureWatchRoot(intakeRoot);
+  const initial = scanWatchRoot(ensuredRoot);
   const { file: stateFile, state } = loadState(projectRoot, initial.root);
   const active = new Map();
   const activePorts = new Set();
