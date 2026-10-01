@@ -281,3 +281,32 @@ Intake behavior:
 This intentionally does not add a CTFd-specific watcher yet. Platform adapters should remain thin producers of normalized challenge directories so the solver core stays platform-independent.
 
 CI after intake/status tests landed: 44 tests, 44 passed, 0 failed.
+
+
+## Continuous competition watch queue
+
+A persistent platform-neutral watch scheduler is now implemented.
+
+Commands:
+
+```bash
+npm run racer -- watch <challenge-root> --concurrency N --fresh-retries N --poll-ms N
+npm run racer -- watch-status <challenge-root>
+```
+
+The queue state machine is:
+`waiting -> queued -> running -> solved|failed`.
+
+Key behavior:
+- partial/incomplete challenge directories remain waiting until artifact/service readiness passes;
+- ready challenges auto-dispatch when a concurrency slot is free;
+- concurrency remains across distinct challenges;
+- same-challenge fresh retry remains sequential;
+- conflicting active local service ports do not overlap;
+- queue state persists under `runs/_watch/`;
+- restarting the watcher does not relaunch already solved challenges;
+- watch-status is zero-token.
+
+This is the platform-independent continuous competition foundation. No CTFd-specific solver logic has been added.
+
+CI after watcher tests landed: 47 tests, 47 passed, 0 failed.
