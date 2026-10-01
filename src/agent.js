@@ -23,8 +23,27 @@ export class CodexAgentSession {
     return new CodexAgentSession(thread);
   }
 
-  async run(prompt) {
-    const result = await this.thread.run(prompt);
-    return { finalResponse: result.finalResponse ?? "" };
+  async run(prompt, { onEvent } = {}) {
+    const { events } = await this.thread.runStreamed(prompt);
+    let finalResponse = "";
+    let usage = null;
+    let failure = null;
+
+    for await (const event of events) {
+      onEvent?.(event);
+
+      if (event.type === "item.completed" && event.item?.type === "agent_message") {
+        finalResponse = event.item.text ?? "";
+      } else if (event.type === "turn.completed") {
+        usage = event.usage ?? null;
+      } else if (event.type === "turn.failed") {
+        failure = event.error?.message ?? "Codex turn failed";
+      } else if (event.type === "error") {
+        failure = event.message ?? "Codex stream failed";
+      }
+    }
+
+    if (failure) throw new Error(failure);
+    return { finalResponse, usage };
   }
 }
