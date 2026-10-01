@@ -4,7 +4,7 @@ V1 architecture lock:
 
 > **One challenge = one persistent Codex agent = one isolated workspace.**
 
-This milestone intentionally does **not** use multiple agents for the same challenge, difficulty prediction, solve-count heuristics, or automatic CTF platform polling.
+This milestone intentionally does **not** use multiple agents for the same challenge, difficulty prediction, solve-count heuristics, or automatic CTF platform polling.\n\n## Architecture guardrail\n\nThe current execution principles are frozen in [`ARCHITECTURE.md`](ARCHITECTURE.md). General architecture changes require multi-challenge benchmark evidence; one challenge may expose a bug or reusable skill gap, but must not by itself drive a redesign.
 
 ## What V1 does
 
@@ -251,3 +251,38 @@ This reconstructs the runs associated with the latest benchmark report from the 
 - a compact summary of canonical `PROGRESS.md`.
 
 Use this before changing prompts, skills, preflight, or model settings after a poor benchmark result.
+
+
+## Cross-category benchmark suite
+
+The first architecture-validation suite is declared in:
+
+```text
+benchmarks/suite.json
+```
+
+It currently spans:
+- `meridian-vault-2` — crypto;
+- `muse-in-disguise` — forensics/audio-steganography.
+
+Check artifact readiness without model calls:
+
+```bash
+npm run racer -- suite-check benchmarks/suite.json
+```
+
+Large/binary archived artifacts can be kept outside Git and imported by exact hash. For Muse:
+
+```bash
+npm run racer -- benchmark-import benchmarks/muse-in-disguise --source /path/to/Muse.jar
+```
+
+Then run one attempt per benchmark by default:
+
+```bash
+npm run racer -- suite benchmarks/suite.json
+```
+
+Use `--runs N` only when repeated per-challenge evidence is intentionally needed. Suite execution prechecks all required artifacts before the first model call.
+
+The suite exists to prevent architecture overfitting to Meridian or any other single challenge.
