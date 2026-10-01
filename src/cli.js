@@ -14,6 +14,7 @@ import { assertChallengeArtifacts, fetchChallengeArtifacts, importSingleArtifact
 import { fetchSuiteArtifacts, precheckSuite, runSuite } from "./suite.js";
 import { assertChallengeServiceFiles, fetchChallengeServiceFiles, startChallengeService, stopChallengeService, withChallengeService } from "./service.js";
 import { runRace } from "./race.js";
+import { discoverIntakeChallenges, raceStatus, writeIntakeSuite } from "./intake.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -29,6 +30,8 @@ function usage() {
   console.error("  npm run racer -- suite-check <suite.json>");
   console.error("  npm run racer -- suite <suite.json> [--runs N]");
   console.error("  npm run racer -- race <suite.json> [--concurrency N] [--fresh-retries N]");
+  console.error("  npm run racer -- intake <challenge-root> [--concurrency N] [--fresh-retries N]");
+  console.error("  npm run racer -- race-status <suite-or-intake.json>");
   console.error("  npm run racer -- service-fetch <challenge-directory>");
   console.error("  npm run racer -- service-check <challenge-directory>");
   console.error("  npm run racer -- service-smoke <challenge-directory>");
@@ -108,7 +111,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "intake", "race-status", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
 
 function parseIntegerOption(args, name, { min, max, fallback }) {
   const index = args.indexOf(name);
@@ -128,6 +131,54 @@ function parseBenchmarkRuns(args, defaultRuns = 5) {
     throw new Error("--runs must be an integer from 1 to 50");
   }
   return value;
+}
+
+if (command === "intake") {
+  const intakeRoot = path.resolve(process.cwd(), sourceArg);
+  const discovered = discoverIntakeChallenges(intakeRoot);
+  const generated = writeIntakeSuite(projectRoot, intakeRoot, discovered);
+  const concurrency = parseIntegerOption(restArgs, "--concurrency", { min: 1, max: 32, fallback: undefined });
+  const freshRetries = parseIntegerOption(restArgs, "--fresh-retries", { min: 0, max: 3, fallback: undefined });
+
+  console.log("[ctf-racer] intake root: " + discovered.root);
+  console.log("[ctf-racer] discovered challenges: " + discovered.entries.length);
+  for (const entry of discovered.entries) {
+    console.log("[ctf-racer] intake: " + entry.challenge_id + " category=" + entry.category + " path=" + entry.path);
+  }
+  console.log("[ctf-racer] intake manifest: " + generated.outputPath);
+
+  const result = await runRace({
+    projectRoot,
+    suitePath: generated.outputPath,
+    concurrency,
+    freshRetries,
+  });
+
+  console.log("\n[ctf-racer] intake race summary");
+  console.log("[ctf-racer] verified challenges: " + result.verified_challenges + "/" + result.total_challenges);
+  console.log("[ctf-racer] verified challenge rate: " + (result.verified_challenge_rate * 100).toFixed(1) + "%");
+  console.log("[ctf-racer] total solver attempts: " + result.total_attempts);
+  console.log("[ctf-racer] wall elapsed: " + seconds(result.wall_elapsed_ms) + "s");
+  console.log("[ctf-racer] race report: " + result.output_path);
+  process.exit(result.verified_challenges === result.total_challenges ? 0 : 3);
+}
+
+if (command === "race-status") {
+  const status = raceStatus(projectRoot, path.resolve(process.cwd(), sourceArg));
+  console.log("[ctf-racer] race status: " + status.id);
+  console.log("[ctf-racer] manifest: " + status.manifest);
+  for (const item of status.challenges) {
+    console.log(
+      "[ctf-racer] " + item.challenge_id +
+      " category=" + item.category +
+      " status=" + item.status +
+      " rounds=" + item.rounds +
+      " elapsed=" + (item.elapsed_ms === null ? "n/a" : seconds(item.elapsed_ms) + "s") +
+      " stalls=" + item.stall_count
+    );
+    if (item.last_telemetry) console.log("  last: " + item.last_telemetry);
+  }
+  process.exit(0);
 }
 
 if (command === "race") {
