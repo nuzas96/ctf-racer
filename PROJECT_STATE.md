@@ -85,7 +85,7 @@ The current runner can:
 - verify flags;
 - persist metrics and reference proof.
 
-The current runner does not yet have a validated generic local-service lifecycle in main. Treat service orchestration/network enabling as pending implementation, not completed capability.
+The current CLI/suite runner does not yet have a validated generic local-service lifecycle wired end-to-end. An unwired prototype file may exist in source history/current tree, but it is not an active capability and must not be treated as one. Service orchestration/network enabling remains pending implementation.
 
 ## Decision gate after Web + Pwn
 
