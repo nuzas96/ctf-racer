@@ -80,8 +80,32 @@ Current baseline:
 - same-thread continuation while progressing;
 - no within-challenge multi-agent racing yet.
 
-Current evidence gate: a clean CSAW static-v1 pass has demonstrated 3/3 verified solves across crypto, forensics, and reverse engineering under the frozen architecture. The next gate is broader category coverage with Web + Pwn/service-oriented benchmarks before repeated-run robustness measurement or any escalation/concurrency change.
+Current evidence gate: the clean five-category CSAW suite has demonstrated 5/5 verified solves across crypto, forensics, reverse engineering, Web, and Pwn. A subsequent three-run-per-challenge robustness sample achieved 14/15 verified (93.3%); the sole failure was diagnosed as a reusable crypto-skill trajectory gap rather than a controller failure.
+
+This evidence justifies the first competition scheduler layer:
+- run different challenges concurrently, each with one primary autonomous solver;
+- keep same-challenge attempts isolated;
+- after a primary failure, allow a bounded fresh independent retry;
+- do not default to same-challenge parallel swarms yet;
+- first independently verified solve ends that challenge's retry chain.
 
 ## Grounded project checkpoint
 
 Read `PROJECT_STATE.md` before proposing architecture or benchmark changes. It records the current official baseline, environment lessons, active suite, and pending Web/Pwn expansion state.
+
+
+## Competition scheduler
+
+Competition mode is intentionally separate from benchmark mode.
+
+`suite` remains the sequential/repeatable measurement harness so historical benchmark comparisons remain valid.
+
+`race` is the competition scheduler:
+- distinct challenges may run concurrently up to a bounded concurrency limit;
+- each challenge starts with one fresh primary Codex thread;
+- a failed primary may receive a bounded fresh independent retry;
+- retries for one challenge are sequential, never concurrent with that challenge's previous attempt;
+- live telemetry from all active solvers is prefixed by challenge/attempt;
+- race reports are stored separately under `runs/_races/`.
+
+This is the first competition-grade orchestration layer. Same-challenge multi-solver parallel racing remains a later escalation experiment, not a default policy.
