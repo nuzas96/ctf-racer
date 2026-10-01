@@ -31,3 +31,18 @@ test("imports and verifies a benchmark artifact by exact size and SHA-256", () =
   assert.equal(status.length, 1);
   assert.equal(status[0].ok, true);
 });
+
+
+test("rejects artifact manifest path traversal", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-artifact-path-"));
+  const challenge = {
+    artifact_manifest: [
+      { path: "../escape.bin", size: 1, sha256: "0".repeat(64) },
+    ],
+  };
+
+  const status = artifactStatus(root, challenge);
+  assert.equal(status.length, 1);
+  assert.equal(status[0].ok, false);
+  assert.match(status[0].reason, /escapes files directory/);
+});
