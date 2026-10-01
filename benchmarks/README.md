@@ -49,4 +49,4 @@ npm run racer -- suite-check benchmarks/suite-five-category.json
 npm run racer -- suite benchmarks/suite-five-category.json
 ```
 
-Do not call the five-category baseline official until that clean aggregate pass completes.
+The clean aggregate pass has now completed at 5/5 verified across Crypto, Forensics, Reverse, Web, and Pwn. Treat this as the official broad single-pass baseline, not a robustness estimate. The next gate is repeated-run consistency/variance measurement under the same frozen architecture.
