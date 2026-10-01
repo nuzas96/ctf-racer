@@ -96,3 +96,8 @@ After verified Web + Pwn coverage exists under the same architecture:
 4. only after evidence supports it, test bounded multi-solver escalation.
 
 Do not jump directly to parallel swarms.
+
+
+## Invalid pending-run note
+
+On 2026-10-01, the staged TrustDinOIDC and Diamond Dogs definitions were invoked before the service harness existed. TrustDinOIDC stalled without a controller-managed live service; Diamond Dogs was blocked by missing verified artifacts before any model call. Exclude both attempts from benchmark metrics and architecture conclusions. The active official baseline remains csaw-static-v1 at 3/3 verified.
