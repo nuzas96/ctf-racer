@@ -179,3 +179,20 @@ CTF Racer now uses Codex SDK streamed turn events for operator observability. Th
 The terminal and `runs/<challenge-id>/telemetry.log` now expose redacted/summarized command execution, file changes, todo/progress state, agent messages, tool names, errors, and token usage while a round is running. Reasoning-content events and full command output are not surfaced. Dynamic service flags pass through the existing redactor before display/persistence.
 
 This feature exists so a human operator can distinguish healthy progress from a bad trajectory during live CTF racing without exposing private model reasoning or changing solver behavior.
+
+
+## Live telemetry local validation
+
+On 2026-10-02, the latest main branch was pulled locally and the full Node test suite passed: 38/38 tests, 0 failures.
+
+The operator then ran `npm run racer -- solve examples/hello-flag` and confirmed the live Codex telemetry path end-to-end. The terminal showed:
+- turn start;
+- public agent progress messages;
+- command start/completion/failure summaries;
+- file creation;
+- turn token usage;
+- telemetry log location.
+
+The smoke challenge solved in one round / 51.13 s with an independently verified flag. Skill proof verified `ctf-solve + ctf-misc` and focused reference `ctf-misc/encodings.md`.
+
+Live telemetry is therefore validated in real local Codex execution, not only through unit tests/CI. It remains observability-only and does not change solver prompts, model/reasoning, skill routing, round policy, or verification.
