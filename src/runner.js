@@ -4,6 +4,23 @@ import { appendRunLog, writeState } from "./workspace.js";
 import { extractFlag, verifyFlagCandidate } from "./flag.js";
 import { continuationPrompt, initialPrompt } from "./prompt.js";
 import { evaluateRound, snapshotProgress } from "./stall.js";
+import { telemetryLines } from "./telemetry.js";
+
+function emitLiveTelemetry(event, { policy, round, startedMs, runRoot, service }) {
+  if (policy.live_telemetry === false) return;
+  const lines = telemetryLines(event, {
+    round,
+    startedMs,
+    redact: service?.redact,
+  });
+  if (lines.length === 0) return;
+
+  const telemetryFile = path.join(runRoot, "telemetry.log");
+  for (const line of lines) {
+    console.log(line);
+    fs.appendFileSync(telemetryFile, line + "\n");
+  }
+}
 
 function finishState(state, runRoot, startedMs) {
   const finishedMs = Date.now();
@@ -24,6 +41,8 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
   state.stall_count = 0;
   state.consecutive_stalls = 0;
   state.round_diagnostics = [];
+  state.live_telemetry = policy.live_telemetry !== false;
+  state.telemetry_file = path.join(runRoot, "telemetry.log");
   writeState(runRoot, state);
   appendRunLog(runRoot, "agent started");
 
@@ -33,12 +52,21 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
       writeState(runRoot, state);
       appendRunLog(runRoot, `round ${round} started`);
 
+      const roundStartedMs = Date.now();
       const before = snapshotProgress(state.workspace);
       const prompt = round === 1
         ? initialPrompt(challenge, policy, skillNames)
         : continuationPrompt(round, skillNames, previousAssessment);
 
-      const turn = await session.run(prompt);
+      const turn = await session.run(prompt, {
+        onEvent: (event) => emitLiveTelemetry(event, {
+          policy,
+          round,
+          startedMs: roundStartedMs,
+          runRoot,
+          service,
+        }),
+      });
       service?.scrubWorkspace(state.workspace);
       const after = snapshotProgress(state.workspace);
 
