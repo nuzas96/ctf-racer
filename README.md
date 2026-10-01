@@ -436,3 +436,48 @@ npm run racer -- race-status benchmarks/suite-five-category.json
 ```
 
 or pass a generated intake manifest. The status view prints challenge/category, current status, rounds, elapsed time, stalls, and the latest safe telemetry line.
+
+
+## Continuous competition watch
+
+For a live event, keep one terminal running:
+
+```bash
+npm run racer -- watch ./incoming-ctf \
+  --concurrency 5 \
+  --fresh-retries 1 \
+  --poll-ms 1000
+```
+
+Challenge directories can appear at any time beneath `./incoming-ctf`. The watcher does not require the directory to be complete immediately:
+
+```text
+discovered -> waiting -> queued -> running -> solved
+                           |          |
+                           |          +-> failed
+                           +-> waits for a free solver slot
+```
+
+If artifacts or service files are still being downloaded, the challenge stays `waiting` and is rechecked on later scans. A ready challenge is dispatched automatically when a concurrency slot is available.
+
+Open a second terminal for a zero-token queue view:
+
+```bash
+npm run racer -- watch-status ./incoming-ctf
+```
+
+Persistent watch state is stored under `runs/_watch/`, keyed to the absolute intake root. Restarting watch mode with the same root does not relaunch challenges already recorded as solved.
+
+Graceful stop: press Ctrl-C. New dispatch stops and CTF Racer waits for already-active solver attempts to finish before closing the watch process.
+
+For finite smoke/testing runs, `--idle-exit-ms N` exits after the queue has been idle for the requested duration.
+
+Default polling is controlled by:
+
+```json
+{
+  "watch_poll_ms": 1000
+}
+```
+
+The watcher is platform-neutral. A future CTFd/custom-platform adapter should only download/materialize normalized challenge directories into the watched root.
