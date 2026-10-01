@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { artifactStatus, assertChallengeArtifacts, importSingleArtifact } from "../src/artifacts.js";
+import { artifactStatus, assertChallengeArtifacts, fetchChallengeArtifacts, importSingleArtifact } from "../src/artifacts.js";
 
 test("imports and verifies a benchmark artifact by exact size and SHA-256", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-artifact-"));
@@ -45,4 +45,57 @@ test("rejects artifact manifest path traversal", () => {
   assert.equal(status.length, 1);
   assert.equal(status[0].ok, false);
   assert.match(status[0].reason, /escapes files directory/);
+});
+
+
+test("verifies a local artifact by Git blob SHA-1", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-gitblob-"));
+  const files = path.join(root, "files");
+  fs.mkdirSync(files, { recursive: true });
+  const data = Buffer.from("git-blob-fixture\n", "utf8");
+  const header = Buffer.from("blob " + data.length + "\0", "utf8");
+  const gitBlobSha1 = crypto.createHash("sha1").update(header).update(data).digest("hex");
+  fs.writeFileSync(path.join(files, "fixture.bin"), data);
+
+  const challenge = {
+    artifact_manifest: [
+      { path: "fixture.bin", size: data.length, git_blob_sha1: gitBlobSha1 },
+    ],
+  };
+
+  const status = assertChallengeArtifacts(root, challenge);
+  assert.equal(status[0].ok, true);
+  assert.equal(status[0].git_blob_sha1, gitBlobSha1);
+});
+
+test("fetches and verifies a canonical public benchmark artifact", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-racer-fetch-"));
+  const data = Buffer.from("remote-fixture\n", "utf8");
+  const header = Buffer.from("blob " + data.length + "\0", "utf8");
+  const gitBlobSha1 = crypto.createHash("sha1").update(header).update(data).digest("hex");
+  const previousFetch = globalThis.fetch;
+
+  globalThis.fetch = async () => new Response(data, { status: 200 });
+  try {
+    const challenge = {
+      artifact_manifest: [
+        {
+          path: "fixture.bin",
+          size: data.length,
+          git_blob_sha1: gitBlobSha1,
+          url: "https://raw.githubusercontent.com/example/repo/main/fixture.bin",
+        },
+      ],
+    };
+
+    const fetched = await fetchChallengeArtifacts(root, challenge);
+    assert.equal(fetched.length, 1);
+    assert.equal(fetched[0].git_blob_sha1, gitBlobSha1);
+    assert.equal(
+      fs.readFileSync(path.join(root, "files", "fixture.bin"), "utf8"),
+      data.toString("utf8")
+    );
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
 });
