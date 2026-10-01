@@ -259,34 +259,34 @@ Use this before changing prompts, skills, preflight, or model settings after a p
 
 ## Cross-category benchmark suite
 
-The first architecture-validation suite is declared in:
+The active architecture-validation suite is `benchmarks/suite.json` and uses only public player artifacts from `osirislab/CSAW-CTF-2026-Quals-Public`.
 
-```text
-benchmarks/suite.json
+Current static/offline baseline:
+
+- `csaw-secret-treaties` — Crypto / subset-sum;
+- `csaw-ghost-in-the-machine` — Forensics / PCAP timing channel;
+- `csaw-autobahn` — Reverse Engineering / self-modifying ELF.
+
+Fetch the exact public player artifacts directly from the canonical CSAW repository:
+
+```bash
+npm run racer -- suite-fetch benchmarks/suite.json
 ```
 
-It currently spans:
-- `meridian-vault-2` — crypto;
-- `muse-in-disguise` — forensics/audio-steganography.
+Every download is checked against its declared byte size and canonical Git blob SHA-1 before it is accepted locally. Raw flags, author solutions, generators, and writeups are not copied into solver workspaces.
 
-Check artifact readiness without model calls:
+Then verify readiness without model calls:
 
 ```bash
 npm run racer -- suite-check benchmarks/suite.json
 ```
 
-Large/binary archived artifacts can be kept outside Git and imported by exact hash. For Muse:
-
-```bash
-npm run racer -- benchmark-import benchmarks/muse-in-disguise --source /path/to/Muse.jar
-```
-
-Then run one attempt per benchmark by default:
+Run one attempt per challenge:
 
 ```bash
 npm run racer -- suite benchmarks/suite.json
 ```
 
-Use `--runs N` only when repeated per-challenge evidence is intentionally needed. Suite execution prechecks all required artifacts before the first model call. Aggregate suite reports are saved under `runs/_suites/<suite-id>/<timestamp>.json` alongside each challenge's normal benchmark report.
+Use `--runs N` only when repeated per-challenge evidence is intentionally needed. Aggregate suite reports are saved under `runs/_suites/<suite-id>/<timestamp>.json`; individual reports remain under `runs/_benchmarks/`.
 
-The suite exists to prevent architecture overfitting to Meridian or any other single challenge.
+Historical benchmarks such as Meridian remain available for diagnostics, but they no longer define the active architecture gate by themselves.
