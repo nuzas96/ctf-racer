@@ -9,7 +9,7 @@ function skillInstruction(skillNames) {
   const invocation = skills.map((name) => `$${name}`).join(" then ");
   const proofLines = skills.map((name) => `CTF_RACER_SKILL=${name}|<exact SKILL.md path>`).join("\n");
 
-  return `Explicitly invoke the installed skills in this order: ${invocation}. The canonical solve lifecycle belongs to $ctf-solve; the category skill supplies domain technique routing. Do not replace either with copied skill text. After Codex has loaded them, create SKILL_PROOF.md with exactly one line per loaded skill using the exact path/location shown by the available-skills catalog:\n${proofLines}\nDo not invent paths. If a requested skill is unavailable, record CTF_RACER_SKILL=<name>|UNAVAILABLE and continue with the best locally available route.\n\n`;
+  return `Explicitly invoke the installed skills in this order: ${invocation}. The canonical solve lifecycle belongs to $ctf-solve; the category skill supplies domain technique routing. Do not replace either with copied skill text. After Codex has loaded them, create SKILL_PROOF.md with exactly one line per loaded skill using the exact path/location shown by the available-skills catalog:\n${proofLines}\nDo not invent paths. If a requested skill is unavailable, record CTF_RACER_SKILL=<name>|UNAVAILABLE and continue with the best locally available route. Whenever a category skill opens a focused reference file, append one proof line to SKILL_PROOF.md using CTF_RACER_REF=<owning-skill>|<exact absolute reference path>. Record only references actually opened; do not preload references merely to create proof.\n\n`;
 }
 
 function progressContract() {
