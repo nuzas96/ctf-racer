@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { loadChallenge } from "./challenge.js";
-import { assertChallengeArtifacts } from "./artifacts.js";
+import { assertChallengeArtifacts, fetchChallengeArtifacts } from "./artifacts.js";
 import { runBenchmark } from "./benchmark.js";
 
 export function loadSuite(projectRoot, suitePath) {
@@ -84,4 +84,42 @@ export function runSuite({ projectRoot, suitePath, runs = 1 }) {
   fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + "\n");
 
   return { ...report, output_path: outputPath };
+}
+
+
+export async function fetchSuiteArtifacts(projectRoot, suitePath) {
+  const loaded = loadSuite(projectRoot, suitePath);
+  const results = [];
+
+  for (const entry of loaded.suite.benchmarks) {
+    const sourceDir = path.resolve(projectRoot, entry.path);
+    const challenge = loadChallenge(sourceDir);
+    const manifest = Array.isArray(challenge.artifact_manifest) ? challenge.artifact_manifest : [];
+
+    if (manifest.length === 0) {
+      results.push({ path: entry.path, fetched: 0, status: "no-manifest" });
+      continue;
+    }
+
+    const missing = manifest.some((item) => {
+      const filesDir = path.join(sourceDir, challenge.files_dir ?? "files");
+      return !fs.existsSync(path.join(filesDir, String(item.path ?? "")));
+    });
+
+    if (!missing) {
+      try {
+        assertChallengeArtifacts(sourceDir, challenge);
+        results.push({ path: entry.path, fetched: 0, status: "already-ok" });
+        continue;
+      } catch {
+        // Re-fetch a corrupted/stale local fixture from the canonical public source.
+      }
+    }
+
+    const fetched = await fetchChallengeArtifacts(sourceDir, challenge);
+    assertChallengeArtifacts(sourceDir, challenge);
+    results.push({ path: entry.path, fetched: fetched.length, status: "fetched", artifacts: fetched });
+  }
+
+  return { suite_id: loaded.suite.id, results };
 }
