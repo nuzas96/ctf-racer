@@ -1,15 +1,21 @@
 {
-  "id": "baseline-v1",
-  "description": "Cross-category archived benchmark baseline used before changing CTF Racer execution architecture.",
+  "id": "csaw-static-v1",
+  "description": "Public offline/static CSAW CTF 2026 Quals benchmark suite used to evaluate CTF Racer across crypto, forensics, and reverse engineering without service deployment.",
+  "source_repository": "osirislab/CSAW-CTF-2026-Quals-Public",
   "benchmarks": [
     {
-      "path": "benchmarks/meridian-vault-2",
+      "path": "benchmarks/csaw-secret-treaties",
       "category": "crypto",
       "required": true
     },
     {
-      "path": "benchmarks/muse-in-disguise",
+      "path": "benchmarks/csaw-ghost-in-the-machine",
       "category": "forensics",
+      "required": true
+    },
+    {
+      "path": "benchmarks/csaw-autobahn",
+      "category": "reverse",
       "required": true
     }
   ]
