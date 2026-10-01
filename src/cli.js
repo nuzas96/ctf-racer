@@ -15,6 +15,7 @@ import { fetchSuiteArtifacts, precheckSuite, runSuite } from "./suite.js";
 import { assertChallengeServiceFiles, fetchChallengeServiceFiles, startChallengeService, stopChallengeService, withChallengeService } from "./service.js";
 import { runRace } from "./race.js";
 import { discoverIntakeChallenges, raceStatus, writeIntakeSuite } from "./intake.js";
+import { readWatchStatus, runWatch } from "./watch.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -33,6 +34,8 @@ function usage() {
   console.error("  npm run racer -- intake <challenge-root> [--concurrency N] [--fresh-retries N]");
   console.error("  npm run racer -- intake-check <challenge-root>");
   console.error("  npm run racer -- race-status <suite-or-intake.json>");
+  console.error("  npm run racer -- watch <challenge-root> [--concurrency N] [--fresh-retries N] [--poll-ms N] [--idle-exit-ms N]");
+  console.error("  npm run racer -- watch-status <challenge-root>");
   console.error("  npm run racer -- service-fetch <challenge-directory>");
   console.error("  npm run racer -- service-check <challenge-directory>");
   console.error("  npm run racer -- service-smoke <challenge-directory>");
@@ -112,7 +115,7 @@ function inspectRun(sourceDir) {
 }
 
 const [, , command, sourceArg, ...restArgs] = process.argv;
-if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "intake", "intake-check", "race-status", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
+if (!["solve", "inspect", "benchmark", "benchmark-inspect", "benchmark-import", "suite-fetch", "suite-check", "suite", "race", "intake", "intake-check", "race-status", "watch", "watch-status", "service-fetch", "service-check", "service-smoke"].includes(command) || !sourceArg) usage();
 
 function parseIntegerOption(args, name, { min, max, fallback }) {
   const index = args.indexOf(name);
@@ -132,6 +135,59 @@ function parseBenchmarkRuns(args, defaultRuns = 5) {
     throw new Error("--runs must be an integer from 1 to 50");
   }
   return value;
+}
+
+if (command === "watch-status") {
+  const intakeRoot = path.resolve(process.cwd(), sourceArg);
+  const status = readWatchStatus(projectRoot, intakeRoot);
+  console.log("[ctf-racer] watch status: " + status.intake_root);
+  console.log("[ctf-racer] state: " + status.state_file);
+  console.log("[ctf-racer] counts: " + JSON.stringify(status.counts));
+  for (const item of status.challenges) {
+    console.log(
+      "[ctf-racer] " + item.challenge_id +
+      " category=" + item.category +
+      " status=" + item.status +
+      " attempts=" + (item.attempts?.length ?? 0) +
+      (item.waiting_reason ? " waiting=" + item.waiting_reason : "")
+    );
+  }
+  process.exit(0);
+}
+
+if (command === "watch") {
+  const intakeRoot = path.resolve(process.cwd(), sourceArg);
+  const concurrency = parseIntegerOption(restArgs, "--concurrency", { min: 1, max: 32, fallback: undefined });
+  const freshRetries = parseIntegerOption(restArgs, "--fresh-retries", { min: 0, max: 3, fallback: undefined });
+  const pollMs = parseIntegerOption(restArgs, "--poll-ms", { min: 100, max: 60000, fallback: undefined });
+  const idleExitMs = parseIntegerOption(restArgs, "--idle-exit-ms", { min: 100, max: 86400000, fallback: null });
+
+  const controller = new AbortController();
+  const stop = () => {
+    console.log("\n[ctf-racer] watch: stop requested; waiting for active solvers to finish");
+    controller.abort();
+  };
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
+
+  try {
+    const status = await runWatch({
+      projectRoot,
+      intakeRoot,
+      concurrency,
+      freshRetries,
+      pollMs,
+      idleExitMs,
+      signal: controller.signal,
+    });
+    console.log("\n[ctf-racer] watch stopped");
+    console.log("[ctf-racer] state: " + status.state_file);
+    console.log("[ctf-racer] counts: " + JSON.stringify(status.counts));
+  } finally {
+    process.removeListener("SIGINT", stop);
+    process.removeListener("SIGTERM", stop);
+  }
+  process.exit(0);
 }
 
 if (command === "intake-check") {
