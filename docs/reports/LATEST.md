@@ -165,3 +165,5 @@ Two independent benign ATmega328P firmware examples passed static recovery with 
 
 
 Checkpoint commits: CTF Racer `b310d33` and Skills V2 `ec1ea52`, both pushed to their existing development branches. No main branch was changed.
+
+**Methodology exposure correction:** The Tutorial run started before the new `ctf-solve` checklist was synchronized into the installed skill path. It is not evidence that the checklist caused its progress or solve. The installed skill is now synchronized for future runs.

@@ -166,3 +166,5 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Evidence:** In the fresh CSAW Tutorial Pwn run, a host-libc offset implied an inconsistent base; the solver corrected the assumption and succeeded using the binary's own dynamic resolver. It also corrected a protocol-state mistake. One success is not a reusable skill upgrade or general performance claim.
 - **Next experiment:** Validate the diagnostic on two separate benign local Pwn services with deliberately different libc builds. Measure time to a compatible first exploit attempt and confirm the target-side service remains local and bounded. Search existing `ctf-pwn` references again before adding anything.
 - **Status:** Open; do not tune or add challenge-specific constants from Tutorial.
+
+**Exposure correction for RQ-014:** The Tutorial run predated synchronization of the checklist to the installed solver skill, so it does not count as an intervention sample. Only future runs that prove the focused reference was loaded can contribute to checklist adherence measurements.

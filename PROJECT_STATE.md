@@ -427,3 +427,5 @@ The Codex sandbox's network permission is boolean and was enabled for local TCP.
 CTF Racer suite: **61/61 passed** on NVM Node 24.19.0. Skills V2 strict validator: **14 skills / 230 Markdown / 0 errors / 0 warnings**; routing validator: **50 cases passed, 5 edge regressions passed**. Two fixture AVR static checks passed. No model comparison or solve-rate improvement is claimed.
 
 Next priority: validate target-runtime/libc compatibility on two separate benign local Pwn services, then run a preregistered fresh development evaluation using the hypothesis comparison checklist. Keep Luna Medium, one primary solver, and local-only targets; address the non-host-scoped network limitation before relying on broad network-enabled service experiments.
+
+**Methodology exposure correction:** The Tutorial run preceded synchronization of the new `ctf-solve` checklist into the installed skill path. It is not a test of that checklist; treat its successful runtime correction as a separate trajectory observation.

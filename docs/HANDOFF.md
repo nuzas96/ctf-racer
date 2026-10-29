@@ -79,3 +79,5 @@ Next exact task: validate target-libc/runtime compatibility and offset-less targ
 
 
 Checkpoint validation: CTF Racer source/evidence pushed at `b310d33`; Skills V2 changes pushed at `ec1ea52`. Working source branches were clean after these commits; the pre-existing `....` remains untracked and unchanged. This handoff-only finalization is in a subsequent Racer docs commit.
+
+Methodology exposure note: Tutorial ran before the new competing-hypothesis section was synchronized to the installed `ctf-solve` skill. Do not count it as an evaluation of that checklist; the successful target-libc pivot is separate trajectory evidence. The installed copy is now synchronized.
