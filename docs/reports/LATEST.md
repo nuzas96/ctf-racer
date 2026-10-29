@@ -127,3 +127,10 @@ Conditions: Luna Medium, one persistent solver, `ctf-solve + ctf-reverse`, four 
 ### Improvements and next step
 
 No reusable code/skill change accepted from one MCU example. The trajectory supports a testable hypothesis that explicit GPIO/LED output tracing can expose answer data even when no simulator is available, but it needs at least two independent benign AVR fixtures before adding permanent methodology. No functional service readiness change was made for Cloudb because its repair is challenge-specific and its LFI route remained available. Next measurable priority: build or obtain two benign AVR firmware samples with known GPIO messages, validate static signal extraction, then decide whether a small `ctf-reverse` reference/script is supported. Do not reuse the solved challenge as a fresh evaluation.
+
+
+### Validation and checkpoint
+
+- CTF Racer: **61/61 tests passed** on Node v24.19.0 / NVM npm 11.17.0. No controller code changed.
+- Skills V2: **14 skills, 229 Markdown files, 0 errors, 0 warnings**. No Skills source change was needed; untracked `....` is preserved.
+- `research:status`, complete experiment-ledger JSONL parsing and `git diff --check` passed. Answer-free experiment summaries and append-only Cloudb classification correction are committed on the existing Racer branch; no main merge was made.
