@@ -1,0 +1,52 @@
+{
+  "challenge_id": "csaw-ghost-in-the-machine",
+  "status": "unsolved",
+  "created_at": "2026-10-29T04:07:19.677Z",
+  "updated_at": "2026-10-29T04:13:23.430Z",
+  "workspace": "~/Desktop/ctf-racer/runs/csaw-ghost-in-the-machine/workspace",
+  "rounds": 2,
+  "preflight": {
+    "finding_count": 0,
+    "high_count": 0
+  },
+  "skill_route": {
+    "expected_skills": [
+      "ctf-solve",
+      "ctf-forensics"
+    ],
+    "installed": [
+      {
+        "name": "ctf-solve",
+        "local_detected": true,
+        "local_path": "~/.codex/skills/ctf-solve/SKILL.md"
+      },
+      {
+        "name": "ctf-forensics",
+        "local_detected": true,
+        "local_path": "~/.codex/skills/ctf-forensics/SKILL.md"
+      }
+    ]
+  },
+  "rejected_candidates": [],
+  "started_at": "2026-10-29T04:07:19.717Z",
+  "stall_count": 0,
+  "consecutive_stalls": 0,
+  "round_diagnostics": [
+    {
+      "round": 1,
+      "stalled": false,
+      "reasons": [],
+      "workspace_changed": true,
+      "progress_marker": "Repaired the PCAP magic byte in `solve/repaired.pcap`; TShark parsed 504 packets, including 119 with TTL 113 and varied UDP source ports, against 385 packets with TTL 64.",
+      "stalled_marker": null,
+      "max_response_similarity": 0
+    }
+  ],
+  "live_telemetry": true,
+  "telemetry_file": "~/Desktop/ctf-racer/runs/csaw-ghost-in-the-machine/telemetry.log",
+  "last_response_file": "~/Desktop/ctf-racer/runs/csaw-ghost-in-the-machine/response-1.md",
+  "flag_verified": false,
+  "termination_reason": "externally stopped after /tmp tmpfs exhaustion caused workspace command failures and unusually high token usage",
+  "completed_at": "2026-10-29T04:13:23.430Z",
+  "elapsed_ms": 365043
+}

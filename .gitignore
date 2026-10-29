@@ -1,6 +1,7 @@
 node_modules/
 dist/
 runs/
+local-challenges/
 .env
 config/policy.json
 .DS_Store

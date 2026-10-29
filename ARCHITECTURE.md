@@ -10,7 +10,7 @@ This document is the implementation guardrail for CTF Racer.
 - `docs/reports/LATEST.md` is a readable checkpoint generated from existing evidence; reporting must not rerun challenges or invoke a model.
 - Experiment role is explicit: development, held-out, or regression. A held-out case that influences tuning is contaminated and must become development material.
 - Record missing fields as unknown/null; never infer token usage, artifact hashes, provenance, or verification.
-- Before a model-powered experiment, pre-register the challenge, verifier custody, model, round cap, retry policy, time/resource limits, and stop conditions. If reliable limits are unavailable, mark it blocked before invocation.
+- Before a model-powered experiment, pre-register the challenge, verifier custody, model, round cap, retry policy, wall-time bound, and stop conditions. Prefer enforceable token/cost limits where available; when they are not available, use a small monitored attempt, report telemetry, and terminate if usage or environment behavior becomes disproportionate. Missing cost controls must not block unrelated research, deterministic preparation, or a carefully bounded single attempt. Never use open-ended retries or recursive agent spawning as a workaround.
 
 ## Core execution model
 

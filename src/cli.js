@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
-import { loadPolicy, policyForChallenge } from "./config.js";
+import { continuationRoundsForRun, loadPolicy, policyForChallenge } from "./config.js";
 import { CodexAgentSession } from "./agent.js";
 import { prepareWorkspace, writeState } from "./workspace.js";
 import { runPreflight } from "./preflight.js";
@@ -22,7 +22,7 @@ const projectRoot = path.resolve(here, "..");
 
 function usage() {
   console.error("Usage:");
-  console.error("  npm run racer -- solve <challenge-directory>");
+  console.error("  npm run racer -- solve <challenge-directory> [--max-rounds N]");
   console.error("  npm run racer -- inspect <challenge-directory>");
   console.error("  npm run racer -- benchmark <challenge-directory> [--runs N]");
   console.error("  npm run racer -- benchmark-inspect <challenge-directory>");
@@ -420,10 +420,18 @@ assertChallengeArtifacts(sourceDir, challenge);
 assertChallengeServiceFiles(sourceDir, challenge);
 const policy = loadPolicy(projectRoot);
 if (!policy.authorized_ctf_only) throw new Error("V1 requires authorized_ctf_only=true");
+const requestedRounds = parseIntegerOption(restArgs, "--max-rounds", {
+  min: 1,
+  max: policy.max_continuation_rounds,
+  fallback: undefined,
+});
 
 await withChallengeService(sourceDir, challenge, async (service) => {
 const effectiveChallenge = service?.flag_sha256 ? { ...challenge, flag_sha256: service.flag_sha256 } : challenge;
-const effectivePolicy = policyForChallenge(policy, challenge, service);
+const effectivePolicy = {
+  ...policyForChallenge(policy, challenge, service),
+  max_continuation_rounds: continuationRoundsForRun(policy, requestedRounds),
+};
 const state = prepareWorkspace(projectRoot, sourceDir, challenge);
 const runRoot = path.join(projectRoot, "runs", safeChallengeId(challenge.id));
 const preflight = runPreflight(state.workspace, challenge);
@@ -453,6 +461,7 @@ console.log(`[ctf-racer] challenge: ${challenge.title}`);
 console.log(`[ctf-racer] workspace: ${state.workspace}`);
 console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
 console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
+console.log(`[ctf-racer] max continuation rounds: ${effectivePolicy.max_continuation_rounds}`);
 console.log("[ctf-racer] policy: one challenge -> one persistent Codex thread");
 console.log(`[ctf-racer] live telemetry: ${effectivePolicy.live_telemetry === false ? "disabled" : "enabled"}`);
 console.log(`[ctf-racer] telemetry log: ${path.join(runRoot, "telemetry.log")}`);

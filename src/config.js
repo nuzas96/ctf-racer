@@ -33,3 +33,15 @@ export function policyForChallenge(policy, challenge, serviceHandle) {
     allow_challenge_network: challenge.service?.network_access === true && serviceHandle?.network_access === true,
   };
 }
+
+export function continuationRoundsForRun(policy, requestedRounds) {
+  const configured = policy.max_continuation_rounds;
+  if (!Number.isInteger(configured) || configured < 1) {
+    throw new Error("max_continuation_rounds policy must be a positive integer");
+  }
+  if (requestedRounds === undefined) return configured;
+  if (!Number.isInteger(requestedRounds) || requestedRounds < 1) {
+    throw new Error("per-run max rounds must be a positive integer");
+  }
+  return Math.min(configured, requestedRounds);
+}

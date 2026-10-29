@@ -318,6 +318,17 @@ CI after watcher tests landed: 47 tests, 47 passed, 0 failed.
 
 The source-of-truth files, research queue, decision log, append-only experiment ledger, handoff, and readable latest report were added on feature branch `research/bootstrap-continuity-2026-10-28`. No source logic or canonical skills were modified.
 
-The requested real archived challenge attempt is blocked before execution: the local worktree lacks the defined CSAW 2026 “Ghost in the Machine” PCAP; the current runner exposes only a global four-round policy and no demonstrated per-run round override; and the SDK path has no established dependable wall-clock or token cap. This does not meet the user-defined artifact and resource-safety gates. It has not been run in this checkpoint. `npm ls --depth=0` returned `LRU is not a constructor`; investigate before model evaluation. See `docs/EXPERIMENT_LEDGER.jsonl` and `docs/HANDOFF.md`.
+At this 2026-10-28 checkpoint, the real archived challenge gate was deferred. On 2026-10-29, the prior assumption that the PCAP was absent was corrected: it was present under `files/capture.pcap` and validated against the manifest. One Luna Medium attempt was made and stopped unsolved after `/tmp` exhaustion; full result is in the latest report and append-only ledger.
 
-Latest validation: 47/47 Node tests passed; JSONL parse/unique-ID and zero-token status report succeeded; `git diff --check` was clean. `npm ls --depth=0` failed with `LRU is not a constructor`. Do not treat the previously requested 48/48 as confirmed.
+At the prior checkpoint validation was 47/47. Current validation is 49/49 with the NVM npm path; system `/usr/bin/npm ls` still fails because of its system LRU dependency mismatch. Do not treat the previously requested 48/48 as confirmed.
+
+
+## 2026-10-29 research and regression update
+
+External architecture review covered Veria Labs `ctf-agent`, NYU `nyuctf_agents`, NYU CTF Bench, Cybench, and CTF-Dojo. See `docs/RESEARCH_QUEUE.md` for source URLs, licenses, primary evidence, and adoption decisions. NYU dataset source commits are pinned; the 57-case development JSON conflicts with the repository README's stated 55.
+
+The archived Ghost regression ran one Luna Medium primary attempt with a per-run two-round cap, no retries, network disabled, and a 900-second external wall cap. It was externally stopped at 365s after the workspace could not create temporary files. One model turn reported 766,097 input tokens (712,064 cached), 6,115 output and 2,495 reasoning tokens; no candidate or verified solve was produced. `/tmp` tmpfs was at 100%, due to two research-created full NYU benchmark clones (~5.1 GB) placed there. Root cause is this session's research setup, not demonstrated CTF Racer or challenge-method failure. The original PCAP is unchanged; only the solver workspace copy was repaired.
+
+System `/usr/bin/npm` error is in the system npm dependency stack: `/usr/share/nodejs/hosted-git-info/lib/index.js:8` constructs `LRU`, but system `lru-cache` 11.2.7 exports an object containing `LRUCache`. NVM npm 11.17.0 works for `npm ls` and `npm test`; no project/global dependency was upgraded.
+
+Per-run `--max-rounds N` is now supported for `solve`; it only lowers the configured maximum. Full suite: 49/49 passed using NVM npm. A second fixture, NYU development Forensics “Pure Poetry,” is prepared at ignored local path `local-challenges/nyu-dev-2016-pure-poetry`, pinned to commit `b899e00...`, with private raw answer isolated and zero-token artifact/preflight checks passed. Next priority: disk-space preflight and integrated timeout/cancellation state cleanup. Do not rerun Ghost as tuning data.

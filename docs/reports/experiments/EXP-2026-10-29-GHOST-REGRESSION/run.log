@@ -1,0 +1,5 @@
+[2026-10-29T04:07:19.718Z] agent started
+[2026-10-29T04:07:19.720Z] round 1 started
+[2026-10-29T04:09:55.091Z] round 1 progress: Repaired the PCAP magic byte in `solve/repaired.pcap`; TShark parsed 504 packets, including 119 with TTL 113 and varied UDP source ports, against 385 packets with TTL 64.
+[2026-10-29T04:09:55.102Z] round 2 started
+[2026-10-29T04:13:23.430Z] experiment externally stopped after 1 completed turn; round 2 interrupted; no candidate flag; /tmp tmpfs 100% full; process group terminated
