@@ -1,3 +1,24 @@
+# Current continuation checkpoint — 2026-10-29
+
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, currently based at `86ab60581c6b823475c39164acd0c606905f95f9` with this session's verified changes pending commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed through `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
+
+## Verified current results
+
+- Codex network permission is not host-scoped. In the actual bundled solver sandbox, network-disabled mode separates the network namespace from the host, child processes inherit it, only loopback is present, route tables contain no external path, and a controlled runner-host loopback listener is unreachable. This cannot support local challenge services while preserving model transport. Do not run network-enabled service challenges under a prompt-only localhost restriction; no host firewall was changed. Use offline challenges unless a technically enforced local-only path is demonstrated.
+- Two benign local Pwn runtime fixtures (ELF32/i386 and ELF64/x86-64) validated ABI/interpreter/runtime inspection and rejection of a cross-ABI libc offset. They shared glibc 2.42 and did not test exploitation. Skills V2 `ctf-pwn` now has a short runtime provenance gate, pushed in `8fc26d9` and source references in `d1ecf9d`.
+- Fresh NYU development Reverse `deedeedee`, pre-registered in cohort `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3`, solved independently in one Luna Medium round at 221.78s. One primary, `ctf-solve + ctf-reverse`, max four rounds/600s, no retry/escalation, network disabled. Safe summary: `docs/reports/experiments/EXP-2026-10-29-NYU-DEEDEEDDEE-HYPOTHESIS-COHORT-1/summary.json`. No flag is recorded in tracked files.
+- Checklist exposure: A, available and hash-matched before solving, yes. B, use, not demonstrated: focused `triage-routing.md` was not opened and no explicit competing-hypothesis notes appeared. C, causal performance effect, untested. The run had one well-supported path, corrected a D array/key assumption, and forward-checked 499 layers; do not claim checklist benefit.
+- The other two pre-registered cohort cases are Crypto `onlythisprogram`, then Forensics `Watchword`. They remain untouched and must be revalidated for integrity/isolation before their own runs. This three-case observational cohort cannot alone establish causality.
+- Reverse readiness helper's hardcoded `/var/tmp` temp-home failure was fixed in Skills V2 `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; five tests pass locally and in the actual sandbox.
+
+## Validation and exact next action
+
+CTF Racer full suite: 61/61 passed with NVM Node 24.19.0/npm 11.17.0, including actual-sandbox loopback denial. Skills V2 strict validator: 14 skills / 230 Markdown / 0 errors / 0 warnings; routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing and `git diff --check` passed. Experiment evidence is append-only; the current ledger has preregistration, fixture provenance, result, and correction records.
+
+Next: commit and push the reviewed Racer changes, then pre-register and run the untouched offline Crypto case `onlythisprogram` under Luna Medium with the same isolation and verifier preflights. Capture whether the focused checklist reference actually loads, first useful test time, hypotheses/evidence/disconfirmation, and independent answer verification. Do not tune on `deedeedee`; continue treating it as development/regression material. After that, run `Watchword` only after fresh provenance and isolation checks.
+
+---
+
 # Continuation handoff
 
 Updated 2026-10-29. CTF Racer branch: `research/bootstrap-continuity-2026-10-28`, resumed from `930400173e4eb8781b26ea4b600a902eec74ab26` (check `git rev-parse HEAD` for the latest pushed checkpoint). Canonical Skills V2 branch: `research/ctf-forensics-hvif-2026-10-29`, verified commit `f5bbf1c12f805bc2a90e909f172eae64bf7b3d07`. Preserve its pre-existing untracked file `....`.

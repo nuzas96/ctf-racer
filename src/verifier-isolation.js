@@ -110,8 +110,11 @@ function sandboxArgs(binary, deniedPaths, workspace, command, args) {
   ];
 }
 
-export function verifyVerifierIsolation({ projectRoot, workspace, deniedPaths, probeFiles = [], verifierRoot = path.join(projectRoot, "runs", "_verifiers"), timeoutMs = 10000 }) {
+export function verifyVerifierIsolation({ projectRoot, workspace, deniedPaths, probeFiles = [], localServicePort, verifierRoot = path.join(projectRoot, "runs", "_verifiers"), timeoutMs = 10000 }) {
   if (process.platform !== "linux") throw new Error("verifier isolation probe currently requires the Codex Linux sandbox");
+  if (localServicePort != null && (!Number.isInteger(localServicePort) || localServicePort < 1 || localServicePort > 65535)) {
+    throw new Error("local service isolation probe requires a valid TCP port");
+  }
   const binary = bundledCodexBinary();
   if (!fs.existsSync(binary)) throw new Error(`bundled Codex sandbox not found: ${binary}`);
   const canaryDir = path.join(verifierRoot, `.isolation-probe-${randomUUID()}`);
@@ -139,6 +142,13 @@ export function verifyVerifierIsolation({ projectRoot, workspace, deniedPaths, p
       `ln "$${5 + i * 3}" "$${7 + i * 3}" >/dev/null 2>&1; echo target_hardlink_${i}=$?`,
     ]),
     'id -u | sed "s/^/uid=/"',
+    'readlink /proc/self/ns/net | sed "s/^/network_namespace=/"',
+    'sh -c "readlink /proc/self/ns/net" | sed "s/^/child_network_namespace=/"',
+    'python3 -c "print(\',\'.join(line.split(\':\')[0].strip() for line in open(\'/proc/net/dev\').read().splitlines()[2:]))" | sed "s/^/network_interfaces=/"',
+    'awk "NR>1{n++} END{print n+0}" /proc/net/route | sed "s/^/ipv4_routes=/"',
+    'awk "NF{n++} END{print n+0}" /proc/net/ipv6_route | sed "s/^/ipv6_routes=/"',
+    'python3 -c "print(sum(1 for line in open(\'/proc/net/ipv6_route\') if line.split() and line.split()[-1] != \'lo\'))" | sed "s/^/ipv6_nonloopback_routes=/"',
+    ...(localServicePort == null ? [] : [`python3 -c "import socket; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1',${Number(localServicePort)})); s.close()" >/dev/null 2>&1; echo runner_loopback_connect=$?`]),
   ];
   const positional = ["ctf-racer-isolation-probe", canary, symlink, String(process.pid), hardlink];
   for (let i = 0; i < probeFiles.length; i++) positional.push(probeFiles[i], probeAliases[i], probeHardlinks[i]);
@@ -157,9 +167,25 @@ export function verifyVerifierIsolation({ projectRoot, workspace, deniedPaths, p
     const controllerCanReadTargets = probeFiles.every((item) => { try { fs.accessSync(item, fs.constants.R_OK); return true; } catch { return false; } });
     const probeLinkCounts = probeFiles.map((item) => { try { return fs.statSync(item).nlink; } catch { return null; } });
     const links = fs.statSync(canary).nlink;
+    const hostNetworkNamespace = fs.readlinkSync("/proc/self/ns/net");
     const checks = ["direct", "symlink", "self_root", "controller_root", "hardlink"];
     for (let i = 0; i < probeFiles.length; i++) checks.push(`target_${i}`, `target_symlink_${i}`, `target_hardlink_${i}`);
-    const passed = checks.every((key) => observations[key] === "1") && observations.uid === String(process.getuid()) &&
+    const networkIsolation = {
+      host_namespace: hostNetworkNamespace,
+      solver_namespace: observations.network_namespace,
+      child_namespace: observations.child_network_namespace,
+      separate_from_host: Boolean(observations.network_namespace && observations.network_namespace !== hostNetworkNamespace),
+      child_inherits_solver_namespace: Boolean(observations.network_namespace && observations.child_network_namespace === observations.network_namespace),
+      interfaces: (observations.network_interfaces ?? "").split(",").filter(Boolean),
+      ipv4_route_count: Number(observations.ipv4_routes),
+      ipv6_route_count: Number(observations.ipv6_routes),
+      ipv6_nonloopback_route_count: Number(observations.ipv6_nonloopback_routes),
+      runner_loopback_connect: observations.runner_loopback_connect === "0" ? "reachable" : observations.runner_loopback_connect === "1" ? "denied" : "not_tested",
+    };
+    networkIsolation.passed = networkIsolation.separate_from_host && networkIsolation.child_inherits_solver_namespace &&
+      networkIsolation.interfaces.length === 1 && networkIsolation.interfaces[0] === "lo" &&
+      networkIsolation.ipv4_route_count === 0 && networkIsolation.ipv6_nonloopback_route_count === 0;
+    const passed = checks.every((key) => observations[key] === "1") && observations.uid === String(process.getuid()) && networkIsolation.passed &&
       controllerCanRead && controllerCanReadTargets && links === 1 && probeLinkCounts.every((count) => count === 1) && probeHardlinks.every((item) => !fs.existsSync(item));
     return {
       passed,
@@ -178,6 +204,7 @@ export function verifyVerifierIsolation({ projectRoot, workspace, deniedPaths, p
       canary_link_count: links,
       sandbox_exit_code: result.status,
       codex_binary: binary,
+      network_isolation: networkIsolation,
     };
   } finally {
     try { fs.unlinkSync(symlink); } catch {}

@@ -1,0 +1,129 @@
+{
+  "experiment_id": "EXP-2026-10-29-NYU-DEEDEEDDEE-HYPOTHESIS-COHORT-1",
+  "cohort_id": "COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3",
+  "record_type": "experiment_result",
+  "status": "SOLVED_VERIFIED",
+  "evaluation_class": "fresh_development_challenge",
+  "challenge": {
+    "name": "deedeedee",
+    "category": "reverse",
+    "event": "CSAW Quals 2016",
+    "source_repository": "https://github.com/NYU-LLM-CTF/NYU_CTF_Bench",
+    "source_commit": "4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9",
+    "source_path": "development/2016/CSAW-Quals/rev/deedeedee",
+    "license": "GPL-2.0",
+    "artifact": {
+      "path": "deedeedee",
+      "size_bytes": 1199421,
+      "sha256": "57e5cb10df109bf18bc43ee6b6afa49cbaca24f8e733ee27b4091e572056101a",
+      "git_blob_sha1": "ed1e041ca1cd9caa76e9c6bbe8f8274d08c86771"
+    },
+    "verifier": "independent SHA-256 verifier held under runs/_verifiers, mode 0600; candidate and digest excluded from tracked evidence"
+  },
+  "configuration": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "medium",
+    "primary_solvers": 1,
+    "skills_requested": [
+      "ctf-solve",
+      "ctf-reverse"
+    ],
+    "fresh_retries": 0,
+    "model_escalation": false,
+    "max_rounds": 4,
+    "rounds_used": 1,
+    "wall_time_limit_seconds": 600,
+    "challenge_network": false,
+    "web_search": "disabled",
+    "service": "none; standalone offline artifact",
+    "storage_monitoring": true,
+    "cancellation_and_cleanup": "existing CTF Racer runner controls"
+  },
+  "result": {
+    "verified": true,
+    "verified_by": "controller-side SHA-256 verifier, independent of model output",
+    "time_to_flag_seconds": 221.78,
+    "total_elapsed_seconds": 221.78,
+    "terminal_classification": "normal verified solve; no infrastructure interruption",
+    "rejected_candidate_count": 0,
+    "candidate_in_tracked_records": false
+  },
+  "hypothesis_metrics": {
+    "first_artifact_triage_seconds": 28,
+    "first_explicit_core_hypothesis_seconds": 91,
+    "first_test_of_named_hypothesis_seconds": 99,
+    "major_hypotheses": 1,
+    "supported_hypothesis": "compile-time D-template XOR layers recover the embedded flag bytes",
+    "supporting_evidence": [
+      "challenge description points to compile-time code",
+      "unstripped D symbols identify enc_flag, hexencode and hundreds of enc template instances",
+      "main applies hexencode to the encoded global"
+    ],
+    "cheapest_discriminating_test": "Extract the encoded bytes and template parameters from the supplied ELF, invert the layers, then forward-apply every layer to check exact ciphertext reproduction.",
+    "disconfirmation": "A candidate that failed exact forward reconstruction would reject the current parameter/order interpretation.",
+    "unsupported_major_branches": 0,
+    "time_on_incorrect_subhypothesis_seconds": 112,
+    "incorrect_subhypothesis": "initial interpretation of the D array-to-int conversion and repeated key bytes",
+    "correction": "Static inspection established that conversion used the array length while template literals supplied the repeated numeric bytes; the script then inverted and forward-checked all 499 layers."
+  },
+  "skill_exposure": {
+    "canonical_skills_v2_commit_before_run": "8fc26d901dfc22268e4734e46a7840535dd00352",
+    "available_before_first_hypothesis": true,
+    "ctf_solve_skill_loaded_seconds": 13,
+    "ctf_reverse_skill_loaded_seconds": 18,
+    "focused_references_opened": [
+      {
+        "path": "ctf-reverse/references/tool-readiness.md",
+        "seconds": 44
+      }
+    ],
+    "hypothesis_checklist_reference_opened": false,
+    "A_availability": "confirmed by exact pre-run canonical/installed hashes and routing link",
+    "B_behavior": "not demonstrated as checklist use; no triage-routing reference proof or explicit competing-hypothesis record. Luna followed one strongly supported path and forward-checked it.",
+    "C_causal_effect": "not tested; no causal claim"
+  },
+  "usage": {
+    "input_tokens": 1180360,
+    "cached_input_tokens": 1049600,
+    "output_tokens": 13640,
+    "reasoning_tokens": 8638,
+    "cost": "unavailable"
+  },
+  "failures_and_limits": [
+    "ctf-reverse readiness helper's checksec temp home attempted to use read-only /var/tmp in the sandbox; the solver proceeded with direct binutils and later the helper was fixed and tested on benign material.",
+    "The archived executable lacked execute permission in the player artifact; direct invocation was denied, while the target loader and static analysis remained available.",
+    "No CTF solve-rate or TTF improvement is inferred from this single run."
+  ],
+  "isolation": {
+    "verifier_isolation": "passed at solver startup; archive cache, source metadata, controller verifier, auth file, direct/symlink/proc-root/hardlink probes denied; controller reads retained",
+    "network_setting": "network disabled in the actual Codex permission profile",
+    "same_profile_followup_probe": "separate network namespace; solver child inherits it; only lo in namespace-specific /proc/net/dev; zero IPv4 routes and zero non-loopback IPv6 routes; controlled runner-host loopback service denied",
+    "local_only_egress": "not implemented; fully disabled networking was used for this offline challenge"
+  },
+  "interpretation": "A clean, end-to-end verified solve with a deterministic extraction and exact forward check. The key recovery was sound after correcting a language-level array conversion assumption. It is one development observation and does not estimate unseen-challenge solve rate or establish checklist efficacy.",
+  "reproducibility": {
+    "runner_command": "node src/cli.js solve local-challenges/nyu-dev-2016-deedeedee-hypothesis-cohort-1 --max-rounds 4 --timeout-seconds 600",
+    "solver_workspace_contains": [
+      "CHALLENGE.md",
+      "PREFLIGHT.md",
+      "artifacts/deedeedee",
+      "solve/decrypt.py",
+      "SKILL_PROOF.md",
+      "PROGRESS.md"
+    ],
+    "answer_bearing_paths_denied": [
+      "local-challenges",
+      "runs/_research-cache",
+      "runs/_verifiers",
+      "~/.codex/auth.json"
+    ],
+    "safe_run_evidence": "CTF Racer ignored run directory runs/nyu-dev-2016-deedeedee-hypothesis-cohort-1"
+  },
+  "tooling_changes": {
+    "ctf_reverse_readiness_commit": "fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62",
+    "ctf_pwn_runtime_skill_commits": [
+      "8fc26d901dfc22268e4734e46a7840535dd00352",
+      "d1ecf9d22ebe8dad68ffd0d0609c254e57dc606d"
+    ]
+  }
+}

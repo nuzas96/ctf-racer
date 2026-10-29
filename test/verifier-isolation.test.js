@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import net from "node:net";
 import { assertIsolatedProfileConfig, verifierIsolationConfigOverrides, verifierProbeFiles, verifierReadPaths, verifyVerifierIsolation } from "../src/verifier-isolation.js";
 
 test("verifier isolation config requires normalized absolute deny paths", () => {
@@ -50,12 +51,17 @@ test("legacy Codex sandbox config is rejected because it bypasses permission pro
   }
 });
 
-test("Codex sandbox denies verifier canary through direct, symlink, proc-root and hardlink paths", { skip: process.platform !== "linux" }, () => {
+test("Codex sandbox denies verifier canary and confirms network-disabled tools cannot reach runner loopback", { skip: process.platform !== "linux" }, async () => {
   const root = fs.mkdtempSync("/var/tmp/ctf-racer-isolation-test-");
   const projectRoot = path.join(root, "project");
   const workspace = path.join(projectRoot, "runs", "case", "workspace");
   fs.mkdirSync(path.join(workspace, "solve"), { recursive: true });
+  const localService = net.createServer((socket) => socket.end("fixture-only\n"));
   try {
+    await new Promise((resolve, reject) => {
+      localService.once("error", reject);
+      localService.listen(0, "127.0.0.1", resolve);
+    });
     const sourceDir = path.join(projectRoot, "local-challenges", "case");
     const codexHome = path.join(root, "codex-home");
     fs.mkdirSync(sourceDir, { recursive: true });
@@ -75,6 +81,7 @@ test("Codex sandbox denies verifier canary through direct, symlink, proc-root an
       workspace,
       verifierRoot: path.join(projectRoot, "runs", "_verifiers"),
       deniedPaths,
+      localServicePort: localService.address().port,
       probeFiles: verifierProbeFiles({ projectRoot, sourceDir, codexHome, additionalFiles: [archiveReadme] }),
     });
     assert.equal(result.passed, true, JSON.stringify(result));
@@ -89,6 +96,13 @@ test("Codex sandbox denies verifier canary through direct, symlink, proc-root an
     });
     assert.equal(result.controller_verification, true);
     assert.equal(result.controller_access_to_probe_files, true);
+    assert.equal(result.network_isolation.passed, true, JSON.stringify(result.network_isolation));
+    assert.equal(result.network_isolation.separate_from_host, true);
+    assert.equal(result.network_isolation.child_inherits_solver_namespace, true);
+    assert.deepEqual(result.network_isolation.interfaces, ["lo"]);
+    assert.equal(result.network_isolation.ipv4_route_count, 0);
+    assert.equal(result.network_isolation.ipv6_nonloopback_route_count, 0);
+    assert.equal(result.network_isolation.runner_loopback_connect, "denied");
     assert.deepEqual(result.probe_file_access, {
       0: { direct_denied: true, symlink_denied: true, hardlink_denied: true },
       1: { direct_denied: true, symlink_denied: true, hardlink_denied: true },
@@ -96,6 +110,7 @@ test("Codex sandbox denies verifier canary through direct, symlink, proc-root an
     });
     assert.equal(result.canary_link_count, 1);
   } finally {
+    await new Promise((resolve) => localService.close(resolve));
     fs.rmSync(root, { recursive: true, force: true });
   }
 });

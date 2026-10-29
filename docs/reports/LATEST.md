@@ -1,3 +1,53 @@
+# Current research report — 2026-10-29
+
+## Architecture and checkpoint
+
+CTF Racer remains on the one persistent Luna Medium solver per isolated challenge architecture, with `ctf-solve` plus one category skill and controller-side flag verification. No model or solver-topology change was made. The three-case development cohort is pre-registered; it is observational and cannot establish causal checklist effects.
+
+## Network boundary
+
+The Codex sandbox's network-enabled mode is broader than a localhost target. Its network-disabled execution profile was probed with the actual bundled Codex sandbox: solver and child share a network namespace separate from the host; namespace-specific `/proc/net/dev` shows only `lo`; there are no IPv4 routes or non-loopback IPv6 routes; a controlled runner-host loopback listener is unreachable. A local-only service path is therefore not available. The fresh challenge below was an offline artifact and ran with networking disabled. No host firewall changes or external host probes were made.
+
+## Pwn runtime fixtures and reusable improvements
+
+Two benign local runtime services passed: one ELF32/i386 using `/lib/ld-linux.so.2`, one ELF64/x86-64 using `/lib64/ld-linux-x86-64.so.2`. Both reported glibc 2.42 and target-derived `puts` addresses. Matching symbol values produced page-aligned bases; using the x86-64 offset for the i386 target did not. `file`, `readelf`, `ldd`, `checksec`, and a local request/response harness were used. This supports early ABI/loader/libc provenance checks, but does not validate exploitation or different glibc releases.
+
+Canonical Skills V2 `ctf-pwn` now tells Luna not to infer target libc identity from host `ldd` or debugger state, and to use target-derived resolution only when the leak primitive supports it. The advice is grounded in the fixtures and primary references: [GNU readelf](https://sourceware.org/binutils/docs/binutils.html), [the Linux dynamic-linker manual](https://man7.org/linux/man-pages/man8/ld.so.8.html), and [pwntools DynELF](https://docs.pwntools.com/en/stable/dynelf.html). No solve-rate improvement is claimed.
+
+## Fresh Luna development challenge
+
+NYU CTF Bench development `deedeedee` (CSAW Quals 2016, Reverse), pinned to archive commit `4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9`, GPL-2.0. The 1,199,421-byte ELF artifact SHA-256 is `57e5cb10df109bf18bc43ee6b6afa49cbaca24f8e733ee27b4091e572056101a`. The answer-bearing metadata and SHA-256 verifier stayed in denied controller paths; actual direct/symlink/proc-root/hardlink probes passed before solver startup, with controller verification retained.
+
+One Luna Medium primary, `ctf-solve + ctf-reverse`, four rounds maximum, 600-second wall limit, one attempt, no retry/escalation, network disabled. The challenge completed in one round and was independently verified at 221.78 seconds. Input usage was 1,180,360 tokens (1,049,600 cached), output 13,640 and reasoning 8,638; cost was unavailable. First artifact triage was about 28 seconds; the first explicit compile-time XOR hypothesis appeared at 91 seconds and its first test at about 99 seconds.
+
+Luna used the challenge description, D symbols, `readelf`, `nm`, `objdump` and a small local extraction script. It corrected a mistaken D array/key interpretation within the supported compile-time XOR path, then inverted and forward-checked all 499 layers against the embedded ciphertext. There were no rejected candidates or unsupported major branches. About 112 seconds went to correcting the initial key-semantics assumption. This is one verified development solve, not a Solve Rate or generalization estimate.
+
+## Checklist exposure and readiness failure
+
+**A — available:** yes. Before the run, installed `ctf-solve`, `triage-routing.md`, and `ctf-reverse` hashes matched the canonical Skills V2 state; the router links to the focused checklist.
+
+**B — used:** not demonstrated. The trace opened only `ctf-reverse/references/tool-readiness.md` at about 44 seconds; it never opened `ctf-solve/references/triage-routing.md` or recorded competing hypotheses. The selected path was strongly supported, so this is not evidence of a missed alternative.
+
+**C — caused improvement:** untested. This run provides no causal evidence.
+
+The reverse readiness helper hit read-only `/var/tmp` while preparing checksec state. The solver continued with binutils. Canonical `ctf-reverse` now uses Python's selected writable temporary directory, and its five benign ELF32 tests passed both locally and inside the actual Codex sandbox, including checksec status when available. Ghidra startup remains untested. The archived executable also lacked execute permission; direct launch failed, while loader-based execution and static analysis remained available.
+
+## Validation and changes
+
+- CTF Racer tests: **61/61 passed** on NVM Node 24.19.0.
+- Skills V2 validation: **14 skills / 230 Markdown / 0 errors / 0 warnings**; routing **50/50**, edge regressions **5/5**.
+- `ctf-reverse` readiness tests: **5/5 locally and 5/5 inside the actual Codex sandbox**.
+- Skills V2 commits pushed on the existing research branch: `8fc26d9` (Pwn runtime provenance), `d1ecf9d` (primary source links), and `fe88a1a` (writable temp root). The pre-existing untracked `....` remains untouched.
+- CTF Racer's network probe and this checkpoint report/state/ledger updates are pending commit; no main branch changes.
+
+## Next priority
+
+Run the pre-registered offline Crypto case `onlythisprogram` through CTF Racer with the same Luna Medium, single-primary, network-disabled policy; record first named-hypothesis test, checklist-reference load time, and whether evidence-ranking behavior is actually observed. Follow it with the pre-registered Forensics `Watchword` case. Keep the Pwn service challenge gate open until local-only egress can be enforced without changing host-global networking.
+
+Safe experiment record: `docs/reports/experiments/EXP-2026-10-29-NYU-DEEDEEDDEE-HYPOTHESIS-COHORT-1/summary.json`. The ledger is append-only; historical experiment evidence has not been rewritten.
+
+---
+
 # CTF Racer research report — 2026-10-29
 
 ## Checkpoint

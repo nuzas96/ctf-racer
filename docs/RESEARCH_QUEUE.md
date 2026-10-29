@@ -139,32 +139,30 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 ## RQ-014 — Measure evidence-ranked hypothesis selection
 
 - **Question:** Does explicitly comparing a hypothesis's supporting clue, cheapest discriminating test, expected information gain, resource cost, and disconfirming result reduce time spent on unsupported paths without suppressing credible complex paths?
-- **Evidence:** Two independent retrospective trajectories share a missed-observable-evidence pattern: Return of the Wieners spent three rounds on an unvalidated bootloader overflow before tracing GPIO output; Cloudb established LFI but did not test a readable SQL backup. This is retrospective evidence only. The fresh Tutorial Pwn solve later rejected host-libc offsets when the derived base was inconsistent and switched to the binary's own dynamic resolver, but that run did not establish causal impact of the new checklist.
+- **Evidence:** Two retrospective trajectories (Return of the Wieners and Cloudb) support the missed-observable-evidence question; the Tutorial solver run predated checklist sync. In the first preregistered cohort run, the checklist was available, but the focused reference was not opened. Luna followed one strongly supported compile-time XOR path and forward-checked it; there was no explicit competing-hypothesis record.
 - **Change:** Skills V2 `ctf-solve/references/triage-routing.md` now includes the short competing-hypotheses checklist and observable-output-channel examples.
 - **Next validation:** On at least three future untouched development challenges, record hypothesis, clue, test cost, expected discriminator, and disconfirming result before the first substantial branch. Measure time to first useful test and time on unsupported branches. Do not compare against one-run results as a causal effect; use a matched repeated/ablation design before claiming gains.
-- **Status:** Open; guidance accepted as a prompt-level method, efficacy unproven.
+- **Status:** Open; cohort result 1/3, explicit checklist-use samples 0/3. Availability (A) is confirmed for the first run; use (B) was not demonstrated and causal effect (C) remains untested.
 
 ## RQ-015 — Improve early exploit/runtime compatibility checks
 
 - **Question:** Can Luna identify the target service's actual libc/runtime before investing in offset-based exploit construction, and use target-derived dynamic resolution when a matching libc is absent?
-- **Evidence:** In the fresh CSAW Tutorial Pwn run, a host-libc offset implied an inconsistent base; the solver corrected the assumption and succeeded using the binary's own dynamic resolver. It also corrected a protocol-state mistake. One success is not a reusable skill upgrade or general performance claim.
-- **Next experiment:** Validate the diagnostic on two separate benign local Pwn services with deliberately different libc builds. Measure time to a compatible first exploit attempt and confirm the target-side service remains local and bounded. Search existing `ctf-pwn` references again before adding anything.
-- **Status:** Open; do not tune or add challenge-specific constants from Tutorial.
+- **Evidence:** Tutorial showed a target-runtime correction once. Two independent benign local services then validated ABI/interpreter/runtime identification and rejection of an incompatible x86-64 offset for an i386 target. The canonical `ctf-pwn` skill now has a provenance gate (Skills V2 commits `8fc26d9` and `d1ecf9d`). The fixtures share glibc 2.42 and do not validate exploitation or solve-rate gains.
+- **Next experiment:** Once a technically scoped local service path exists, run one untouched archived Pwn challenge with target artifact/runtime provenance and measure a compatible first exploit test. Do not use host-global firewall rules or broad `networkAccessEnabled=true`.
+- **Status:** Method and rejection checks validated on two benign fixtures; actual fresh CTF Pwn evaluation remains open behind the network boundary.
 
-
-## RQ-014 — Measure evidence-ranked hypothesis selection
-
-- **Question:** Does explicitly comparing a hypothesis's supporting clue, cheapest discriminating test, expected information gain, resource cost, and disconfirming result reduce time spent on unsupported paths without suppressing credible complex paths?
-- **Evidence:** Two independent retrospective trajectories share a missed-observable-evidence pattern: Return of the Wieners spent three rounds on an unvalidated bootloader overflow before tracing GPIO output; Cloudb established LFI but did not test a readable SQL backup. The fresh Tutorial Pwn solve later rejected host-libc offsets when the derived base was inconsistent and switched to the binary's own dynamic resolver, but that run does not establish causal impact of the checklist.
-- **Change:** Skills V2 `ctf-solve/references/triage-routing.md` now includes a short competing-hypotheses checklist and observable-output-channel examples.
-- **Next validation:** On at least three future untouched development challenges, record hypothesis, clue, cheapest discriminating test, expected result, cost, and disconfirmation before the first substantial branch. Measure time to first useful test and time on unsupported branches. Do not claim causal gains from one-run results; use a matched repeated/ablation design before making a general performance claim.
-- **Status:** Open; guidance accepted as a prompt-level method, efficacy unproven.
-
-## RQ-015 — Improve early exploit/runtime compatibility checks
-
-- **Question:** Can Luna identify the target service's actual libc/runtime before investing in offset-based exploit construction, and use target-side dynamic resolution when a matching libc is absent?
-- **Evidence:** In the fresh CSAW Tutorial Pwn run, a host-libc offset implied an inconsistent base; the solver corrected the assumption and succeeded using the binary's own dynamic resolver. It also corrected a protocol-state mistake. One success is not a reusable skill upgrade or general performance claim.
-- **Next experiment:** Validate the diagnostic on two separate benign local Pwn services with deliberately different libc builds. Measure time to a compatible first exploit attempt and confirm the target-side service remains local and bounded. Search existing `ctf-pwn` references again before adding anything.
-- **Status:** Open; do not tune or add challenge-specific constants from Tutorial.
 
 **Exposure correction for RQ-014:** The Tutorial run predated synchronization of the checklist to the installed solver skill, so it does not count as an intervention sample. Only future runs that prove the focused reference was loaded can contribute to checklist adherence measurements.
+
+
+## RQ-016 — Enforce local-only challenge networking
+
+- **Question:** Can one solver thread reach an authorized runner-host loopback service while every other network path is denied, using a kernel-enforced boundary compatible with model API access?
+- **Evidence:** The actual Codex sandbox with network disabled has a separate namespace, only loopback, no IPv4 routes, no non-loopback IPv6 routes, and cannot reach a controlled runner-host loopback listener. Its enabled mode is broader than the challenge host. Unprivileged `unshare -n` is denied; no host firewall was changed.
+- **Status:** Open; network-free challenges remain eligible. Next research the narrowest supported namespace/service arrangement while preserving model transport, or stay offline if that cannot be enforced.
+
+## RQ-017 — Keep reverse readiness probes writable in the solver sandbox
+
+- **Question:** Do deterministic readiness helpers remain usable under the Codex sandbox's read-only `/var/tmp`?
+- **Evidence:** The first cohort trajectory hit a read-only temp-home failure in `reverse_readiness.py`. Replacing hardcoded `/var/tmp` with Python's platform-selected temp root passed all five ELF32 readiness tests locally and inside the actual Codex sandbox with network disabled.
+- **Status:** Fix accepted and pushed in Skills V2 `fe88a1a`; Ghidra startup remains untested.

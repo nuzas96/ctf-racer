@@ -6,6 +6,16 @@ This file is the compact source-of-truth checkpoint for the current implementati
 
 For session continuation, also read `docs/HANDOFF.md` and `docs/reports/LATEST.md`. Research milestones, open questions, decisions, and append-only experiment evidence live in their respective files under `docs/`; do not duplicate the ledger here.
 
+## Current checkpoint — 2026-10-29
+
+- Active branches: CTF Racer `research/bootstrap-continuity-2026-10-28`; Skills V2 `research/ctf-forensics-hvif-2026-10-29`. CTF Racer changes from this checkpoint are pending commit. Skills V2 is pushed through `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....` file.
+- The bundled Codex sandbox probe now reads namespace-specific `/proc/net` state and confirms a host-separate namespace, child inheritance, only loopback, no IPv4 routes, and no non-loopback IPv6 routes. A controlled runner-host loopback test is unreachable from that sandbox. The runner supports network on/off, not host-scoped allowlists; local-only service egress remains unsupported. Service challenges must wait; offline challenges run with network disabled.
+- Fresh NYU development challenge `deedeedee` solved and controller-verified in one Luna Medium round, 221.78 seconds. First named-hypothesis test was about 99 seconds. Usage: 1,180,360 input / 1,049,600 cached, 13,640 output, 8,638 reasoning tokens; cost unavailable. Safe report: `docs/reports/experiments/EXP-2026-10-29-NYU-DEEDEEDDEE-HYPOTHESIS-COHORT-1/summary.json`.
+- The three-case observational development cohort is preregistered across Reverse, Crypto and Forensics. Reverse is complete; next are offline Crypto `onlythisprogram`, then Forensics `Watchword`. In this first run the hypothesis checklist was available before analysis, but its focused reference was not opened. Availability is confirmed; checklist adherence and causal effect are not.
+- Two benign local Pwn runtime fixtures passed across ELF32/i386 and ELF64/x86-64. This validated runtime provenance and rejection of an incompatible cross-ABI libc offset, not exploitation or solve-rate improvement. Canonical `ctf-pwn` received a focused runtime provenance gate.
+- A separate failure in `ctf-reverse` readiness tooling (`/var/tmp` is read-only in the solver sandbox) was fixed by using the platform-selected temporary directory and validated on the existing benign ELF32 fixture both locally and inside the actual Codex sandbox. No Ghidra startup test was run.
+- Current validation rerun: CTF Racer 61/61; Skills V2 strict validator 14 skills / 230 Markdown / 0 errors / 0 warnings, routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing, and `git diff --check` passed.
+
 ## Locked execution architecture
 
 - One challenge -> one isolated workspace -> one primary autonomous Codex solver thread first.
@@ -66,17 +76,7 @@ Reverse:
 
 ## Next benchmark expansion
 
-Do not keep tuning the three static-v1 challenges.
-
-Next coverage target:
-- Web: CSAW 2026 TrustDinOIDC.
-- Pwn: CSAW 2026 Diamond Dogs.
-
-Why these candidates:
-- TrustDinOIDC is a compact reproducible OIDC/JWT web trust-boundary service.
-- Diamond Dogs has explicit player handout files, exact glibc 2.31 runtime, and a local-reproduction Docker definition.
-
-These service-oriented benchmarks are NOT active yet. They require a validated local-service lifecycle and challenge-network path that preserves benchmark isolation. Do not report a five-category solve rate until both are actually wired, checked, and run.
+The older CSAW TrustDinOIDC and Diamond Dogs service candidates remain inactive until the solver can reach a local service without broad host networking. The current preregistered offline cohort is `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3`: Reverse `deedeedee` (completed), Crypto `onlythisprogram` (next), and Forensics `Watchword` (third). Keep all as development material; this observational cohort cannot establish causal checklist gains.
 
 ## Current implementation boundary
 

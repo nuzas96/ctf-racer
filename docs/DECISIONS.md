@@ -78,3 +78,21 @@
 - **Evidence:** Retrospective Wieners and Cloudb traces both had directly observable paths that were not tested early; the Tutorial solve rejected an incompatible host-libc assumption and changed path. Skills V2 now has the concise checklist.
 - **Limit:** These observations are not a matched experiment. The new prompt's effect on time-to-first-test, unsupported-branch time, or solve rate is unmeasured.
 - **Consequence:** Track those measures on future untouched development challenges before claiming an improvement.
+
+## D-013 — Keep service challenges disabled until local-only egress exists
+
+- **Decision:** Run CTF Racer service solvers with network disabled unless a kernel-enforced boundary can reach the authorized local service and deny all other egress. A host-scoped target cannot be approximated by prompt instructions or the runner's broad network-enabled boolean.
+- **Evidence:** The actual Codex permission profile creates a host-separate network namespace; solver children inherit it; namespace-specific interface and route checks show loopback only; a controlled runner-host loopback listener is unreachable. Network-enabled mode remains broader than local-only.
+- **Consequence:** Use network-free development artifacts for model evaluations. Do not modify host-global firewall state. Research a safe API-preserving namespace/service arrangement separately.
+
+## D-014 — Gate libc offsets on target runtime provenance
+
+- **Decision:** Require ELF ABI, interpreter, dependency and target-libc provenance before using libc offsets. Use page alignment to reject inconsistent candidates, not as proof of a match; use a target-derived resolver only when the leak primitive and runtime support it.
+- **Evidence:** Two benign locally controlled runtime fixtures with ELF32/i386 and ELF64/x86-64 showed correct target-derived symbol bases and rejected the cross-ABI host offset. The reusable method is added to canonical Skills V2 `ctf-pwn` and validated by repository validators.
+- **Limit:** The fixtures share glibc 2.42 and are not vulnerable challenge services; they do not validate exploit reliability or a CTF solve-rate increase.
+
+## D-015 — Use writable temporary roots for reverse readiness probes
+
+- **Decision:** Readiness tools that create small isolated config homes must use the platform-selected writable temp directory instead of hardcoding `/var/tmp`.
+- **Evidence:** The fresh `deedeedee` trajectory observed a read-only `/var/tmp` failure in `reverse_readiness.py`. After correction, all five benign ELF32 readiness tests passed both locally and in the actual Codex sandbox, including the checksec status assertion.
+- **Consequence:** Canonical Skills V2 `ctf-reverse` helper uses `tempfile` default selection; Ghidra startup itself remains unvalidated.
