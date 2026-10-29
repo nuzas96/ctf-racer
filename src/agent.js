@@ -23,8 +23,8 @@ export class CodexAgentSession {
     return new CodexAgentSession(thread);
   }
 
-  async run(prompt, { onEvent } = {}) {
-    const { events } = await this.thread.runStreamed(prompt);
+  async run(prompt, { onEvent, signal } = {}) {
+    const { events } = await this.thread.runStreamed(prompt, { signal });
     let finalResponse = "";
     let usage = null;
     let failure = null;

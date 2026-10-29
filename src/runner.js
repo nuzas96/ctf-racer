@@ -29,7 +29,7 @@ function finishState(state, runRoot, startedMs) {
   writeState(runRoot, state);
 }
 
-export async function solveChallenge({ challenge, policy, state, runRoot, session, skillNames, service = null }) {
+export async function solveChallenge({ challenge, policy, state, runRoot, session, skillNames, service = null, signal }) {
   const responses = [];
   const startedMs = Date.now();
   let consecutiveStalls = 0;
@@ -48,6 +48,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
 
   try {
     for (let round = 1; round <= policy.max_continuation_rounds; round++) {
+      if (signal?.aborted) throw Object.assign(new Error("run interrupted"), { name: "AbortError" });
       state.rounds = round;
       writeState(runRoot, state);
       appendRunLog(runRoot, `round ${round} started`);
@@ -59,6 +60,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
         : continuationPrompt(round, skillNames, previousAssessment);
 
       const turn = await session.run(prompt, {
+        signal,
         onEvent: (event) => emitLiveTelemetry(event, {
           policy,
           round,
@@ -67,6 +69,7 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
           service,
         }),
       });
+      if (signal?.aborted) throw Object.assign(new Error("run interrupted"), { name: "AbortError" });
       service?.scrubWorkspace(state.workspace);
       const after = snapshotProgress(state.workspace);
 
@@ -153,11 +156,16 @@ export async function solveChallenge({ challenge, policy, state, runRoot, sessio
     appendRunLog(runRoot, "run ended without verified flag");
     return { state, responses };
   } catch (error) {
-    state.status = "error";
+    const stopped = signal?.aborted === true;
+    state.status = stopped ? "environment_interrupted" : "error";
+    state.terminal_reason = stopped ? (signal.reason ?? "cancelled") : undefined;
     service?.scrubWorkspace(state.workspace);
-    state.error = service?.redact(error instanceof Error ? error.message : String(error)) ?? (error instanceof Error ? error.message : String(error));
+    const errorMessage = service?.redact(error instanceof Error ? error.message : String(error)) ?? (error instanceof Error ? error.message : String(error));
+    if (stopped) state.interruption_error = errorMessage;
+    else state.error = errorMessage;
     finishState(state, runRoot, startedMs);
-    appendRunLog(runRoot, `error: ${state.error}`);
+    appendRunLog(runRoot, stopped ? `run interrupted: ${state.terminal_reason}` : `error: ${state.error}`);
+    if (stopped) return { state, responses };
     throw error;
   }
 }

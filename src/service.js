@@ -6,6 +6,7 @@ import net from "node:net";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { assertChallengeArtifacts } from "./artifacts.js";
+import { runProcess } from "./process.js";
 
 const hash = (data) => crypto.createHash("sha256").update(data).digest("hex");
 const blobHash = (data) => crypto.createHash("sha1").update(Buffer.from(`blob ${data.length}\0`)).update(data).digest("hex");
@@ -102,47 +103,67 @@ export function createDynamicFlag(challenge) {
   return { raw, sha256: hash(raw) };
 }
 
-export function healthcheck(health) {
+export function healthcheck(health, signal) {
   const timeout = health.timeout_ms ?? 60000;
   const deadline = Date.now() + timeout;
   return new Promise((resolve, reject) => {
-    const retry = () => Date.now() >= deadline ? reject(new Error(`${health.kind} healthcheck timed out`)) : setTimeout(attempt, 300);
+    let retryTimer;
+    let activeRequest;
+    let settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(retryTimer);
+      signal?.removeEventListener("abort", onAbort);
+      error ? reject(error) : resolve();
+    };
+    const onAbort = () => { activeRequest?.destroy(); finish(Object.assign(new Error("healthcheck aborted"), { name: "AbortError" })); };
+    const retry = () => {
+      if (settled) return;
+      if (Date.now() >= deadline) finish(new Error(`${health.kind} healthcheck timed out`));
+      else retryTimer = setTimeout(attempt, 300);
+    };
     const attempt = () => {
+      if (settled) return;
       if (health.kind === "tcp") {
         const socket = net.createConnection({ host: health.host, port: health.port });
+        activeRequest = socket;
         let done = false;
         const fail = () => { if (done) return; done = true; socket.destroy(); retry(); };
         socket.setTimeout(1000, fail);
         socket.once("error", fail);
-        socket.once("connect", () => { if (done) return; done = true; socket.end(); resolve(); });
+        socket.once("connect", () => { if (done) return; done = true; socket.end(); finish(); });
       } else if (health.kind === "http") {
         const request = http.get(health.url, { timeout: 1500 }, (response) => {
           response.resume();
-          response.statusCode === (health.expected_status ?? 200) ? resolve() : retry();
+          response.statusCode === (health.expected_status ?? 200) ? finish() : retry();
         });
+        activeRequest = request;
         request.once("error", retry);
         request.once("timeout", () => { request.destroy(); retry(); });
       } else reject(new Error("unsupported healthcheck"));
     };
+    signal?.addEventListener("abort", onAbort, { once: true });
+    if (signal?.aborted) return onAbort();
     attempt();
   });
 }
 
-function compose(runtimeDir, project, file, action, env, secret) {
+async function compose(runtimeDir, project, file, action, env, secret, signal, timeoutMs = 120000) {
   const args = ["compose", "-p", project, "-f", file, ...action];
-  const result = spawnSync("docker", args, { cwd: runtimeDir, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-  if (result.status !== 0) throw new Error(`docker compose ${action[0]} failed: ${String(result.stderr || result.stdout || result.error || "unknown").replaceAll(secret ?? "\0", "[REDACTED]").trim()}`);
+  const result = await runProcess("docker", args, { cwd: runtimeDir, env, timeoutMs, signal });
+  if (result.timed_out || result.aborted || result.code !== 0) throw new Error(`docker compose ${action[0]} failed: ${String(result.stderr || result.stdout || (result.timed_out ? "command timed out" : result.aborted ? "command aborted" : "unknown")).replaceAll(secret ?? "\0", "[REDACTED]").trim()}`);
 }
 
 function assertLocalBindings(project, port, env) {
-  const result = spawnSync("docker", ["ps", "--filter", `label=com.docker.compose.project=${project}`, "--format", "{{.Ports}}"], { env, encoding: "utf8" });
-  if (result.status !== 0) throw new Error("could not inspect service port bindings");
+  const result = spawnSync("docker", ["ps", "--filter", `label=com.docker.compose.project=${project}`, "--format", "{{.Ports}}"], { env, encoding: "utf8", timeout: 10000, killSignal: "SIGKILL" });
+  if (result.status !== 0) throw new Error(result.error?.code === "ETIMEDOUT" ? "service port inspection timed out" : "could not inspect service port bindings");
   const published = result.stdout.split(/[\n,]/).map((value) => value.trim()).filter((value) => value.includes("->"));
   if (!published.some((value) => value.startsWith(`127.0.0.1:${port}->`))) throw new Error("service localhost port is not published");
   if (published.some((value) => !/^127\.0\.0\.1:\d+->/.test(value) && !/^\[::1\]:\d+->/.test(value))) throw new Error("service exposes a non-localhost port");
 }
 
-export async function startChallengeService(sourceDir, challenge) {
+export async function startChallengeService(sourceDir, challenge, { signal } = {}) {
   if (!challenge.service) return null;
   assertChallengeServiceFiles(sourceDir, challenge);
   const service = challenge.service;
@@ -173,9 +194,9 @@ export async function startChallengeService(sourceDir, challenge) {
       fs.writeFileSync(secretFile, dynamic.raw + "\n", { mode: 0o644 });
       env.RUNTIME_FLAG_FILE = secretFile;
     }
-    compose(runtimeDir, project, composeFile, ["up", "-d", "--build", "--remove-orphans"], env, dynamic?.raw);
+    await compose(runtimeDir, project, composeFile, ["up", "-d", "--build", "--remove-orphans"], env, dynamic?.raw, signal);
     assertLocalBindings(project, service.local_port, env);
-    await healthcheck(service.healthcheck);
+    await healthcheck(service.healthcheck, signal);
     return {
       flag_sha256: dynamic?.sha256 ?? null,
       network_access: service.network_access === true,
@@ -201,13 +222,13 @@ export async function startChallengeService(sourceDir, challenge) {
         };
         visit(workspace);
       },
-      stop: () => {
-        try { compose(runtimeDir, project, composeFile, ["down", "-v", "--remove-orphans"], env, dynamic?.raw); }
+      stop: async () => {
+        try { await compose(runtimeDir, project, composeFile, ["down", "-v", "--remove-orphans"], env, dynamic?.raw, undefined, 30000); }
         finally { fs.rmSync(runtimeDir, { recursive: true, force: true }); fs.rmSync(secretDir, { recursive: true, force: true }); delete env[service.dynamic_flag_env]; }
       },
     };
   } catch (error) {
-    try { compose(runtimeDir, project, composeFile, ["down", "-v", "--remove-orphans"], env, dynamic?.raw); }
+    try { await compose(runtimeDir, project, composeFile, ["down", "-v", "--remove-orphans"], env, dynamic?.raw, undefined, 30000); }
     catch { /* preserve startup error */ }
     fs.rmSync(runtimeDir, { recursive: true, force: true });
     fs.rmSync(secretDir, { recursive: true, force: true });
@@ -216,11 +237,11 @@ export async function startChallengeService(sourceDir, challenge) {
 }
 
 export async function stopChallengeService(handle) {
-  if (handle) handle.stop();
+  if (handle) await handle.stop();
 }
 
-export async function withChallengeService(sourceDir, challenge, run) {
-  const handle = await startChallengeService(sourceDir, challenge);
+export async function withChallengeService(sourceDir, challenge, run, options = {}) {
+  const handle = await startChallengeService(sourceDir, challenge, options);
   try { return await run(handle); }
   finally { await stopChallengeService(handle); }
 }

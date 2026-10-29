@@ -51,7 +51,7 @@ test("TCP healthcheck connects to localhost", async () => {
   finally { await close(server); }
 });
 
-test("service cleanup runs on success and solver error without Docker", async () => {
+test("service cleanup runs on success, solver error, interruption and failed startup without Docker", async () => {
   const root = tmp(), source = path.join(root, "challenge"), serviceDir = path.join(source, "service"), bin = path.join(root, "bin");
   fs.mkdirSync(serviceDir, { recursive: true }); fs.mkdirSync(bin);
   fs.writeFileSync(path.join(serviceDir, "compose.yaml"), "services: {}\n");
@@ -67,12 +67,13 @@ test("service cleanup runs on success and solver error without Docker", async ()
   try {
     await withChallengeService(source, challenge, async (handle) => { assert.match(handle.flag_sha256, /^[a-f0-9]{64}$/); });
     await assert.rejects(withChallengeService(source, challenge, async () => { throw new Error("solver failed"); }), /solver failed/);
+    await assert.rejects(withChallengeService(source, challenge, async () => { throw Object.assign(new Error("operator interrupted"), { name: "AbortError" }); }), /operator interrupted/);
     const calls = fs.readFileSync(log, "utf8").trim().split("\n");
-    assert.equal(calls.filter((line) => line.includes(" up ")).length, 2);
-    assert.equal(calls.filter((line) => line.includes(" down ")).length, 2);
+    assert.equal(calls.filter((line) => line.includes(" up ")).length, 3);
+    assert.equal(calls.filter((line) => line.includes(" down ")).length, 3);
     process.env.RACER_DOCKER_TEST_BIND = "0.0.0.0";
     await assert.rejects(startChallengeService(source, challenge), /localhost port is not published/);
-    assert.equal(fs.readFileSync(log, "utf8").split("\n").filter((line) => line.includes(" down ")).length, 3);
+    assert.equal(fs.readFileSync(log, "utf8").split("\n").filter((line) => line.includes(" down ")).length, 4);
     assert.deepEqual(new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith("ctf-racer-service-")).filter((name) => !before.has(name))), new Set());
   } finally { process.env.PATH = oldPath; delete process.env.RACER_DOCKER_TEST_LOG; delete process.env.RACER_DOCKER_TEST_PORT; delete process.env.RACER_DOCKER_TEST_BIND; await close(server); }
 });

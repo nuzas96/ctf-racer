@@ -29,3 +29,15 @@
 - **Decision:** `solve --max-rounds N` may lower but cannot raise `max_continuation_rounds`; retain the configured default.
 - **Evidence:** The first real-time regression plan required two rounds while the existing baseline policy was four. A temporary override made the run reproducible without changing repository defaults.
 - **Consequence:** Controlled experiments and operators can set a smaller continuation budget with an auditable command-line setting.
+
+## D-006 — Enforce wall/storage stops in the runner
+
+- **Decision:** Keep storage preflight, periodic free-space monitoring, wall timeout, SDK abort, process-group termination, and terminal-state recording in the execution controller; use bounded service teardown.
+- **Evidence:** The Ghost regression was environment-interrupted by `/tmp` exhaustion. Pure Poetry completed with the new controls and stable storage; deterministic tests cover normal completion, timeout, interrupt, hung child, and service cleanup. See `EXP-2026-10-29-GHOST-CLASSIFICATION-CORRECTION` and `EXP-2026-10-29-NYU-PURE-POETRY-RUN-RESULT`.
+- **Consequence:** Missing token/cost hard caps remain explicit. Wall and disk controls reduce execution risk but do not make model usage free or fully bounded by tokens.
+
+## D-007 — Require OS-level verifier isolation before scored runs
+
+- **Decision:** A verifier file outside the solver workspace with mode 0600 is not enough to claim the solver cannot access it. Require a separate UID or container/mount deny boundary with a deterministic canary test.
+- **Evidence:** The Pure Poetry trace shows the Codex shell read a user memory file outside its workspace. No access to the challenge answer was observed, but the host read boundary was not enforced or demonstrated; see the append-only custody correction.
+- **Consequence:** Pure Poetry is integrity-limited development evidence and is excluded from strict verifier-isolated solve-rate metrics. Do not run a new scored challenge until the isolation gate passes.

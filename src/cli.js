@@ -16,13 +16,15 @@ import { assertChallengeServiceFiles, fetchChallengeServiceFiles, startChallenge
 import { runRace } from "./race.js";
 import { discoverIntakeChallenges, raceStatus, writeIntakeSuite } from "./intake.js";
 import { readWatchStatus, runWatch } from "./watch.js";
+import { storagePreflight, startStorageMonitor } from "./storage.js";
+import { createRunControl } from "./run-control.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
 
 function usage() {
   console.error("Usage:");
-  console.error("  npm run racer -- solve <challenge-directory> [--max-rounds N]");
+  console.error("  npm run racer -- solve <challenge-directory> [--max-rounds N] [--timeout-seconds N]");
   console.error("  npm run racer -- inspect <challenge-directory>");
   console.error("  npm run racer -- benchmark <challenge-directory> [--runs N]");
   console.error("  npm run racer -- benchmark-inspect <challenge-directory>");
@@ -425,7 +427,35 @@ const requestedRounds = parseIntegerOption(restArgs, "--max-rounds", {
   max: policy.max_continuation_rounds,
   fallback: undefined,
 });
+const timeoutSeconds = parseIntegerOption(restArgs, "--timeout-seconds", {
+  min: 1,
+  max: 3600,
+  fallback: 900,
+});
+const artifactBytes = (challenge.artifact_manifest ?? []).reduce((sum, item) => sum + (item.size ?? 0), 0);
+const storageCheck = storagePreflight({ workspacePath: path.join(projectRoot, "runs"), artifactBytes });
+console.log("[ctf-racer] storage preflight: " + (storageCheck.ok ? "ok" : "blocked"));
+for (const check of storageCheck.checks) {
+  console.log(`[ctf-racer] storage ${check.path}: available=${check.available_bytes} required=${check.required_bytes}`);
+}
+if (!storageCheck.ok) throw new Error("insufficient disk capacity; model execution was not started");
 
+const runControl = createRunControl({ timeoutMs: timeoutSeconds * 1000 });
+const storageLogPath = path.join(projectRoot, "runs", "_storage", `${safeChallengeId(challenge.id)}-${new Date().toISOString().replace(/[:.]/g, "-")}.jsonl`);
+const storageMonitor = startStorageMonitor({
+  workspacePath: path.join(projectRoot, "runs"),
+  onLowSpace: (check) => {
+    console.error("[ctf-racer] storage limit reached; stopping solver: " + JSON.stringify(check));
+    runControl.stop("storage_low_space");
+  },
+  onSample: (checks) => {
+    for (const check of checks) console.log(`[ctf-racer] storage monitor ${check.path}: available=${check.available_bytes}`);
+    fs.mkdirSync(path.dirname(storageLogPath), { recursive: true });
+    fs.appendFileSync(storageLogPath, JSON.stringify({ at: new Date().toISOString(), filesystems: checks }) + "\n");
+  },
+});
+
+try {
 await withChallengeService(sourceDir, challenge, async (service) => {
 const effectiveChallenge = service?.flag_sha256 ? { ...challenge, flag_sha256: service.flag_sha256 } : challenge;
 const effectivePolicy = {
@@ -439,6 +469,7 @@ state.preflight = {
   finding_count: preflight.findingCount,
   high_count: preflight.highCount,
 };
+state.storage_log_file = storageLogPath;
 
 const skillNames = skillNamesForChallenge(challenge);
 const installedSkills = skillNames.map((name) => ({
@@ -455,13 +486,32 @@ state.skill_route = {
 };
 writeState(runRoot, state);
 
+if (runControl.signal.aborted) {
+  state.status = "environment_interrupted";
+  state.terminal_reason = runControl.reason;
+  state.finished_at = new Date().toISOString();
+  writeState(runRoot, state);
+  process.exitCode = runControl.reason === "interrupted" ? 130 : 124;
+  return;
+}
+
 const session = await CodexAgentSession.create(state.workspace, effectivePolicy);
+if (runControl.signal.aborted) {
+  state.status = "environment_interrupted";
+  state.terminal_reason = runControl.reason;
+  state.finished_at = new Date().toISOString();
+  writeState(runRoot, state);
+  process.exitCode = runControl.reason === "interrupted" ? 130 : 124;
+  return;
+}
 
 console.log(`[ctf-racer] challenge: ${challenge.title}`);
 console.log(`[ctf-racer] workspace: ${state.workspace}`);
 console.log(`[ctf-racer] model: ${policy.model ?? "Codex default/profile"}`);
 console.log(`[ctf-racer] reasoning: ${policy.model_reasoning_effort ?? "profile/default"}`);
 console.log(`[ctf-racer] max continuation rounds: ${effectivePolicy.max_continuation_rounds}`);
+console.log(`[ctf-racer] wall-time limit: ${timeoutSeconds}s`);
+console.log(`[ctf-racer] storage monitor log: ${storageLogPath}`);
 console.log("[ctf-racer] policy: one challenge -> one persistent Codex thread");
 console.log(`[ctf-racer] live telemetry: ${effectivePolicy.live_telemetry === false ? "disabled" : "enabled"}`);
 console.log(`[ctf-racer] telemetry log: ${path.join(runRoot, "telemetry.log")}`);
@@ -471,7 +521,7 @@ for (const skill of installedSkills) {
   console.log(`[ctf-racer] skill local: $${skill.name} ${skill.found ? skill.path : "(not detected in local documented paths)"}`);
 }
 
-const result = await solveChallenge({ challenge: effectiveChallenge, policy: effectivePolicy, state, runRoot, session, skillNames, service });
+const result = await solveChallenge({ challenge: effectiveChallenge, policy: effectivePolicy, state, runRoot, session, skillNames, service, signal: runControl.signal });
 console.log(`[ctf-racer] rounds: ${result.state.rounds}`);
 console.log(`[ctf-racer] elapsed: ${seconds(result.state.elapsed_ms ?? 0)}s`);
 
@@ -506,7 +556,11 @@ if (result.state.status === "candidate") {
 }
 
 console.log(`\n[ctf-racer] ${result.state.status.toUpperCase()} after ${result.state.rounds} persistent rounds.`);
+if (result.state.terminal_reason) console.log(`[ctf-racer] terminal reason: ${result.state.terminal_reason}`);
 console.log(`[ctf-racer] inspect: ${runRoot}`);
-process.exitCode = result.state.status === "error" ? 1 : 3;
-
-});
+process.exitCode = result.state.status === "error" ? 1 : result.state.status === "environment_interrupted" ? (result.state.terminal_reason === "interrupted" ? 130 : 124) : 3;
+}, { signal: runControl.signal });
+} finally {
+  storageMonitor.stop();
+  runControl.close();
+}

@@ -1,6 +1,6 @@
 # CTF Racer — Current Project State
 
-Last grounded: 2026-10-28 (America/New_York). Historical benchmark evidence below is dated 2026-10-01.
+Last grounded: 2026-10-29 (America/New_York). Historical benchmark evidence below is dated 2026-10-01.
 
 This file is the compact source-of-truth checkpoint for the current implementation state. Read it together with `ARCHITECTURE.md`, `benchmarks/suite.json`, and the latest master Google Doc section before proposing architecture changes.
 
@@ -332,3 +332,16 @@ The archived Ghost regression ran one Luna Medium primary attempt with a per-run
 System `/usr/bin/npm` error is in the system npm dependency stack: `/usr/share/nodejs/hosted-git-info/lib/index.js:8` constructs `LRU`, but system `lru-cache` 11.2.7 exports an object containing `LRUCache`. NVM npm 11.17.0 works for `npm ls` and `npm test`; no project/global dependency was upgraded.
 
 Per-run `--max-rounds N` is now supported for `solve`; it only lowers the configured maximum. Full suite: 49/49 passed using NVM npm. A second fixture, NYU development Forensics “Pure Poetry,” is prepared at ignored local path `local-challenges/nyu-dev-2016-pure-poetry`, pinned to commit `b899e00...`, with private raw answer isolated and zero-token artifact/preflight checks passed. Next priority: disk-space preflight and integrated timeout/cancellation state cleanup. Do not rerun Ghost as tuning data.
+
+
+## 2026-10-29 resource-control and development-attempt checkpoint
+
+CTF Racer now preflights actual `os.tmpdir()` and workspace filesystems with `statfs`, reserves at least 128 MiB on each distinct filesystem plus workspace artifact-copy overhead, and samples available space every 2 seconds during `solve`. Samples are recorded under `runs/_storage/`. `solve` accepts `--timeout-seconds N` (1–3600, default 900); SIGINT/SIGTERM, wall timeout, and low storage abort the Codex SDK streamed turn using its supported `AbortSignal`. Interrupted runs persist `environment_interrupted` and a terminal reason. Child commands run in a process group and are terminated on timeout/abort; Docker Compose operations and `docker ps` inspection have bounded timeouts, with Compose teardown capped at 30 seconds. Services are cleaned through `finally` paths.
+
+Deterministic suite result: 56/56 passed with NVM npm, including storage preflight/monitor checks, normal and interrupted solver runs, process timeout/normal exit, and service cleanup on success/error/interruption/startup failure. No system npm changes.
+
+Pure Poetry was run once through `solve` as a NYU CTF Bench development case: Luna Medium, `ctf-solve + ctf-forensics`, two rounds, no retries, network disabled, 240-second wall limit. It ended `unsolved` after 174.195 seconds, with no candidate and no verified flag. Usage: 1,284,592 input (1,163,008 cached), 19,052 output (11,811 reasoning); monetary cost unknown. Trace diagnoses a legacy Rez `VECTOR:ICON`/`ncif` decoding knowledge/tooling gap, not an environment failure. Full safe records are in the experiment report and ledger.
+
+**Verifier-custody limitation:** private answer JSON and verifier digest were absent from the solver workspace and saved logs, and no trace shows the solver reading the private JSON. However, telemetry proves the SDK shell could read a user memory file outside its workspace; file mode 0600 and path separation therefore do not prove an OS-level deny. Treat this as an integrity-limited development attempt and exclude it from strict verifier-isolated solve-rate evidence. Do not claim technical inaccessibility. Future model runs require separate-UID/container/mount isolation with a demonstrated deny test.
+
+Next: implement and test OS-level verifier isolation, then develop a reusable Rez/ncif inspection method on a separate, properly isolated development fixture. Do not rerun Pure Poetry as tuning or touch NYU test-split cases.

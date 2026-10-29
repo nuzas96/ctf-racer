@@ -10,17 +10,19 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 - Bootstrap continuity architecture added and verified on this branch (2026-10-28).
 - Initial public-agent architecture review and six-category NYU dataset metadata pinned (2026-10-29).
 - Per-run continuation-round cap implemented; existing suite grows from 47 to 49 tests.
-- Alternate NYU development Forensics fixture prepared, hash-verified, answer-isolated, and zero-token preflighted.
+- NYU development Forensics fixture prepared and hash-verified; one bounded attempt completed unsolved. Workspace did not contain answer/verifier, but host-level read isolation remains unproven.
+- Actual temp/workspace filesystem preflight and 2-second storage monitoring added.
+- Per-run wall timeout, SDK turn cancellation, process-group termination, terminal interruption state and bounded service cleanup added; 56/56 deterministic tests pass.
+- One Luna Medium NYU development attempt completed in 2 rounds / 174.195s, unsolved; excluded from strict verifier-isolated solve-rate evidence due host-read isolation limitation.
 
 ## Next milestones
 
-1. **Prevent temporary storage exhaustion** — add a zero-token preflight for available `/tmp` and workspace space, because a full `/tmp` invalidated an otherwise safe local run.
-2. **Complete bounded runner control** — persist stop reason/terminal status on interruption, integrate a wall-clock cap and child cancellation, then service cleanup. The round cap now supports per-run lowering; token/cost caps remain unverified.
-3. **Run prepared development fixture** — after a zero-token storage check and terminal timeout handling, run `local-challenges/nyu-dev-2016-pure-poetry` once under Luna Medium with an explicit wall cap; report token telemetry. Do not tune on NYU test split.
-4. **Broaden the development subset** — prepare one reproducible candidate in Misc and one in a non-static category, checking licenses and keeping answer material separate.
+1. **Prove verifier isolation at the OS boundary** — run the solver as a separate UID or in a container/mount policy that cannot read the held answer/verifier directory; add a deterministic negative-access test. Current workspace isolation is not sufficient evidence.
+2. **Improve old Macintosh resource triage** — investigate a reusable, provenance-backed Rez/ncif vector decoder or recognition/tool diagnostic. Validate on a separate development fixture before modifying the canonical skill or repeating Pure Poetry.
+3. **Broaden isolated development coverage** — select one reproducible Misc or non-static challenge with verifier material unavailable to the solver process.
+4. **Measure model usage and retrieval** — retain Luna Medium baseline; compare alternatives only with repeated controlled trials and current documented economics. SDK stream exposes token usage, but no hard token/cost ceiling is enforced yet.
 5. **Formalize held-out hygiene** — register source commit/hash, verifier custody, exposure and contamination transitions before any test-split run.
-6. **Measure model usage and retrieval** — retain Luna Medium baseline; compare alternatives only with repeated controlled trials and current documented economics.
 
 ## Dependencies
 
-Milestones 3 and 4 require storage safety and artifact/verifier isolation. Model comparisons require budget visibility and a registered evaluation set. No architecture-policy change is approved by this roadmap.
+Service and storage controls are implemented, but strict verifier isolation remains a gate for future scored experiments. Model comparisons require budget visibility and a registered evaluation set. No architecture-policy change is approved by this roadmap.

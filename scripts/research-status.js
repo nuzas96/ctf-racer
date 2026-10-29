@@ -17,6 +17,12 @@ const report = fs.readFileSync(latestPath, "utf8");
 console.log(report.trimEnd());
 console.log("\n## Ledger index\n");
 if (!entries.length) console.log("No experiments recorded.");
+const statusCorrections = new Map(entries
+  .filter((entry) => entry.status === "CORRECTION" && entry.corrects && entry.corrected_status)
+  .map((entry) => [entry.corrects, entry]));
 for (const entry of entries) {
-  console.log(`- ${entry.experiment_id}: ${entry.status}; attempted=${entry.outcome?.attempted ?? "unknown"}; verified=${entry.outcome?.verified ?? "unknown"}`);
+  const correction = statusCorrections.get(entry.experiment_id);
+  const status = correction ? `${entry.status} -> ${correction.corrected_status} (corrected)` : entry.status;
+  const eligibility = correction?.eligible_for_solve_rate === false || correction?.eligible_for_strict_solve_rate === false ? "; solve-rate eligible=false" : "";
+  console.log(`- ${entry.experiment_id}: ${status}${eligibility}; attempted=${entry.outcome?.attempted ?? "unknown"}; verified=${entry.outcome?.verified ?? "unknown"}`);
 }

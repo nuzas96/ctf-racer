@@ -1,0 +1,4 @@
+CTF_RACER_SKILL=ctf-solve|/home/USER/.codex/skills/ctf-solve/SKILL.md
+CTF_RACER_SKILL=ctf-forensics|/home/USER/.codex/skills/ctf-forensics/SKILL.md
+CTF_RACER_REF=ctf-forensics|/home/USER/.codex/skills/ctf-forensics/stego-image.md
+CTF_RACER_REF=ctf-forensics|/home/USER/.codex/skills/ctf-forensics/references/stego-detection.md

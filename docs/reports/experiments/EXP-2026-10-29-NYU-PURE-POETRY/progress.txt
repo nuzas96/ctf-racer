@@ -1,0 +1,8 @@
+# Progress
+
+
+- Resumed from supplied workspace. `PREFLIGHT.md` reports one 11,844-byte artifact, `pure_poetry.rdef`, with no high-signal automated finding; challenge asks for `CSAW{KEY}` and emphasizes 128.
+- Identified artifact as ASCII Rez-style resource source: exactly one `resource(35,"VECTOR:ICON")` whose payload consists of concatenated hex strings. SHA-256: `cc4d3bfaccae770a04d8a069d00fbf4aa9acc0c995ca5716a77743df046a86fc`.
+- Decoded payload length is 5,471 bytes and begins `6e63696601050006` (`ncif...`); no literal `CSAW{...}` appears in source or decoded bytes. It spans 42 complete 128-byte blocks plus 95 bytes. The clue is therefore not yet verified as a simple plaintext marker; next investigate vector resource decoding/rendering and possible 128-byte structure.
+- Vector-structure probe: decoded payload contains 218 occurrences of byte sequence `0a00010402`; 205 adjacent occurrences are 23 bytes apart, with 9 gaps of 48 bytes and 3 gaps of 73 bytes. At those record positions, bytes at offset +5 decode as big-endian IEEE-754 values (mostly `2.0`, with some `32.0`, `128.0`, `512.0`); bytes at +14 often decode near `0.020833` or `0.33333`. This confirms structured numeric vector data, but these tentative field interpretations do not yet recover the icon or explain the flag.
+- Classified the 218 `0a00010402` records by the big-endian float at +5: `2.0` occurs 159 times, `32.0` 32 times, `128.0` 17 times, `512.0` 7 times, `2048.0` twice, and `1.999969482421875` once. The values are powers-of-two-like and therefore likely vector opcodes/parameters, not a direct sequence of flag characters. Seventeen exact `128.0` fields were found, but no interpretation yielding text is validated yet.
