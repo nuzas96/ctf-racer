@@ -50,18 +50,27 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - Pure Poetry development fixture: source commit `b899e00ae75e9c55a2521ec890125298ca6a4b0e`, GPL-2.0, artifact SHA-256 `cc4d3bfaccae770a04d8a069d00fbf4aa9acc0c995ca5716a77743df046a86fc`. One Luna Medium attempt, 2 rounds, 174.195s, unsolved/no candidate; usage 1,284,592 input (1,163,008 cached), 19,052 output. It exposed a legacy Rez `VECTOR:ICON`/`ncif` tool/knowledge gap. The answer/digest were absent from the workspace and logs, but host-level read isolation was not proven; exclude from strict verifier-isolated solve-rate metrics.
 - Cybench is a second 40-task source over six domains; the Inspect Evals adaptation includes 39 tasks and excludes one GPL-licensed task. Challenge-level licenses still need review before reuse.
 
-## RQ-005 — Prove solver cannot read verifier material (highest priority)
+## RQ-005 — Prove solver cannot read verifier material (completed on this host)
 
 - **Question:** Can CTF Racer demonstrate that model/tool processes cannot read host-held answers or verifier secrets?
 - **Evidence:** Pure Poetry telemetry shows the SDK shell read a user memory file outside its workspace. The answer file was outside the workspace and absent from saved logs, but mode 0600/path separation did not prove an OS-level deny.
 - **Hypothesis:** A separate UID or container/mount namespace with a read-denied verifier mount provides a testable custody boundary.
 - **Design:** Use a deterministic canary and assert solver-side reads fail while controller-side verification succeeds; no model usage required.
-- **Status:** Open; must pass before future scored challenge attempts.
+- **Status:** Demonstrated on this host with actual Codex Linux sandbox subprocess and five controller-held probe files; see Palo Alto preflight record and `src/verifier-isolation.js`. Same UID is retained, so this is not container/UID isolation. Re-run the zero-token probe after SDK or policy changes.
 
-## RQ-006 — Reusable classic Mac vector-icon forensics
+## RQ-006 — Reusable classic Mac vector-icon forensics (tool path validated; skill upgrade implemented)
 
 - **Question:** What deterministic toolchain or recognition steps efficiently decode Rez `VECTOR:ICON` / `ncif` payloads?
 - **Evidence:** Pure Poetry yielded a 5,471-byte `ncif` payload and structured-record probes, but no key. Existing focused references cover image steganography and HFS resource forks, not this vector-icon encoding.
 - **Hypothesis:** A reusable format-recognition and conversion path can reduce first useful experiment time for this artifact class.
 - **Design:** Research format specifications and maintained parsers, then validate on at least two unrelated development fixtures or known-good public samples. Keep challenge-specific extraction out of the canonical skill.
-- **Status:** Open; no skill change accepted from one unsolved run.
+- **Status:** Tool path and generic extractor validated with benign generated HVIF and the separate archived Pure Poetry development artifact; canonical `ctf-forensics` upgrade implemented and validation-passing on its feature branch. Keep performance impact unclaimed; future unrelated `.rdef`/HVIF case needed for generalization.
+
+
+## RQ-007 — Improve bounded reverse-analysis startup and progress
+
+- **Question:** Can environment-aware ELF32 triage and bounded headless-analysis setup improve verified TTF for static reverse tasks?
+- **Evidence:** Palo Alto required `qemu-i386` because direct execution hit the host's 32-bit syscall limitation. Ghidra setup/analysis consumed a substantial fraction of a 240-second two-round run; it ended on the hard wall with two validators unresolved.
+- **Hypothesis:** A deterministic preflight detecting ELF32 execution constraints and readying available emulation/disassembly tools can reduce wasted early probes.
+- **Next design:** Use a separate development ELF32 fixture; zero-token measure tool availability/startup, and optionally a matched single-run Luna baseline only after reproducible prep. Do not tune Palo Alto itself or treat its interruption as solver miss.
+- **Status:** Highest priority engineering follow-up; no implementation accepted yet.

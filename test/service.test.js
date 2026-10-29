@@ -97,6 +97,10 @@ test("Codex network is explicit and external research stays disabled", () => {
   const approved = policyForChallenge(candidate, { service: { network_access: true } }, { network_access: true });
   assert.equal(approved.allow_challenge_network, true);
   assert.equal(approved.allow_external_web_research, false);
+  const isolated = threadOptions("/tmp/work", { ...policy, verifier_read_paths: ["/private/verifier"], allow_challenge_network: true });
+  assert.equal(isolated.sandboxMode, undefined);
+  assert.equal(isolated.networkAccessEnabled, undefined);
+  assert.equal(isolated.webSearchEnabled, false);
 });
 
 test("dynamic flag is absent from workspace, state, response and benchmark summary", async () => {

@@ -1,11 +1,15 @@
+import { verifierIsolationConfigOverrides } from "./verifier-isolation.js";
+
 export function threadOptions(workingDirectory, policy) {
+  const isolated = Array.isArray(policy.verifier_read_paths) && policy.verifier_read_paths.length > 0;
+  const networkAllowed = policy.allow_challenge_network === true;
   return {
     workingDirectory,
-    sandboxMode: policy.sandbox_mode,
+    sandboxMode: isolated ? undefined : policy.sandbox_mode,
     approvalPolicy: policy.approval_policy,
     model: policy.model,
     modelReasoningEffort: policy.model_reasoning_effort,
-    networkAccessEnabled: policy.allow_challenge_network === true,
+    networkAccessEnabled: isolated ? undefined : networkAllowed,
     webSearchMode: "disabled",
     webSearchEnabled: false,
   };
@@ -18,7 +22,10 @@ export class CodexAgentSession {
 
   static async create(workingDirectory, policy) {
     const { Codex } = await import("@openai/codex-sdk");
-    const codex = new Codex({});
+    const configOverrides = policy.verifier_read_paths
+      ? verifierIsolationConfigOverrides(policy.verifier_read_paths, { allowChallengeNetwork: policy.allow_challenge_network === true })
+      : [];
+    const codex = new Codex({ configOverrides });
     const thread = await codex.startThread(threadOptions(workingDirectory, policy));
     return new CodexAgentSession(thread);
   }

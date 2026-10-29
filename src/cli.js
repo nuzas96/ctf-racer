@@ -18,6 +18,7 @@ import { discoverIntakeChallenges, raceStatus, writeIntakeSuite } from "./intake
 import { readWatchStatus, runWatch } from "./watch.js";
 import { storagePreflight, startStorageMonitor } from "./storage.js";
 import { createRunControl } from "./run-control.js";
+import { assertIsolatedProfileConfig, verifierProbeFiles, verifierReadPaths, verifyVerifierIsolation } from "./verifier-isolation.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -471,6 +472,35 @@ state.preflight = {
 };
 state.storage_log_file = storageLogPath;
 
+const verifierReadPathsForRun = verifierReadPaths({ projectRoot });
+let isolation;
+try {
+  assertIsolatedProfileConfig();
+  isolation = verifyVerifierIsolation({
+    projectRoot,
+    workspace: state.workspace,
+    deniedPaths: verifierReadPathsForRun,
+    probeFiles: verifierProbeFiles({ projectRoot, sourceDir }),
+  });
+} catch (error) {
+  state.status = "integrity_blocked";
+  state.terminal_reason = "verifier_isolation_probe_error";
+  state.isolation_error = error.message;
+  state.finished_at = new Date().toISOString();
+  writeState(runRoot, state);
+  throw error;
+}
+state.verifier_isolation = isolation;
+writeState(runRoot, state);
+console.log("[ctf-racer] verifier isolation: " + (isolation.passed ? "passed" : "failed"));
+if (!isolation.passed) {
+  state.status = "integrity_blocked";
+  state.terminal_reason = "verifier_isolation_probe_failed";
+  state.finished_at = new Date().toISOString();
+  writeState(runRoot, state);
+  throw new Error("verifier isolation probe failed; model execution was not started");
+}
+
 const skillNames = skillNamesForChallenge(challenge);
 const installedSkills = skillNames.map((name) => ({
   name,
@@ -495,7 +525,10 @@ if (runControl.signal.aborted) {
   return;
 }
 
-const session = await CodexAgentSession.create(state.workspace, effectivePolicy);
+const session = await CodexAgentSession.create(state.workspace, {
+  ...effectivePolicy,
+  verifier_read_paths: verifierReadPathsForRun,
+});
 if (runControl.signal.aborted) {
   state.status = "environment_interrupted";
   state.terminal_reason = runControl.reason;

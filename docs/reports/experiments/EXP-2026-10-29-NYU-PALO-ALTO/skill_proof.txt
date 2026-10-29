@@ -1,0 +1,3 @@
+CTF_RACER_SKILL=ctf-solve|/home/nuzhmi/.codex/skills/ctf-solve/SKILL.md
+CTF_RACER_SKILL=ctf-reverse|/home/nuzhmi/.codex/skills/ctf-reverse/SKILL.md
+CTF_RACER_REF=ctf-reverse|/home/nuzhmi/.codex/skills/ctf-reverse/references/ghidra-native.md

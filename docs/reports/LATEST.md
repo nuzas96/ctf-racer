@@ -1,43 +1,33 @@
 # CTF Racer research report — 2026-10-29
 
-## Current checkpoint
+## Checkpoint
 
-Branch `research/bootstrap-continuity-2026-10-28`, resumed at `738fb9a5f3355b566debe53d3b9b27507178a382`. Frozen solve policy remains one Luna Medium primary thread per challenge, `ctf-solve` plus one category skill, isolated solver workspace, challenge network disabled by default, and controller-side independent flag verification. No competitor review or benchmark bootstrap was repeated.
+Resumed CTF Racer at `39164cb6b1e245ee4e8fd6ab633d10090d153275` on `research/bootstrap-continuity-2026-10-28`. Luna Medium and one persistent autonomous solver remain the baseline. No architecture bootstrap, competitor review, large benchmark, or NYU test-split run was repeated.
 
-## Engineering completed
+## Verifier isolation
 
-- `solve` now checks free bytes with `statfs` on the actual temporary and workspace filesystems before model execution. It reserves 128 MiB on each distinct filesystem plus workspace artifact-copy overhead.
-- Storage availability is sampled every 2 seconds and appended to a unique run file under `runs/_storage/`.
-- `--timeout-seconds N` (1–3600, default 900) aborts the Codex SDK streamed turn via its supported `AbortSignal`; SIGINT/SIGTERM and low storage use the same cancellation path.
-- Cancellation persists `environment_interrupted` plus a terminal reason, keeping it distinct from an ordinary solver failure.
-- Child commands are placed in a process group and terminated on timeout/abort with TERM then KILL. Docker Compose calls have timeouts; `docker ps` inspection has a 10-second timeout; cleanup runs on service teardown and is capped at 30 seconds.
-- Tests cover storage preflight/monitor, normal completion, timed and explicit interruption, durable runner state, hung subprocess termination, and service cleanup on success/error/interruption/startup failure.
+Added `src/verifier-isolation.js` and runner integration. Before model execution, the runner rejects insecure verifier files/configuration and probes the actual bundled Codex Linux sandbox using a subprocess at the solver's effective UID (1000). The probe denies direct, symlink, `/proc/self/root`, `/proc/<controller pid>/root`, and hardlink access to a verifier canary and actual challenge/auth/verifier paths while confirming controller-side reads remain possible. The Palo Alto run records five protected files with link count one. This is demonstrated Codex path-policy isolation on this host; it is not separate UID/container isolation and needs revalidation after SDK/policy changes.
 
-**Validation:** 56/56 tests passed with `/home/nuzhmi/.nvm/versions/node/v24.19.0/bin/npm test`. The documented system npm mismatch was left untouched.
+## HVIF discovery and Skills V2
 
-## Pure Poetry development attempt
+The public `ncif` signature identifies Haiku Vector Icon Format (HVIF); PRONOM fmt/1791 links it with Haiku and `.rdef` resources. Direct PRONOM fetch returned HTTP 403 in this environment; indexed record content was available. Public MIT [`hvif-tools`](https://github.com/threedeyes/hvif-tools), commit `3789a261230fd6faad0dfda3b7b2743a2d878125`, builds Linux `icon2icon` with CMake/C++ and its vendored/submodule SVG dependencies. The Haiku-specific `iom2hvif` target was disabled; it is not required for universal `icon2icon`.
 
-Source: NYU CTF Bench GPL-2.0, commit `b899e00ae75e9c55a2521ec890125298ca6a4b0e`, `development/2016/CSAW-Finals/forensics/pure_poetry`. The 11,844-byte artifact matched both the pinned Git blob SHA-1 (`6792d3af2c09b9d432b5a29cedddedb96416a446`) and SHA-256 (`cc4d3bfaccae770a04d8a069d00fbf4aa9acc0c995ca5716a77743df046a86fc`). An independent source-answer digest check matched the fixture verifier before execution; no answer or verifier digest appeared in the initial solver workspace or saved evidence.
+A benign generated SVG→HVIF→SVG/PNG validation passed; malformed-signature and truncated inputs were rejected without output. A generic Rez parser extracted the Pure Poetry `VECTOR:ICON` resource into a 5,471-byte `ncif` payload and rendered it to SVG/PNG. The image looked abstract and did not provide a readable solve. Canonical Skills V2 added a focused recognition/conversion reference and parameterized helper; tests **5/5**, strict migration validation **0 errors/0 warnings**. This is a tool/methodology validation only, not measured solve improvement. Changes are on `research/ctf-forensics-hvif-2026-10-29`.
 
-Run: one primary attempt, Luna Medium, two rounds, zero retries, 240-second wall limit, challenge network off. Routed `$ctf-solve + $ctf-forensics`; skill proof passed with `stego-image.md` and `references/stego-detection.md` opened. Storage preflight passed; `/tmp` began with 5,332,221,952 free bytes and the workspace filesystem with 14,715,236,352. Storage remained healthy.
+## Fresh real challenge attempt
 
-**Outcome: unsolved, no candidate, no independently verified flag.** TTF is not applicable. Solver elapsed time was 174.195 seconds. Usage was 1,284,592 input tokens (1,163,008 cached), 19,052 output (11,811 reasoning); cost was unavailable. It identified a Rez `VECTOR:ICON` resource with a 5,471-byte `ncif` payload and probed structured records, but did not recover the key. Two command errors (shell quoting and a malformed Python probe) were later worked around. The substantive failure is a legacy vector-icon decoding/tooling knowledge gap; this one development run does not justify a skill change.
+Palo Alto, Reverse, from the GPL-2.0 NYU CTF Bench **development** split at commit `b899e00ae75e9c55a2521ec890125298ca6a4b0e`; artifact SHA-256 `ca2e61a92fd4286941a679e63ac17725af3baad7a214fe193429be59d8b91fe3`. Luna Medium; `$ctf-solve + $ctf-reverse`; one primary attempt, two rounds, zero retries, network off, 240-second wall limit. Storage preflight and actual verifier-isolation test passed. The solver recovered and forward-checked two arithmetic input constraints, but two remained unresolved. Native ELF32 execution needed `qemu-i386` under this host; Ghidra setup/analysis was slow.
 
-### Verifier custody limitation
+**Outcome:** `environment_interrupted / wall_timeout` at 239.823 seconds. No candidate, no independent verification, no TTF, zero rejected candidates. Do not count as a solver failure or SR attempt. One completed turn reported 928,953 input tokens (854,272 cached), 4,537 output (1,349 reasoning); the second turn was aborted before usage reporting. Cost unavailable. No retries/escalation. Safe state, telemetry, progress, skill proof, storage samples and SHA-256 manifest: `docs/reports/experiments/EXP-2026-10-29-NYU-PALO-ALTO/`.
 
-The answer JSON was outside the workspace and neither the answer nor verifier digest appeared in the trace. However, the model shell read a user memory file outside the workspace. This proves `workspace-write` did not establish host-wide read denial. There is no evidence the answer JSON was opened, but we cannot claim the solver was technically unable to read it. The ledger correction therefore classifies the attempt as **integrity-limited development evidence**, excluded from strict verifier-isolated solve-rate metrics. A future scored run must pass a separate-UID/container/mount-policy canary-denial test.
+## Tests and changes
 
-## Prior Ghost result classification
+- CTF Racer `/home/nuzhmi/.nvm/versions/node/v24.19.0/bin/npm test`: **60/60 passed**.
+- Skills V2 HVIF helper: **5/5 passed**; strict validator: **14 skills, 227 Markdown, 0 errors, 0 warnings**.
+- Controller changes: verified Codex deny profile, actual sandbox probe and fail-closed model gate; isolated thread avoids legacy sandbox options that override permission profiles.
+- Skills changes: generic Rez extractor, focused HVIF reference, route and catalog entry. No challenge-specific answer or constants added.
+- Model default and solver topology unchanged. System npm mismatch was not modified.
 
-The 2026-10-29 Ghost regression was stopped after `/tmp` exhaustion. Its earlier `STOPPED_UNSOLVED` record is preserved; an append-only correction reclassifies it as `ENVIRONMENT_INTERRUPTED`, not a solver failure. It is excluded from solve-rate denominators.
+## Next measurable priority
 
-## Durable evidence
-
-- Structured append-only results and corrections: `docs/EXPERIMENT_LEDGER.jsonl`.
-- Safe redacted run records: `docs/reports/experiments/EXP-2026-10-29-NYU-PURE-POETRY/`.
-- Exact continuation state: `docs/HANDOFF.md`.
-- Pure Poetry source and artifact details plus queue: `docs/RESEARCH_QUEUE.md`.
-
-## Next measurable opportunity
-
-First, implement a zero-token verifier-isolation boundary and prove the solver process cannot read a canary under the verifier directory while the controller can verify. Then investigate reusable Rez/ncif tooling and test it on a separate development fixture. Do not repeat Pure Poetry for tuning, modify Skills V2 from this single unsolved run, or use the NYU test split.
+On a separate development ELF32 sample, measure whether deterministic preflight for emulator/tool availability and Ghidra readiness can preserve useful solve time under a 240-second bound. Then run a fresh category-diverse NYU development challenge after preregistration and another successful isolation probe. Separately validate the HVIF helper on an unrelated `.rdef` or benign public icon sample. No improvement claim is supported by the interrupted single challenge.

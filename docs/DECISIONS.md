@@ -41,3 +41,17 @@
 - **Decision:** A verifier file outside the solver workspace with mode 0600 is not enough to claim the solver cannot access it. Require a separate UID or container/mount deny boundary with a deterministic canary test.
 - **Evidence:** The Pure Poetry trace shows the Codex shell read a user memory file outside its workspace. No access to the challenge answer was observed, but the host read boundary was not enforced or demonstrated; see the append-only custody correction.
 - **Consequence:** Pure Poetry is integrity-limited development evidence and is excluded from strict verifier-isolated solve-rate metrics. Do not run a new scored challenge until the isolation gate passes.
+
+
+## D-008 — Enforce verifier path denial in the Codex solver view
+
+- **Decision:** Use a named Codex permission profile with explicit filesystem deny paths for local archived challenge source trees, controller verifier storage, and Codex auth file. Fail closed if legacy sandbox configuration may override that profile. Run a zero-token probe against actual private files and a canary before invoking the model.
+- **Evidence:** `src/verifier-isolation.js` probes direct read, symlink, `/proc/self/root`, controller `/proc/<pid>/root`, and hardlink creation using the bundled Codex sandbox subprocess. On 2026-10-29 the same-UID solver view denied all probes against the canary and five protected files while controller reads and independent verifier access remained intact. Palo Alto run state records the proof.
+- **Limit:** Demonstrated on this Linux Codex SDK setup. This is not separate UID/container isolation and does not establish portability to other platforms or future SDK policy changes. Files in protected roots are checked for unsafe links/permissions.
+- **Consequence:** Strictly isolated attempts may proceed only when the probe passes. Re-probe after SDK or policy upgrades.
+
+## D-009 — Add generic Rez/HVIF forensic workflow to Skills V2
+
+- **Decision:** Accept a parameterized `VECTOR:ICON` extractor plus a focused reference for `ncif` recognition and validated `icon2icon` use in canonical `ctf-forensics`.
+- **Evidence:** MIT-licensed `hvif-tools` built and converted a benign generated SVG/HVIF sample to SVG and PNG; malformed and truncated payloads were rejected. The generic extractor passed five deterministic parser tests. It extracted the separately archived Pure Poetry resource; conversion succeeded but did not yield a legible answer. Skills V2 strict migration validation passes with no warnings.
+- **Limit:** This validates extraction/conversion, not a solve-rate or TTF improvement. A second unrelated archived resource is required to strengthen generalization evidence.
