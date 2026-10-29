@@ -1,6 +1,6 @@
 # Current continuation checkpoint — 2026-10-29
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, currently based at `86ab60581c6b823475c39164acd0c606905f95f9` with this session's verified changes pending commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed through `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, checkpoint `63158bd` (full hash `63158bd` is available via `git rev-parse HEAD`; pushed to origin). Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed through `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
 
 ## Verified current results
 
@@ -13,7 +13,7 @@ CTF Racer branch `research/bootstrap-continuity-2026-10-28`, currently based at 
 
 ## Validation and exact next action
 
-CTF Racer full suite: 61/61 passed with NVM Node 24.19.0/npm 11.17.0, including actual-sandbox loopback denial. Skills V2 strict validator: 14 skills / 230 Markdown / 0 errors / 0 warnings; routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing and `git diff --check` passed. Experiment evidence is append-only; the current ledger has preregistration, fixture provenance, result, and correction records.
+CTF Racer full suite: 61/61 passed with NVM Node 24.19.0/npm 11.17.0, including actual-sandbox loopback denial. Verified changes are committed and pushed at CTF Racer `63158bd` on the existing development branch. Skills V2 strict validator: 14 skills / 230 Markdown / 0 errors / 0 warnings; routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing and `git diff --check` passed. Experiment evidence is append-only; the current ledger has preregistration, fixture provenance, result, and correction records.
 
 Next: commit and push the reviewed Racer changes, then pre-register and run the untouched offline Crypto case `onlythisprogram` under Luna Medium with the same isolation and verifier preflights. Capture whether the focused checklist reference actually loads, first useful test time, hypotheses/evidence/disconfirmation, and independent answer verification. Do not tune on `deedeedee`; continue treating it as development/regression material. After that, run `Watchword` only after fresh provenance and isolation checks.
 

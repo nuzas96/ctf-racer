@@ -38,7 +38,7 @@ The reverse readiness helper hit read-only `/var/tmp` while preparing checksec s
 - Skills V2 validation: **14 skills / 230 Markdown / 0 errors / 0 warnings**; routing **50/50**, edge regressions **5/5**.
 - `ctf-reverse` readiness tests: **5/5 locally and 5/5 inside the actual Codex sandbox**.
 - Skills V2 commits pushed on the existing research branch: `8fc26d9` (Pwn runtime provenance), `d1ecf9d` (primary source links), and `fe88a1a` (writable temp root). The pre-existing untracked `....` remains untouched.
-- CTF Racer's network probe and this checkpoint report/state/ledger updates are pending commit; no main branch changes.
+- CTF Racer network probe, experiment evidence and checkpoint updates are committed and pushed at `63158bd`; no main branch changes.
 
 ## Next priority
 
