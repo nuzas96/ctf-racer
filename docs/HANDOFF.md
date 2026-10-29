@@ -16,10 +16,20 @@ Read root `AGENTS.md`, `PROJECT_STATE.md`, this handoff, `ARCHITECTURE.md`, `doc
 - Reverse readiness helper and independent HVIF conversion validation are in the linked Skills V2 commit. They demonstrated reporting/conversion only, not solve-rate gains. No skill change was justified by Networking 1.
 - Historical 5/5 clean suite, 14/15 robustness sample, and 5/5 cross-challenge race remain historical evidence only.
 
-## Exact next research task
+## Prior research task (completed)
 
-Select one untouched NYU CTF Bench **development Crypto** challenge with a multi-step artifact/hypothesis workflow. Before a model call, verify artifact/source provenance and license, keep all answer-bearing archive material under `runs/_research-cache` or explicitly declared protected roots, pass the actual sandbox probe against source README/JSON and verifier material, and pre-register the artifact hash and bounded conditions. Use Luna Medium, one primary solver, no retry, network off, storage monitoring, and a four-round/600–900s bound only if artifact/tooling needs justify it. Preserve the Bricks run as integrity-interrupted development evidence; do not tune or retest it as a fresh case.
+The untouched multi-step development Crypto selection and bounded evaluation was completed as `2013f-cry-stfu`; see the 2026-10-29 checkpoint below. It is now exposed development material and must not be presented as a fresh evaluation or retuned as one. Its valid result was unsolved within budget after byte-exact cryptographic recovery but incomplete exact-answer interpretation. Bricks of Gold remains integrity-interrupted and excluded from solve-rate evidence.
 
 ## Checkpoint bookkeeping
 
 Ledger is append-only. New records correct the Bricks classification and a pre-registration timestamp typo; no prior entry was rewritten. Keep raw candidate/answer-bearing state under ignored private run paths. The Networking safe telemetry was checked and redacted before being copied into its report directory. Update state, handoff, queue and latest report at each milestone. Commit and push only the existing development branches; never merge to main.
+
+## 2026-10-29 continuation checkpoint — STFU Crypto
+
+CTF Racer at `fe6641552a2b5f4cff3bfc6a39c28ff25585425a` before current uncommitted records; branch `research/bootstrap-continuity-2026-10-28`. Skills V2 remains at `f5bbf1c12f805bc2a90e909f172eae64bf7b3d07` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked `....`.
+
+Fresh NYU development Crypto challenge `2013f-cry-stfu` ran once through CTF Racer. Artifact hashes, license, archive/snapshot commits, verifier isolation, Luna Medium, routing, wall/round bounds and usage are in `docs/EXPERIMENT_LEDGER.jsonl` and `docs/reports/experiments/EXP-2026-10-29-NYU-STFU/summary.json`. Actual sandbox isolation passed for 16 private/source probe files including symlinks/alternate roots; controller verification remained available. Outcome: unsolved, not interrupted; 4 rounds, 418.129s, 1 rejected candidate, no verified flag/TTF. Usage totals: 8,330,514 input (7,955,840 cached), 73,505 output, 48,156 reasoning; cost unknown. Luna recovered the LFSR and byte-exact decrypt/reencrypt path, but failed exact banner-to-answer interpretation. This is development evidence, not a measured capability gain. Do not rerun as fresh evaluation or tune on the same challenge. No Skills V2/controller improvement accepted.
+
+Next measurable task: use separate benign/development examples to validate reusable banner interpretation and answer-format reasoning, assess OCR/text-render tools deterministically, and only promote a method that passes those checks. Then pre-register an untouched challenge from a different category. Keep Luna Medium and one solver; re-run isolation preflight after environment/policy changes.
+
+Validation completed: CTF Racer full suite **61/61 passed** with NVM npm; ledger JSONL parsing, `research:status`, and `git diff --check` passed. Commit and push the validated records on the Racer branch. No Skills V2 edits are indicated by the STFU result.

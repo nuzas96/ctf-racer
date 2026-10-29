@@ -84,6 +84,14 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Design:** Compare against a second representative ELF fixture; record the same tools and exact setup. Do not run broad benchmark suites or Palo Alto.
 - **Status:** Helper accepted for deterministic diagnosis; time-saving hypothesis remains unproven.
 
+## RQ-010 — Turn cryptographic recovery into an independently accepted answer
+
+- **Question:** Can a generic post-decryption workflow reliably interpret generated ASCII-art/text payloads and derive exact answer syntax without unsupported normalization guesses?
+- **Evidence:** Fresh development crypto case `2013f-cry-stfu` passed actual host sandbox isolation and artifact integrity. Luna reconstructed the LFSR transform, produced plaintext that re-encrypts byte-for-byte, and rendered a banner, but its only candidate was rejected by the independent verifier. The run used four rounds / 418.129s and reported 8,330,514 input (7,955,840 cached), 73,505 output and 48,156 reasoning tokens. This is a valid unsolved-within-budget development observation, not an infrastructure interruption.
+- **Hypothesis:** A deterministic extraction/normalization checklist for generated-art payloads (text encoding, font/banner rendering, exact challenge flag conventions, and verifier feedback) may prevent a correct cryptographic recovery from ending in an unsupported candidate.
+- **Next design:** Validate the generic banner-reading and candidate-format reasoning on unrelated benign/development material, without reopening this challenge as an evaluation or embedding its content. Compare recorded first useful test and exact-answer validation. Do not add a controller guesser absent repeated evidence.
+- **Status:** Open; no controller or Skills V2 change accepted from this single failure.
+
 ## RQ-009 — Category-diverse archived challenge performance
 
 - **Question:** Can the frozen Luna Medium autonomous-first pipeline solve a fresh Crypto development task under verified artifact custody and an experiment-appropriate bound?
