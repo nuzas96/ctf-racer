@@ -113,6 +113,24 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 
 - **Question:** Does Cloudb's archived service reproduce the intended functional DB-backed behavior, and can Luna progress from an unauthenticated file-read foothold to a verified answer when that behavior is available?
 - **Evidence:** One fresh NYU development Web attempt reached unauthenticated path traversal in ~24s, but login, registration, and JSONP endpoints all returned the same DB connection error. MySQL port/socket existed; application PDO initialization did not work. HTTP healthcheck was insufficient to detect this. Four rounds / 293.361s, no candidate.
-- **Classification:** `ENVIRONMENT_LIMITED_UNSOLVED`, excluded from ordinary solve-rate denominator; not a wall timeout. Controller verifier integrity and sandbox isolation passed.
-- **Next experiment:** Diagnose service DB readiness without model execution, compare the pinned image's expected configuration and runtime logs, then repair only the local service fixture if a reproducible deployment defect is found. Do not rerun the same Cloudb case as fresh evaluation. Use a distinct archived Web/Pwn/Reverse task for the next Luna capability measurement.
-- **Reusable opportunity:** Promote functional service readiness probes beyond HTTP 200 (e.g., challenge-defined endpoint checks) only after showing generic, safe applicability across more than one archived service.
+- **Classification (corrected by append-only ledger entry):** `SOLVER_UNSOLVED_WITHIN_BUDGET`, included in the time-bounded development solve-rate observation. MySQL/PDO initialization is malformed, but a controller-side check confirmed the previously demonstrated traversal can read the application SQL backup; the solver trace did not try it. Thus the service defect is not shown to block all solve routes.
+- **Diagnosis:** Literal Compose quote wrappers caused SQL syntax errors during DB user setup; the archived GRANT scope is also malformed. A temporary wrapper-only adaptation still had an initializer syntax error and was removed. Root GET 200 was not meaningful DB readiness.
+- **Next experiment:** Do not rerun Cloudb as fresh. A generic readiness feature remains unimplemented; consider it only after another independent service demonstrates a reusable need.
+
+
+## RQ-012 — Final answer recovery from standalone firmware images
+
+- **Question:** Can Luna use the existing AVR/Intel HEX toolchain to progress from format recognition to independently verified answer on an untouched archived Reverse case?
+- **Design:** Pre-registered one-attempt NYU development case `nyu-dev-2014-return-weiners`; standalone Intel HEX artifact; 832 records independently checksum-validated; no network/service; Luna Medium; `ctf-solve + ctf-reverse`; four rounds / 600-second cap; verifier digest controller-only; actual cache/source/test-solver sandbox probe passed.
+- **Outcome:** Verified solve in four rounds / 572.671s; first artifact inspection ~10s, AVR disassembly ~21s. Luna first pursued an unvalidated bootloader overflow/indirect-call model, then pivoted in round four to a static GPIO output sequence and recovered a candidate accepted by the independent controller verifier. Usage: 9,974,669 input (9,372,160 cached), 155,955 output, 120,285 reasoning tokens; cost not measured. Safe summary: `docs/reports/experiments/EXP-2026-10-29-NYU-WEINERS/summary.json`.
+- **Status:** Completed fresh development solve. One run only; do not claim Solve Rate improvement. No generic GPIO/firmware skill update accepted until the technique is validated on unrelated benign material.
+- **Interpretation guard:** If the target completes normally without a verified candidate, count as unsolved within budget. Only classify environment interruption with direct evidence of a blocker that prevented use of the declared player artifact.
+
+
+## RQ-013 — Generalize static firmware output-signal recovery
+
+- **Question:** Can a reusable reverse-engineering workflow identify and decode data exposed through GPIO/LED output sequences without an MCU simulator?
+- **Evidence:** In one fresh AVR Intel HEX challenge, Luna recovered a verifier-accepted key by tracing repeated pin-13 writes and fixed-delay calls after rounds spent on an unvalidated bootloader overflow. This is a single target; no generalized improvement is established.
+- **Hypothesis:** A bounded workflow that maps GPIO writes, delay calls, bit timing, sampling phase and byte order may help on independent embedded challenges and reduce time spent on speculative exploit paths.
+- **Validation before skill change:** Use at least two independent benign AVR firmware fixtures with known emitted messages; verify a deterministic extraction procedure without consulting CTF answer material. Compare whether it can locate signal routines and reconstruct exact bytes. Only then consider a concise `ctf-reverse` reference or script.
+- **Status:** Open. Keep the solved challenge as development/regression material; never present it as a fresh evaluation again.

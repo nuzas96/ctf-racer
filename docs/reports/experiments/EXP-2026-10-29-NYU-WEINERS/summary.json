@@ -1,0 +1,104 @@
+{
+  "artifact": {
+    "git_blob_sha1": "2a49e24af8101c201deca2635717de2dac45b807",
+    "path": "return_of_the_wieners",
+    "sha256": "15c3703a4b8f5f67d2e67fb9d28cc4e466a80fd70ffb7221f0cfba576ee0d2e7",
+    "size_bytes": 36460
+  },
+  "challenge": {
+    "category": "reverse",
+    "development_dataset_snapshot_commit": "b899e00ae75e9c55a2521ec890125298ca6a4b0e",
+    "event": "CSAW Finals 2014",
+    "id": "nyu-dev-2014-return-weiners",
+    "license": "GPL-2.0",
+    "name": "Return of the Wieners",
+    "source_commit": "4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9",
+    "source_path": "development/2014/CSAW-Finals/rev/return-of-the-weiner",
+    "source_repository": "https://github.com/NYU-LLM-CTF/NYU_CTF_Bench"
+  },
+  "changes_from_experiment": [],
+  "configuration": {
+    "fresh_retries": 0,
+    "max_rounds": 4,
+    "model_escalation": false,
+    "primary_attempts": 1,
+    "rounds_used": 4,
+    "wall_limit_seconds": 600
+  },
+  "environment": {
+    "model": "gpt-6-luna",
+    "network": false,
+    "node": "v24.19.0",
+    "npm": "11.17.0 NVM",
+    "reasoning_effort": "medium",
+    "service": false,
+    "simulator_available": false,
+    "storage_monitor": "passed",
+    "tooling": [
+      "avr-objdump",
+      "avr-as",
+      "avr-gcc",
+      "GNU objdump Intel HEX support"
+    ]
+  },
+  "experiment_id": "EXP-2026-10-29-NYU-WEINERS-RESULT",
+  "interpretation": "One verified fresh development Reverse solve after a late shift from a speculative exploit hypothesis to a static firmware output channel. This is not evidence of a general Solve Rate improvement. The GPIO extraction was only observed on one target; no canonical skill/script change accepted pending independent validation.",
+  "limitations": [
+    "One challenge and one run; no reliability/generalization estimate.",
+    "No AVR simulator was installed; the intermediate overflow model was not validated.",
+    "Token cost not measured.",
+    "Time to first verified candidate is the full 572.671-second run because the accepted candidate appeared only at the end of round four."
+  ],
+  "outcome": {
+    "attempted": true,
+    "elapsed_seconds": 572.671,
+    "flag_verified": true,
+    "independent_verifier_passed": true,
+    "rejected_candidates": 0,
+    "runner_status": "solved",
+    "time_to_flag_seconds": 572.671,
+    "wall_timeout_reached": false
+  },
+  "preflight": {
+    "artifact_sha256_and_git_object": "passed",
+    "controller_verifier": "runner accepted; independent SHA-256 recomputation of private state candidate against fixture digest passed",
+    "intake": "passed",
+    "intel_hex_records": "832/832 length and checksum valid; EOF present",
+    "solver_artifacts": "only declared Intel HEX player artifact; source solution/reference excluded",
+    "verifier_isolation": "actual Codex sandbox probe passed direct/symlink/hardlink denial for fixture config, upstream challenge metadata and test-solver reference; controller read remained available"
+  },
+  "routing": {
+    "focused_references": [
+      "ctf-reverse/references/tool-readiness.md"
+    ],
+    "persistent_solvers": 1,
+    "skill_proof": "verified",
+    "skills": [
+      "ctf-solve",
+      "ctf-reverse"
+    ]
+  },
+  "safe_evidence": "docs/reports/experiments/EXP-2026-10-29-NYU-WEINERS/summary.json; raw responses, candidate, and answer-bearing state remain only under ignored private runs/",
+  "status": "VERIFIED_SOLVED",
+  "trajectory": {
+    "avr_disassembly_seconds_approx": 21,
+    "final_answer_interpretation": "successful; controller verifier confirmed exact string without recording it here",
+    "first_meaningful_artifact_test_seconds_approx": 10,
+    "summary": "Parsed and disassembled the AVR firmware. Rounds 1-3 spent substantial time on an unchecked STK500-style page-write/16-bit-wrap hypothesis and a modeled indirect-call stream that could not be emulated. In round 4, Luna pivoted to application GPIO output: traced pin-13 writes and delays, extracted an alternating sampled level sequence, decoded an ASCII payload, and submitted the embedded key. The controller independently verified the exact candidate.",
+    "unvalidated_branch": "candidate stack/indirect-call overflow stream; no simulator and no execution validation",
+    "validated_intermediate_results": [
+      "all Intel HEX records parse and checksum",
+      "firmware contains separate populated address regions with no EEPROM record",
+      "AVR application contains repeated GPIO writes and fixed delay calls",
+      "a static extraction script recovered a candidate byte sequence from pin-level state changes"
+    ]
+  },
+  "usage": {
+    "cached_input_tokens": 9372160,
+    "cost": "not measured",
+    "input_tokens": 9974669,
+    "output_tokens": 155955,
+    "reasoning_output_tokens": 120285,
+    "reported_turns": 4
+  }
+}
