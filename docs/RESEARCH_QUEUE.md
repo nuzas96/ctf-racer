@@ -73,4 +73,29 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Evidence:** Palo Alto required `qemu-i386` because direct execution hit the host's 32-bit syscall limitation. Ghidra setup/analysis consumed a substantial fraction of a 240-second two-round run; it ended on the hard wall with two validators unresolved.
 - **Hypothesis:** A deterministic preflight detecting ELF32 execution constraints and readying available emulation/disassembly tools can reduce wasted early probes.
 - **Next design:** Use a separate development ELF32 fixture; zero-token measure tool availability/startup, and optionally a matched single-run Luna baseline only after reproducible prep. Do not tune Palo Alto itself or treat its interruption as solver miss.
-- **Status:** Highest priority engineering follow-up; no implementation accepted yet.
+- **Status:** Lightweight deterministic helper accepted in Skills V2 and validated on benign ELF32 static and dynamic fixtures. Manual baseline: 336.4 ms; helper: 344.47 ms, no speed claim. A Ghidra usage-only probe reached readiness in 1.219 s without project import. See `EXP-2026-10-29-REVERSE-READINESS-ELF32`. Next compare on a second architecture and maintain environment-specific compatibility caveats.
+
+
+## RQ-008 — Does lighter artifact-first reverse readiness reduce wasted analysis setup?
+
+- **Question:** Can one zero-token report expose architecture, loader, protections, emulator and available tooling before expensive analysis, with lower startup overhead than ad hoc probes?
+- **Evidence:** Benign ELF32 readiness report was 344.47 ms vs a 336.4 ms manual baseline for a smaller subset; it consolidates more checks but has not shown lower elapsed time. Ghidra help/usage readiness was reached in 1.219 s without importing the binary.
+- **Hypothesis:** Consolidated metadata plus optional bounded launcher probe can prevent long analysis attempts when Ghidra is absent or unavailable, even if it does not reduce cheap triage time.
+- **Design:** Compare against a second representative ELF fixture; record the same tools and exact setup. Do not run broad benchmark suites or Palo Alto.
+- **Status:** Helper accepted for deterministic diagnosis; time-saving hypothesis remains unproven.
+
+## RQ-009 — Category-diverse archived challenge performance
+
+- **Question:** Can the frozen Luna Medium autonomous-first pipeline solve a fresh Crypto development task under verified artifact custody and an experiment-appropriate bound?
+- **Design:** Preregistered Bricks of Gold attempt: one primary thread, four rounds, 600 seconds, no retries, no network, independent SHA-256 verifier, development split only.
+- **Outcome:** Attempt was stopped at 396.014s after four rounds when a zero-token audit found that the original isolation probe omitted the public research cache. Direct and symlink reads of its answer-bearing README and challenge JSON were allowed. No candidate was observed; no trace read was observed; strict integrity was not established. Three completed turns reported 3,039,391 input (2,824,192 cached), 57,386 output and 39,791 reasoning tokens; an incomplete fourth turn's usage is unavailable.
+- **Status:** Closed as `integrity_limited_environment_interruption`; not a solver failure and excluded from SR. The challenge is now development-exposed and will not be reused as a fresh evaluation.
+
+## RQ-010 — Broaden the verified-solve sample without overstating generalization
+
+- **Question:** Does the unchanged Luna Medium single-thread pipeline solve an untouched, category-diverse archived task after the isolation boundary is expanded to include research caches?
+- **Design:** One pre-registered NYU CTF Bench development case, Misc Networking 1; one attempt, four-round maximum, 600-second wall cap, no retries, no challenge network, actual sandbox isolation probe, artifact hash and independent controller SHA-256 verifier.
+- **Outcome:** Solved and independently verified in one round / 36.718s. The focused route was `ctf-solve + ctf-misc`, opening `legacy-evidence-lessons.md`. First useful artifact test at ~15 seconds. Safe evidence and telemetry are under `docs/reports/experiments/EXP-2026-10-29-NYU-NETWORKING-1/`.
+- **Usage:** One reported turn: 186,311 input (155,392 cached), 1,988 output, 558 reasoning tokens; cost not measured.
+- **Interpretation:** The PCAP contained one Telnet conversation; reconstructing the stream exposed a client credential submission. No new controller or skill change is justified by this single small archived case. This is not an SR estimate or evidence of hard-challenge generalization.
+- **Status:** Completed development evidence. Next evaluate a separate, more demanding Crypto development case under the now expanded isolation probe; keep this solved case as regression material.

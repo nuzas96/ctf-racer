@@ -9,16 +9,32 @@ import { randomUUID } from "node:crypto";
 const PROFILE = "ctf_racer_isolated";
 const require = createRequire(import.meta.url);
 
-export function verifierReadPaths({ projectRoot, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex") }) {
-  return [...new Set([
+function validateAbsolutePaths(items, label) {
+  if (!Array.isArray(items)) throw new Error(`${label} must be an array of absolute paths`);
+  for (const item of items) {
+    if (typeof item !== "string" || !path.isAbsolute(item) || /[\0\r\n]/.test(item)) {
+      throw new Error(`${label} must contain only absolute filesystem paths`);
+    }
+  }
+  return items.map((item) => path.resolve(item));
+}
+
+export function verifierReadPaths({ projectRoot, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), additionalPaths = [] }) {
+  const paths = [
     path.resolve(projectRoot, "local-challenges"),
     path.resolve(projectRoot, "runs", "_verifiers"),
     path.resolve(codexHome, "auth.json"),
-  ])].sort();
+    ...validateAbsolutePaths(additionalPaths, "additional verifier deny paths"),
+  ];
+  // Research clones often retain upstream README files with literal flags.
+  // This host stores the moved cache inside this explicitly denied controller root.
+  const researchCache = path.resolve(projectRoot, "runs", "_research-cache");
+  if (fs.existsSync(researchCache)) paths.push(researchCache);
+  return [...new Set(paths.map((item) => path.resolve(item)))].sort();
 }
 
-export function verifierProbeFiles({ projectRoot, sourceDir, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex") }) {
-  const files = [path.resolve(sourceDir, "challenge.json")];
+export function verifierProbeFiles({ projectRoot, sourceDir, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), additionalFiles = [] }) {
+  const files = [path.resolve(sourceDir, "challenge.json"), ...validateAbsolutePaths(additionalFiles, "additional verifier probe files")];
   const authPath = path.resolve(codexHome, "auth.json");
   if (fs.existsSync(authPath)) files.push(authPath);
   const privateRoot = path.resolve(projectRoot, "runs", "_verifiers");

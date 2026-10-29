@@ -472,7 +472,9 @@ state.preflight = {
 };
 state.storage_log_file = storageLogPath;
 
-const verifierReadPathsForRun = verifierReadPaths({ projectRoot });
+const controllerPrivatePaths = Array.isArray(challenge.controller_private_paths) ? challenge.controller_private_paths : [];
+const controllerProbeFiles = Array.isArray(challenge.controller_probe_files) ? challenge.controller_probe_files : [];
+const verifierReadPathsForRun = verifierReadPaths({ projectRoot, additionalPaths: controllerPrivatePaths });
 let isolation;
 try {
   assertIsolatedProfileConfig();
@@ -480,7 +482,7 @@ try {
     projectRoot,
     workspace: state.workspace,
     deniedPaths: verifierReadPathsForRun,
-    probeFiles: verifierProbeFiles({ projectRoot, sourceDir }),
+    probeFiles: verifierProbeFiles({ projectRoot, sourceDir, additionalFiles: controllerProbeFiles }),
   });
 } catch (error) {
   state.status = "integrity_blocked";

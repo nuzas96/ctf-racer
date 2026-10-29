@@ -29,3 +29,18 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 ## Dependencies
 
 Wall-time, storage and tested solver-view verifier-deny controls are implemented for this Linux/Codex setup; isolation must be re-probed after SDK/policy changes. Token/cost hard caps are still absent. Model comparisons require budget visibility and a registered evaluation set. No architecture-policy change is approved by this roadmap.
+
+
+## 2026-10-29 follow-on execution
+
+- A deterministic ELF readiness helper now reports header/loader/protections/tool support. Benign static ELF32 validation and a no-import Ghidra usage probe are complete; elapsed-time reduction was not demonstrated.
+- HVIF extraction/conversion passed again on unrelated synthetic Rez material with exact byte equality and visually checked PNG output.
+- The preregistered Bricks of Gold NYU development Crypto run was stopped as integrity-limited after an archive-cache access gap was found; it is excluded from SR. The following development Misc case, Networking 1, solved and was independently verified in 36.718s; see the current report and ledger.
+
+## 2026-10-29 fresh evaluation and isolation extension
+
+- The original cache omission was found by a zero-token direct-read probe; the affected Bricks run is integrity-interrupted and excluded from SR.
+- NYU archive caches were moved under `runs/_research-cache`, which the runner denies and probes along with challenge-declared source files. The current same-UID Codex sandbox test denies direct, symlink and hardlink access while controller reads remain intact.
+- One fresh NYU development Misc case (Networking 1) solved and independently verified in 36.718s / one round under Luna Medium. This broadens observed coverage but is not a solve-rate or hard-challenge generalization claim.
+- CTF Racer test suite after changes: 61/61 passed.
+- Next gate: an untouched, multi-step NYU development Crypto challenge under the expanded source-cache boundary; pre-register and retain one primary Luna solver with bounded wall time.

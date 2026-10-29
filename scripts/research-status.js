@@ -24,5 +24,6 @@ for (const entry of entries) {
   const correction = statusCorrections.get(entry.experiment_id);
   const status = correction ? `${entry.status} -> ${correction.corrected_status} (corrected)` : entry.status;
   const eligibility = correction?.eligible_for_solve_rate === false || correction?.eligible_for_strict_solve_rate === false ? "; solve-rate eligible=false" : "";
-  console.log(`- ${entry.experiment_id}: ${status}${eligibility}; attempted=${entry.outcome?.attempted ?? "unknown"}; verified=${entry.outcome?.verified ?? "unknown"}`);
+  const outcome = correction?.outcome ?? entry.outcome;
+  console.log(`- ${entry.experiment_id}: ${status}${eligibility}; attempted=${outcome?.attempted ?? "unknown"}; verified=${outcome?.verified ?? "unknown"}`);
 }
