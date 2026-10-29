@@ -63,3 +63,18 @@
 - **Evidence:** The zero-token probe initially showed that `/var/tmp/ctf-racer-research-cache/.../README.md` and `challenge.json` were directly readable; the Codex sandbox also could not install a deny rule for a deep path on the read-only `/var/tmp` mount. After relocating the 5.0 GB NYU clone/cache under `runs/_research-cache` and leaving the former location as a symlink, the actual sandbox denied the canonical path and all eight listed source/verifier probes, including the old alias, through direct/symlink/hardlink attempts. Controller reads still passed. Networking 1 then ran with the expanded isolation result recorded in state.
 - **Limit:** Same-UID Codex sandbox policy isolation is host-specific, and the protected root must be maintained as archives are added. Any new answer-bearing cache outside that root must be declared and probed before the model call.
 - **Consequence:** The earlier Bricks of Gold attempt is integrity-limited and excluded from SR. The Networking 1 run is the first result using this expanded cache boundary, but one small challenge does not establish generalization.
+
+
+## D-011 — Deny dynamically created service runtime paths before solver startup
+
+- **Decision:** Any temporary service runtime or secret directory created by the controller is added to the solver filesystem deny list and its actual files are probed before SDK/model startup.
+- **Evidence:** CTF Racer copied service `flag.txt` into an unpredictable `/tmp/ctf-racer-service-*` build context. The prior denylist covered the answer-bearing research cache but not this runtime path. Added runtime-private-path metadata and runner integration; the actual Tutorial run denied 13 source/controller/runtime probes through direct, symlink, proc-root and hardlink routes while controller-side verification remained available. Service regression tests pass.
+- **Limit:** Current Codex same-UID policy behavior is host-specific and must be re-probed after SDK/policy updates. The Codex network boolean also cannot constrain access to only the service's localhost port.
+- **Consequence:** Do not start a solver for a challenge service until its runtime paths have been added and the exact temporary files pass the actual sandbox probe.
+
+## D-012 — Keep hypothesis comparison lightweight and falsifiable
+
+- **Decision:** When multiple paths are plausible, compare concrete clues, cheapest discriminating test, expected information gain, resource cost, and explicit disconfirmation. Re-rank after evidence; retain complex paths supported by credible evidence.
+- **Evidence:** Retrospective Wieners and Cloudb traces both had directly observable paths that were not tested early; the Tutorial solve rejected an incompatible host-libc assumption and changed path. Skills V2 now has the concise checklist.
+- **Limit:** These observations are not a matched experiment. The new prompt's effect on time-to-first-test, unsupported-branch time, or solve rate is unmeasured.
+- **Consequence:** Track those measures on future untouched development challenges before claiming an improvement.

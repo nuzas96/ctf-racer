@@ -133,4 +133,36 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Evidence:** In one fresh AVR Intel HEX challenge, Luna recovered a verifier-accepted key by tracing repeated pin-13 writes and fixed-delay calls after rounds spent on an unvalidated bootloader overflow. This is a single target; no generalized improvement is established.
 - **Hypothesis:** A bounded workflow that maps GPIO writes, delay calls, bit timing, sampling phase and byte order may help on independent embedded challenges and reduce time spent on speculative exploit paths.
 - **Validation before skill change:** Use at least two independent benign AVR firmware fixtures with known emitted messages; verify a deterministic extraction procedure without consulting CTF answer material. Compare whether it can locate signal routines and reconstruct exact bytes. Only then consider a concise `ctf-reverse` reference or script.
-- **Status:** Open. Keep the solved challenge as development/regression material; never present it as a fresh evaluation again.
+- **Status:** Completed for focused-reference admission; no automatic decoder was justified. Two independent authored ATmega328P fixtures passed static reconstruction with differing port/pin, bit order, polarity, and timing. Keep Return of the Wieners as exposed development/regression material; never present it as fresh again. This validates an analyst-guided method, not generalization to arbitrary AVR firmware or a solve-rate gain.
+- **Accepted change:** Skills V2 `ctf-reverse/references/avr-gpio-static-recovery.md`, with MCU-specific register-map, output-loop, bit-order/polarity, timing, false-positive and unsupported-pattern checks. External primary sources and benign fixture provenance are recorded there.
+
+## RQ-014 — Measure evidence-ranked hypothesis selection
+
+- **Question:** Does explicitly comparing a hypothesis's supporting clue, cheapest discriminating test, expected information gain, resource cost, and disconfirming result reduce time spent on unsupported paths without suppressing credible complex paths?
+- **Evidence:** Two independent retrospective trajectories share a missed-observable-evidence pattern: Return of the Wieners spent three rounds on an unvalidated bootloader overflow before tracing GPIO output; Cloudb established LFI but did not test a readable SQL backup. This is retrospective evidence only. The fresh Tutorial Pwn solve later rejected host-libc offsets when the derived base was inconsistent and switched to the binary's own dynamic resolver, but that run did not establish causal impact of the new checklist.
+- **Change:** Skills V2 `ctf-solve/references/triage-routing.md` now includes the short competing-hypotheses checklist and observable-output-channel examples.
+- **Next validation:** On at least three future untouched development challenges, record hypothesis, clue, test cost, expected discriminator, and disconfirming result before the first substantial branch. Measure time to first useful test and time on unsupported branches. Do not compare against one-run results as a causal effect; use a matched repeated/ablation design before claiming gains.
+- **Status:** Open; guidance accepted as a prompt-level method, efficacy unproven.
+
+## RQ-015 — Improve early exploit/runtime compatibility checks
+
+- **Question:** Can Luna identify the target service's actual libc/runtime before investing in offset-based exploit construction, and use target-derived dynamic resolution when a matching libc is absent?
+- **Evidence:** In the fresh CSAW Tutorial Pwn run, a host-libc offset implied an inconsistent base; the solver corrected the assumption and succeeded using the binary's own dynamic resolver. It also corrected a protocol-state mistake. One success is not a reusable skill upgrade or general performance claim.
+- **Next experiment:** Validate the diagnostic on two separate benign local Pwn services with deliberately different libc builds. Measure time to a compatible first exploit attempt and confirm the target-side service remains local and bounded. Search existing `ctf-pwn` references again before adding anything.
+- **Status:** Open; do not tune or add challenge-specific constants from Tutorial.
+
+
+## RQ-014 — Measure evidence-ranked hypothesis selection
+
+- **Question:** Does explicitly comparing a hypothesis's supporting clue, cheapest discriminating test, expected information gain, resource cost, and disconfirming result reduce time spent on unsupported paths without suppressing credible complex paths?
+- **Evidence:** Two independent retrospective trajectories share a missed-observable-evidence pattern: Return of the Wieners spent three rounds on an unvalidated bootloader overflow before tracing GPIO output; Cloudb established LFI but did not test a readable SQL backup. The fresh Tutorial Pwn solve later rejected host-libc offsets when the derived base was inconsistent and switched to the binary's own dynamic resolver, but that run does not establish causal impact of the checklist.
+- **Change:** Skills V2 `ctf-solve/references/triage-routing.md` now includes a short competing-hypotheses checklist and observable-output-channel examples.
+- **Next validation:** On at least three future untouched development challenges, record hypothesis, clue, cheapest discriminating test, expected result, cost, and disconfirmation before the first substantial branch. Measure time to first useful test and time on unsupported branches. Do not claim causal gains from one-run results; use a matched repeated/ablation design before making a general performance claim.
+- **Status:** Open; guidance accepted as a prompt-level method, efficacy unproven.
+
+## RQ-015 — Improve early exploit/runtime compatibility checks
+
+- **Question:** Can Luna identify the target service's actual libc/runtime before investing in offset-based exploit construction, and use target-side dynamic resolution when a matching libc is absent?
+- **Evidence:** In the fresh CSAW Tutorial Pwn run, a host-libc offset implied an inconsistent base; the solver corrected the assumption and succeeded using the binary's own dynamic resolver. It also corrected a protocol-state mistake. One success is not a reusable skill upgrade or general performance claim.
+- **Next experiment:** Validate the diagnostic on two separate benign local Pwn services with deliberately different libc builds. Measure time to a compatible first exploit attempt and confirm the target-side service remains local and bounded. Search existing `ctf-pwn` references again before adding anything.
+- **Status:** Open; do not tune or add challenge-specific constants from Tutorial.

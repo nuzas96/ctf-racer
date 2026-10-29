@@ -44,3 +44,13 @@ Wall-time, storage and tested solver-view verifier-deny controls are implemented
 - One fresh NYU development Misc case (Networking 1) solved and independently verified in 36.718s / one round under Luna Medium. This broadens observed coverage but is not a solve-rate or hard-challenge generalization claim.
 - CTF Racer test suite after changes: 61/61 passed.
 - Next gate: an untouched, multi-step NYU development Crypto challenge under the expanded source-cache boundary; pre-register and retain one primary Luna solver with bounded wall time.
+
+
+## 2026-10-29 capability checkpoint
+
+- **Completed:** Two-fixture static AVR GPIO validation; focused Skills V2 reverse reference accepted with explicit limits.
+- **Completed:** Retrospective evidence ranking across Wieners/Cloudb and a small canonical `ctf-solve` checklist update. Causal benefit remains unproven.
+- **Completed:** One fresh local-service Pwn evaluation (Tutorial), independently solved in 411.937s / one round with Luna Medium.
+- **Completed:** Close the previously unprobed service-runtime path gap: dynamic `/tmp` runtime and secret roots are now denied/probed before model-session creation.
+- **Pending:** Evaluate hypothesis-prioritization effects over at least three future untouched development challenges; do not infer gains from one solve.
+- **Next dependency:** Validate target-libc compatibility/discovery on two benign local services and implement host-scoped egress or another enforced local-only service boundary before further broad network-enabled model experiments.

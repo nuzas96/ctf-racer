@@ -65,7 +65,16 @@ test("service cleanup runs on success, solver error, interruption and failed sta
   const before = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith("ctf-racer-service-")));
   process.env.PATH = `${bin}:${oldPath}`; process.env.RACER_DOCKER_TEST_LOG = log; process.env.RACER_DOCKER_TEST_PORT = String(port); process.env.RACER_DOCKER_TEST_BIND = "127.0.0.1";
   try {
-    await withChallengeService(source, challenge, async (handle) => { assert.match(handle.flag_sha256, /^[a-f0-9]{64}$/); });
+    let runtimeRoot;
+    await withChallengeService(source, challenge, async (handle) => {
+      assert.match(handle.flag_sha256, /^[a-f0-9]{64}$/);
+      runtimeRoot = handle.controller_private_paths.find((item) => path.basename(item).startsWith("ctf-racer-service-"));
+      assert.ok(runtimeRoot);
+      assert.equal(handle.controller_private_paths.some((item) => path.basename(item).startsWith("ctf-racer-secret-")), true);
+      assert.equal(handle.controller_probe_files.some((item) => item.startsWith(runtimeRoot + path.sep)), true);
+      assert.equal(fs.existsSync(handle.controller_probe_files.find((item) => item.startsWith(runtimeRoot + path.sep))), true);
+    });
+    assert.equal(fs.existsSync(runtimeRoot), false);
     await assert.rejects(withChallengeService(source, challenge, async () => { throw new Error("solver failed"); }), /solver failed/);
     await assert.rejects(withChallengeService(source, challenge, async () => { throw Object.assign(new Error("operator interrupted"), { name: "AbortError" }); }), /operator interrupted/);
     const calls = fs.readFileSync(log, "utf8").trim().split("\n");

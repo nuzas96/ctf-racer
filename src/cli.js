@@ -472,8 +472,14 @@ state.preflight = {
 };
 state.storage_log_file = storageLogPath;
 
-const controllerPrivatePaths = Array.isArray(challenge.controller_private_paths) ? challenge.controller_private_paths : [];
-const controllerProbeFiles = Array.isArray(challenge.controller_probe_files) ? challenge.controller_probe_files : [];
+const controllerPrivatePaths = [
+  ...(Array.isArray(challenge.controller_private_paths) ? challenge.controller_private_paths : []),
+  ...(Array.isArray(service?.controller_private_paths) ? service.controller_private_paths : []),
+];
+const controllerProbeFiles = [
+  ...(Array.isArray(challenge.controller_probe_files) ? challenge.controller_probe_files : []),
+  ...(Array.isArray(service?.controller_probe_files) ? service.controller_probe_files : []),
+];
 const verifierReadPathsForRun = verifierReadPaths({ projectRoot, additionalPaths: controllerPrivatePaths });
 let isolation;
 try {

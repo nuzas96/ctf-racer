@@ -12,6 +12,7 @@ This document is the implementation guardrail for CTF Racer.
 - Record missing fields as unknown/null; never infer token usage, artifact hashes, provenance, or verification.
 - Before a model-powered experiment, pre-register the challenge, verifier custody, model, round cap, retry policy, wall-time bound, and stop conditions. Prefer enforceable token/cost limits where available; when they are not available, use a small monitored attempt, report telemetry, and terminate if usage or environment behavior becomes disproportionate. Missing cost controls must not block unrelated research, deterministic preparation, or a carefully bounded single attempt. Never use open-ended retries or recursive agent spawning as a workaround.
 - Store answer-bearing public archives and research caches under a controller-only root included in the solver's deny-read profile. Probe actual archived README/metadata and verifier files in the bundled sandbox before model execution; direct, symlink, proc-root and hardlink paths must be tested where supported. A canary or workspace separation alone does not prove cache isolation. Record platform limits and fail closed if required paths cannot be denied.
+- Before creating the solver session, add controller-created service runtime and secret directories to the same deny-read profile, and probe their actual temporary files. A file copied to a random `/tmp` directory is still controller-private data and must not be assumed hidden because its name is unpredictable or its mode is restrictive.
 
 ## Core execution model
 

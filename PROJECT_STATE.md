@@ -404,3 +404,26 @@ NYU CTF Bench CSAW Finals 2014 `return-of-the-weiner` ran once through the norma
 Luna Medium, one persistent solver, `ctf-solve + ctf-reverse`, four rounds, 600-second bound, no retries/escalation, network off. **Verified solve: yes. TTF/elapsed: 572.671s**, four rounds, no rejected candidates. First artifact inspection was about 10s; AVR disassembly by ~21s. Luna spent rounds 1-3 on a speculative unchecked bootloader write/indirect-call route without emulator validation. In round 4 it pivoted to repeated GPIO writes/delays, extracted a pin-level sequence, and produced the independently accepted answer. Usage: 9,974,669 input (9,372,160 cached), 155,955 output, 120,285 reasoning; cost unmeasured. The answer is intentionally absent from tracked files.
 
 No reusable skill or controller change is accepted from one target. Next measurable task: validate generic GPIO/LED signal extraction on at least two independent benign AVR firmware examples, then decide whether a focused reverse reference/script is justified. Full safe metadata: `docs/reports/experiments/EXP-2026-10-29-NYU-WEINERS/summary.json`.
+
+
+## 2026-10-29 evidence-ranked solving, AVR validation and fresh Pwn checkpoint
+
+### Current verified changes
+
+- The service runner now returns its controller-created temporary runtime/secret paths and actual private files. Before creating a Codex solver, `src/cli.js` adds these paths to the deny-read profile and probes them with direct/symlink/proc-root/hardlink tests. The actual Tutorial run denied its `/tmp` service and secret directories; controller verification retained access. Regression coverage is included in `test/service.test.js`.
+- Skills V2 now has a focused AVR GPIO static-analysis reference and a small competing-hypotheses refinement in `ctf-solve/references/triage-routing.md`. Two benign independently authored ATmega328P fixtures were compiled/disassembled without an emulator: one MSB-first active-high fixed delay, one LSB-first active-low data-dependent delay. Static recovery matched both separately held known outputs. No automatic general decoder or CTF success claim is made.
+- Return of the Wieners and Cloudb retrospectively support a shared missed-observable-evidence hypothesis. The new checklist asks for the clue, cheapest discriminator, likely information gain, cost, and explicit disconfirmation; it does not assume every challenge has a simpler route. The fresh Tutorial trajectory is consistent with rejecting an unsupported host-libc assumption, but does not prove the new prompt caused the solve.
+
+### Fresh development evaluation
+
+NYU CTF Bench CSAW Quals 2016 `Tutorial`, Pwn, source commit `4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9`, Apache-2.0. The 10,576-byte player ELF hash is in the append-only plan/result records. The archived binary and flag file were used to reconstruct a local Ubuntu 14.04 service container with matching user/permission setup; the challenge binary and source answer were not modified. A functional menu/manual interaction passed before model execution. Container limits: 512 MiB, 1 CPU, 64 PIDs; host port bound to loopback.
+
+One Luna Medium primary, `ctf-solve + ctf-pwn`, focused `overflow-basics.md`, four-round maximum, one attempt, no retry/escalation, 750-second bound. The run used one round and completed **independently verified in 411.937s**. First artifact triage was ~13s; first meaningful service experiment was ~35s. Luna measured a practice-handler over-read, observed a canary/address leak, corrected a menu-state mistake, rejected host-libc offsets after the implied base was inconsistent, and pivoted to target-side dynamic symbol resolution. No verifier candidate was rejected. Usage: 2,509,244 input (2,406,016 cached), 35,444 output, 25,949 reasoning tokens; cost unknown. Safe report: `docs/reports/experiments/EXP-2026-10-29-NYU-TUTORIAL-RESULT/summary.json`.
+
+The Codex sandbox's network permission is boolean and was enabled for local TCP. Solver instructions restricted access to `127.0.0.1:19424`; no external host was contacted, but host-scoped egress is not enforced. This limitation is recorded. The earlier Hungman candidate was withdrawn before model use after a bounded empty-input probe signaled and source metadata showed it was service-oriented; it is not a result.
+
+### Validation and next task
+
+CTF Racer suite: **61/61 passed** on NVM Node 24.19.0. Skills V2 strict validator: **14 skills / 230 Markdown / 0 errors / 0 warnings**; routing validator: **50 cases passed, 5 edge regressions passed**. Two fixture AVR static checks passed. No model comparison or solve-rate improvement is claimed.
+
+Next priority: validate target-runtime/libc compatibility on two separate benign local Pwn services, then run a preregistered fresh development evaluation using the hypothesis comparison checklist. Keep Luna Medium, one primary solver, and local-only targets; address the non-host-scoped network limitation before relying on broad network-enabled service experiments.

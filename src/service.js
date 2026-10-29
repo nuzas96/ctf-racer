@@ -200,6 +200,16 @@ export async function startChallengeService(sourceDir, challenge, { signal } = {
     return {
       flag_sha256: dynamic?.sha256 ?? null,
       network_access: service.network_access === true,
+      // Compose runtime files are copied to a random /tmp directory. Some of
+      // those files may contain challenge answers or setup secrets, so the
+      // runner must deny the entire tree before creating the solver session.
+      controller_private_paths: [runtimeDir, secretDir],
+      controller_probe_files: [
+        ...service.runtime_files.map((relative) => safeServicePath(runtimeDir, relative)),
+        ...(dynamic?.raw && service.dynamic_flag_file
+          ? [safeServicePath(secretDir, service.dynamic_flag_file)]
+          : []),
+      ],
       redact: (value) => dynamic ? String(value).replaceAll(dynamic.raw, "[REDACTED_FLAG]") : String(value),
       scrubWorkspace: (workspace) => {
         if (!dynamic) return;
