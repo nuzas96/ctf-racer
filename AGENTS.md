@@ -1,5 +1,7 @@
 # Repository instructions
 
+Startup read order: `AGENTS.md` -> `PROJECT_STATE.md` -> `docs/HANDOFF.md` -> `ARCHITECTURE.md` -> `docs/ROADMAP.md` / `docs/RESEARCH_QUEUE.md` -> latest report. Check Git status and recent commits before editing. The experiment ledger is append-only; never rewrite prior entries. Keep one authoritative location per fact as documented in `docs/README.md`.
+
 This repository implements a competition-authorized CTF automation framework.
 
 V1 invariants:

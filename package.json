@@ -6,6 +6,7 @@
   "description": "One challenge -> one persistent Codex agent CTF runner (V1)",
   "scripts": {
     "racer": "node src/cli.js",
+    "research:status": "node scripts/research-status.js",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {

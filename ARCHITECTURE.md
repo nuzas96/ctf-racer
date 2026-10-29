@@ -2,6 +2,16 @@
 
 This document is the implementation guardrail for CTF Racer.
 
+## Research continuity and evidence
+
+- `PROJECT_STATE.md` is the current verified system snapshot; `docs/HANDOFF.md` is the exact next-session checkpoint.
+- `docs/ROADMAP.md` owns milestones; `docs/RESEARCH_QUEUE.md` owns open questions and hypotheses; `docs/DECISIONS.md` owns accepted engineering decisions.
+- `docs/EXPERIMENT_LEDGER.jsonl` is append-only structured experiment evidence. Reports summarize it and must not replace it.
+- `docs/reports/LATEST.md` is a readable checkpoint generated from existing evidence; reporting must not rerun challenges or invoke a model.
+- Experiment role is explicit: development, held-out, or regression. A held-out case that influences tuning is contaminated and must become development material.
+- Record missing fields as unknown/null; never infer token usage, artifact hashes, provenance, or verification.
+- Before a model-powered experiment, pre-register the challenge, verifier custody, model, round cap, retry policy, time/resource limits, and stop conditions. If reliable limits are unavailable, mark it blocked before invocation.
+
 ## Core execution model
 
 **One challenge -> one isolated workspace -> one primary autonomous Codex solver thread first.**

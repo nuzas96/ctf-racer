@@ -1,8 +1,10 @@
 # CTF Racer — Current Project State
 
-Last grounded: 2026-10-01 (Asia/Kuala_Lumpur)
+Last grounded: 2026-10-28 (America/New_York). Historical benchmark evidence below is dated 2026-10-01.
 
 This file is the compact source-of-truth checkpoint for the current implementation state. Read it together with `ARCHITECTURE.md`, `benchmarks/suite.json`, and the latest master Google Doc section before proposing architecture changes.
+
+For session continuation, also read `docs/HANDOFF.md` and `docs/reports/LATEST.md`. Research milestones, open questions, decisions, and append-only experiment evidence live in their respective files under `docs/`; do not duplicate the ledger here.
 
 ## Locked execution architecture
 
@@ -310,3 +312,12 @@ Key behavior:
 This is the platform-independent continuous competition foundation. No CTFd-specific solver logic has been added.
 
 CI after watcher tests landed: 47 tests, 47 passed, 0 failed.
+
+
+## 2026-10-28 continuity checkpoint
+
+The source-of-truth files, research queue, decision log, append-only experiment ledger, handoff, and readable latest report were added on feature branch `research/bootstrap-continuity-2026-10-28`. No source logic or canonical skills were modified.
+
+The requested real archived challenge attempt is blocked before execution: the local worktree lacks the defined CSAW 2026 “Ghost in the Machine” PCAP; the current runner exposes only a global four-round policy and no demonstrated per-run round override; and the SDK path has no established dependable wall-clock or token cap. This does not meet the user-defined artifact and resource-safety gates. It has not been run in this checkpoint. `npm ls --depth=0` returned `LRU is not a constructor`; investigate before model evaluation. See `docs/EXPERIMENT_LEDGER.jsonl` and `docs/HANDOFF.md`.
+
+Latest validation: 47/47 Node tests passed; JSONL parse/unique-ID and zero-token status report succeeded; `git diff --check` was clean. `npm ls --depth=0` failed with `LRU is not a constructor`. Do not treat the previously requested 48/48 as confirmed.
