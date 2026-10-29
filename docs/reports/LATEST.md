@@ -162,3 +162,6 @@ Two independent benign ATmega328P firmware examples passed static recovery with 
 - The Tutorial evaluation is a single development solve, not an SR/generalization estimate. Network permission was broader than the local target, though only that target was used.
 
 **Next priority:** Validate target-libc/runtime compatibility and target-side symbol resolution on two benign local Pwn services; enforce local-only egress, then preregister a fresh challenge and measure hypothesis-checklist adherence and time to first useful test.
+
+
+Checkpoint commits: CTF Racer `b310d33` and Skills V2 `ec1ea52`, both pushed to their existing development branches. No main branch was changed.

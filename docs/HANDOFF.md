@@ -67,7 +67,7 @@ No skill/controller improvement accepted yet; add no challenge-specific code. Th
 
 ## 2026-10-29 continuation checkpoint — evidence workflow and Tutorial Pwn
 
-Current Racer branch: `research/bootstrap-continuity-2026-10-28`; source changes are not yet committed at this checkpoint. Skills V2 branch: `research/ctf-forensics-hvif-2026-10-29`; the AVR reference and ctf-solve triage refinement are not yet committed. Preserve the pre-existing untracked Skills V2 file `....`.
+Current branches are `research/bootstrap-continuity-2026-10-28` (CTF Racer) and `research/ctf-forensics-hvif-2026-10-29` (Skills V2). Verified source/evidence commit `b310d33` is pushed on Racer; canonical skill commit `ec1ea52` is pushed on Skills V2. Preserve the pre-existing untracked Skills V2 file `....`.
 
 Latest completed challenge: NYU CTF Bench development `CSAW 2016 Tutorial` (Pwn), source commit `4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9`, Apache-2.0. One Luna Medium primary with `ctf-solve + ctf-pwn`, 4 rounds maximum, 750s, one attempt, no retry/escalation. Functional local service probe and artifact hash check passed. The actual Codex probe denied archive metadata, verifier, auth, and service `/tmp` runtime/secret paths across direct/symlink/proc-root/hardlink routes; controller verification passed. Verified solve in one round, 411.937s; usage 2,509,244 input (2,406,016 cached), 35,444 output, 25,949 reasoning. Safe summary is `docs/reports/experiments/EXP-2026-10-29-NYU-TUTORIAL-RESULT/summary.json`; never copy the candidate into tracked files.
 
@@ -76,3 +76,6 @@ The temporary service runtime denylist gap is fixed in `src/service.js` and `src
 Two separate benign AVR fixtures validate static GPIO recovery with different port/pin, bit order, polarity, and timing. Canonical Skills V2 changes: `ctf-reverse/references/avr-gpio-static-recovery.md` plus one route row; `ctf-solve/references/triage-routing.md` adds a lightweight competing-hypothesis comparison. Skills validator passes 14/230/0/0; routing 50 cases + 5 edge tests. The method is not an automatic decoder, and neither its generalization nor prompt benefit is established.
 
 Next exact task: validate target-libc/runtime compatibility and offset-less target-side resolution on two benign local Pwn services, with only local egress enforced; then preregister a fresh challenge and measure time to first useful test and unsupported-branch time under the hypothesis checklist. Do not rerun Tutorial, Cloudb, or Return of the Wieners as fresh cases.
+
+
+Checkpoint validation: CTF Racer source/evidence pushed at `b310d33`; Skills V2 changes pushed at `ec1ea52`. Working source branches were clean after these commits; the pre-existing `....` remains untracked and unchanged. This handoff-only finalization is in a subsequent Racer docs commit.
