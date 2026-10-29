@@ -33,3 +33,17 @@ Fresh NYU development Crypto challenge `2013f-cry-stfu` ran once through CTF Rac
 Next measurable task: use separate benign/development examples to validate reusable banner interpretation and answer-format reasoning, assess OCR/text-render tools deterministically, and only promote a method that passes those checks. Then pre-register an untouched challenge from a different category. Keep Luna Medium and one solver; re-run isolation preflight after environment/policy changes.
 
 Validation completed: CTF Racer full suite **61/61 passed** with NVM npm; ledger JSONL parsing, `research:status`, and `git diff --check` passed. Commit and push the validated records on the Racer branch. No Skills V2 edits are indicated by the STFU result.
+
+
+## 2026-10-29 continuation checkpoint — answer recovery and Cloudb
+
+Skills V2 on `research/ctf-forensics-hvif-2026-10-29` now has an uncommitted reusable `ctf-forensics` ASCII/banner text recovery reference and route. Preserve untracked `....`. Independent benign validation used three generated FIGlet banners across three fonts; exact re-render comparison distinguished correct from deliberately incorrect readings, whitespace retained, OCR not trusted. Skills validator passed: 14 skills / 229 Markdown / 0 errors / 0 warnings. No solve-rate improvement claim.
+
+Retrospective STFU cause: correct byte-exact LFSR recovery produced a banner, but candidate formatting was guessed despite missing flag syntax; wrapper/prefix normalization failed independent verification. No STFU rerun, no answer in tracked files.
+
+One fresh Cloudb Web development attempt was made (one Luna Medium primary, four rounds max, 600s, no retry/escalation). Artifact/provenance, verifier isolation and controller verifier metadata checks passed. Run ended unsolved after 293.361s; no candidate. Path traversal/arbitrary file read was confirmed by ~24s. Login, registration and JSONP all failed at PDO DB initialization although MySQL port/socket existed. Classify `ENVIRONMENT_LIMITED_UNSOLVED`, exclude from ordinary SR. Usage: 6,142,786 input (5,816,704 cached), 60,568 output, 32,171 reasoning. Summary: `docs/reports/experiments/EXP-2026-10-29-NYU-CLOUDB/summary.json`; ledger pre-registration hash correction and result appended.
+
+Tests: CTF Racer **61/61 passed**. The report/queue/state contain evidence and next steps. Immediate next task: zero-token diagnose Cloudb DB readiness/configuration without rerunning its solver; separately pre-register a fresh archived Reverse/Pwn/Web task. Check both Git states, commit/push only reviewed changes on development branches, never merge to main.
+
+
+Skills V2 guidance commit `2ff88e1` was pushed to its existing development branch. CTF Racer result/report records are ready to commit; no solver/controller code changed. The preserved untracked Skills V2 file `....` is untouched.

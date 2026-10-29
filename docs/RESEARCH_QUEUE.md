@@ -107,3 +107,12 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Usage:** One reported turn: 186,311 input (155,392 cached), 1,988 output, 558 reasoning tokens; cost not measured.
 - **Interpretation:** The PCAP contained one Telnet conversation; reconstructing the stream exposed a client credential submission. No new controller or skill change is justified by this single small archived case. This is not an SR estimate or evidence of hard-challenge generalization.
 - **Status:** Completed development evidence. Next evaluate a separate, more demanding Crypto development case under the now expanded isolation probe; keep this solved case as regression material.
+
+
+## RQ-011 — Convert successful technical footholds into complete Web solves
+
+- **Question:** Does Cloudb's archived service reproduce the intended functional DB-backed behavior, and can Luna progress from an unauthenticated file-read foothold to a verified answer when that behavior is available?
+- **Evidence:** One fresh NYU development Web attempt reached unauthenticated path traversal in ~24s, but login, registration, and JSONP endpoints all returned the same DB connection error. MySQL port/socket existed; application PDO initialization did not work. HTTP healthcheck was insufficient to detect this. Four rounds / 293.361s, no candidate.
+- **Classification:** `ENVIRONMENT_LIMITED_UNSOLVED`, excluded from ordinary solve-rate denominator; not a wall timeout. Controller verifier integrity and sandbox isolation passed.
+- **Next experiment:** Diagnose service DB readiness without model execution, compare the pinned image's expected configuration and runtime logs, then repair only the local service fixture if a reproducible deployment defect is found. Do not rerun the same Cloudb case as fresh evaluation. Use a distinct archived Web/Pwn/Reverse task for the next Luna capability measurement.
+- **Reusable opportunity:** Promote functional service readiness probes beyond HTTP 200 (e.g., challenge-defined endpoint checks) only after showing generic, safe applicability across more than one archived service.
