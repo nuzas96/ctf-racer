@@ -4,10 +4,9 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 
 ## Current gate status — 2026-11-06
 
-- The pre-registered observational evidence-ranking cohort is 2/3 executed: `deedeedee` verified at 221.78s; `onlythisprogram` unsolved at its planned 600s wall limit. Neither case demonstrates causal checklist improvement; the focused checklist was available but not opened in either trajectory.
-- The planned `Watchword` case was withdrawn before solver start after answer-bearing source guidance appeared in the orchestration audit. Select and preregister an untouched Forensics replacement.
-- Offline CTFd mock adapter milestone is implemented and validated 69/69; it reuses intake/race and has no live transport or credential path. Live platform/API integration and networked local-service evaluation remain gated on technically enforced host-scoped egress and controller-only credential handling.
-- The observational hypothesis cohort remains 2/3 executed; Watchword is withdrawn before solver start. A fresh untouched Forensics replacement remains open, but does not block offline adapter work.
+- Offline CTFd mock adapter is implemented and pushed in `3ce81565806f752a428e52bed81e47da3626e79b`; its deterministic suite passed 70/70. It reuses normalized intake, watch/race plumbing and independent verification, with no live transport, credentials or submission.
+- The observational hypothesis cohort completed with Reverse `deedeedee` verified at 221.78s; Crypto `onlythisprogram` unsolved within its 600s wall budget; Forensics `pcapin` unsolved at 599.259s/600s. `Watchword` was withdrawn before solver start. Checklist availability was confirmed, but the focused triage checklist was not opened in any of these runs. No causal improvement claim is supported.
+- Live platform connection remains gated. Preserve network-disabled solvers; research a controller-only narrow transport and test host allowlist, TLS/DNS, redirect, body/time, credential and submission controls against local mocks before authorized instance access.
 
 ## Completed / verified
 
@@ -27,10 +26,9 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 
 ## Next milestones
 
-1. **Checkpoint the offline CTFd adapter** — review and push validated work on the existing development branch.
-2. **Replace the withdrawn Forensics cohort case** — select a genuinely untouched offline development fixture, protect answer material and verify the actual solver boundary before preregistering one Luna Medium attempt. Do not use Watchword.
-3. **Prepare for authorized live platform integration** — only after host-scoped egress and controller-only secret custody can be technically demonstrated; then validate the target CTFd instance's versioned schemas without enabling submission by default.
-4. **Continue category-diverse development coverage** — retain the Luna Medium single-primary baseline and avoid repeating exposed challenges as fresh cases.
+1. **Validate a controller-only CTFd transport boundary** — implement only after deterministic mock-server tests specify host allowlist, TLS/DNS and redirect policy, request/download time and size limits, private credentials, and solver network denial. Keep live submission disabled.
+2. **Validate target-specific CTFd schemas offline** — pin the authorized instance/API version and sanitized challenge/file response fixtures before any real connection.
+3. **Continue category-diverse evaluation only on untouched cases** — cohort cases are now development-exposed; preregister new material and retain Luna Medium with one primary solver. No causal checklist claim until a matched/ablation design exists.
 
 ## Dependencies
 

@@ -1,26 +1,25 @@
-# Current continuation checkpoint — 2026-11-06 (offline CTFd adapter)
+# Current continuation checkpoint — 2026-11-06 (offline CTFd plus completed Forensics replacement)
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28` resumed at `ce713b3f72f5293e70a883be098c663e4bc405cc`; adapter work is in progress on the same branch. Skills V2 is at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its pre-existing untracked `....` was left untouched. Do not merge into main.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28` includes pushed adapter commit `3ce81565806f752a428e52bed81e47da3626e79b`; this Forensics experiment record set is the current checkpoint (use `git rev-parse HEAD` for the exact commit). Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`. Preserve the pre-existing untracked Skills V2 file `....`. Do not merge either branch into main.
 
-## Current adapter checkpoint
+## Current verified state
 
-- Existing platform-neutral recursive intake, persistent watch queue, race scheduler and controller verifier are reused. `auto_submit` remains false.
-- Added `src/ctfd-mock.js` and `docs/CTFD_OFFLINE_ADAPTER.md`. The module consumes sanitized local challenge/file snapshots and local attachment bytes; there is no HTTP/socket client, credential path, or real submit.
-- It normalizes IDs/categories/descriptions/files, validates artifact hashes and same-origin HTTPS attachment/redirect URLs without fetching, detects new/updated/unchanged/stale/already-solved state, and uses existing intake and race (`concurrency=1`, `freshRetries=0`).
-- An explicit injected executor supplies the candidate. The controller independently verifies it in memory. Opt-in mock submission only runs on verified candidates and records status/latency, not the candidate. Default is off.
-- Official CTFd docs reviewed: API v1 challenge list, per-challenge files and attempt endpoint; API guide documents token auth. No request was made. Links and version limitations are in `docs/CTFD_OFFLINE_ADAPTER.md`.
-- Focused deterministic tests: 9/9 passed; full CTF Racer suite: 70/70 passed. A deterministic timing sample was recorded in the ledger. Ledger JSONL (71 records), `research:status`, and `git diff --check` passed after final code changes.
-- The observational cohort remains 2/3. `deedeedee` solved at 221.78s; `onlythisprogram` was unsolved within its planned 600s bound. `Watchword` was withdrawn before solver start; do not reuse it. Select a new untouched Forensics replacement separately from adapter work.
+- Offline CTFd mock adapter is committed and pushed. It reuses existing intake, the one-primary race scheduler and independent verifier. It contains no HTTP/socket transport, credentials, or live-submit implementation. Mock submission is opt-in and defaults off. Full Racer tests passed 70/70 after this checkpoint's documentation updates.
+- The observational three-challenge cohort now has all evaluation slots resolved: `deedeedee` verified at 221.78s; `onlythisprogram` unsolved within 600s; Forensics replacement `pcapin` unsolved at 599.259s at the declared 600s cap. `Watchword` was withdrawn before solver execution and was not attempted. Do not reuse `pcapin` or the other cohort cases as fresh evaluation.
+- `pcapin` was run once through the standard Luna Medium pipeline, one persistent primary, `ctf-solve + ctf-forensics`, 4-round max, network disabled. Actual verifier-isolation and artifact checks passed. No answer candidate was produced; raw runner terminal status is `environment_interrupted / wall_timeout`, correctly scored as unsolved within its preregistered wall budget, not infrastructure failure. Token usage unavailable after cancellation; TTF not applicable. Safe record: `docs/reports/experiments/EXP-2026-11-06-NYU-PCAPIN-COHORT-3/summary.json`.
+- The `triage-routing.md` checklist was available and synchronized before the run but was not opened. The focused `ctf-forensics/references/network-pcap.md` was opened at ~35s. First meaningful PCAP test ~44s; named framing/XOR hypothesis ~57s. Global-key PNG hypothesis was rejected after CRC/DEFLATE failure; subsequent per-record seed/mask investigation did not recover a validated payload. Cohort is observational and cannot establish a causal checklist benefit.
+- CTFd is **not ready for a live connection**. No API requests or actual flag submissions were made. Safest future design keeps credentials and network transport controller-only and gives the solver artifact-only, network-disabled input. Before live use, implement a narrowly scoped controller transport with hostname/TLS/DNS and redirect enforcement, bounded responses/downloads, target-instance schema tests, provenance/hash validation, rate-limited idempotent submit behavior, and explicit operator activation. Keep live submission off until separately approved.
 
 ## Exact next steps
 
-1. Run final ledger JSONL, `research:status`, and `git diff --check` validations.
-2. Commit and push the verified adapter checkpoint only to the existing CTF Racer branch. Keep Skills V2 untouched and do not merge either main branch.
-3. Next evaluation priority: select and preregister a fresh offline Forensics development replacement, establish artifact/verifier custody and actual sandbox isolation, then run one bounded Luna Medium primary if all gates pass.
+1. Run `npm test`, ledger JSONL parse, `npm run research:status`, `git diff --check`, and repository-state checks; record results.
+2. Commit and push the Forensics experiment checkpoint to the existing CTF Racer branch only. Keep Skills V2 unchanged and preserve `....`.
+3. For platform work, design and test a controller-only CTFd transport boundary against a local mock server (host allowlist, DNS/redirect/TLS policy, size/time bounds, solver network denial) before considering any authorized instance. Do not attach real credentials or enable live submission.
+4. If further solving evaluation is desired, preregister a new untouched challenge outside this completed cohort; do not claim the observational runs establish causal performance gains.
 
-Live CTFd readiness remains **not ready**. Requirements: technically enforced platform-host egress inherited by solver children; controller-only credentials with denial proof; target instance version and API/file schema validation; bounded response/download transport; artifact provenance and hash checks; redirect enforcement; idempotent/rate-limited submit handling; explicit operator activation with real submission disabled by default. Do not enable broad solver networking.
+## Live platform readiness
 
----
+Not ready. The offline adapter validates local fixtures, not network policy. The unresolved host-specific Codex network restriction should not be bypassed by giving the solver broad egress; a controller-owned narrow API client is the candidate direction. Real integration additionally requires authorized instance/version and API schema evidence, private credential custody, artifact retrieval policy, independent verifier custody, duplicate/stale update behavior, submission idempotency/rate limits, and explicit operator enablement.
 
 # Historical checkpoints
 
