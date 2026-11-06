@@ -37,6 +37,12 @@ Skill-owned responsibilities:
 - one primary category skill: domain methodology and focused-reference routing;
 - reusable new technique knowledge: canonical codex-skills via `ctf-skill-upgrade`.
 
+## Platform adapter boundary
+
+Platform-specific parsing and submission behavior belongs in a thin adapter that materializes normalized challenge directories and hands them to existing intake/watch/race code. The solver core stays platform-neutral. Any platform credential, submission response, verifier digest or secret stays controller-side; only independently verified candidates may reach an explicitly enabled submit path. Submission remains disabled by default.
+
+The current `src/ctfd-mock.js` implementation is intentionally offline-only: it consumes sanitized local snapshots, validates URL structure without making requests, uses existing intake/race, and simulates acceptance in-process. It is not a live adapter and is not evidence that solver network egress is scoped. Live integration requires a technically enforced platform-host allowlist, controller-only credential custody, actual child-process denial tests, version-specific API/attachment schema validation, bounded transport, and explicit idempotent/rate-limited submission controls.
+
 ## Autonomous-first escalation
 
 Do not spawn multiple solvers by default.

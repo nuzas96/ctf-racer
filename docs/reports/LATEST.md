@@ -1,4 +1,40 @@
-# Current research report — 2026-11-06
+# Current research report — 2026-11-06 (offline CTFd integration)
+
+## Checkpoint and architecture
+
+CTF Racer resumed on `research/bootstrap-continuity-2026-10-28` at `ce713b3f72f5293e70a883be098c663e4bc405cc`. Luna Medium and one persistent primary solver remain unchanged. Canonical Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its worktree, including pre-existing untracked `....`, was left untouched.
+
+## Existing platform capabilities
+
+Platform-neutral recursive intake validates normalized `challenge.json` directories, duplicate local IDs, artifact manifests, and service files. The persistent watch queue avoids relaunching solved entries. The race scheduler dispatches one primary solver per challenge and writes race reports. `verifyFlagCandidate` independently checks controller-held SHA-256 verifier data. `auto_submit` is false. The audit found no CTFd parser, platform identity/update tracking, platform submission transport, or live credential path.
+
+## Offline CTFd adapter milestone
+
+Added `src/ctfd-mock.js` and `docs/CTFD_OFFLINE_ADAPTER.md`. It accepts sanitized local challenge snapshots, separately captured per-challenge file metadata, and fixture attachment bytes. It maps IDs/categories/descriptions/attachments into the existing normalized format, checks supplied attachment hashes, tracks new/updated/unchanged/stale/already-solved cases, then uses existing intake and race with concurrency 1 and zero retries. No platform HTTP or socket request exists.
+
+The integration test injects a deterministic executor through the real intake/race path. The returned candidate is verified in controller memory against an out-of-workspace digest. Optional in-process mock submission defaults off and receives only independently verified candidates; it records simulated acceptance/rejection and latency but does not persist the candidate. Timings are split into intake, queue, injected-solver, independent verification and simulated submission. A deterministic sample (15 ms injected solver delay, 12 ms mock delay) measured intake 4.439 ms, queue 7.084 ms, solver fixture 15.785 ms, independent verification 0.377 ms, and mock submission 12.558 ms. These include local overhead and validate instrumentation only; they are not representative CTF latency, Luna TTF, or a CTF solve result.
+
+## CTFd API research
+
+Official CTFd documentation describes `GET /api/v1/challenges`, `GET /api/v1/challenges/{challenge_id}/files`, and `POST /api/v1/challenges/attempt`; challenge metadata includes ID, name, description, category, type, state and `solved_by_me`. The getting-started guide documents `Authorization: Token ...`. See [CTFd API reference](https://docs.ctfd.io/docs/api/redoc/) and [API access guide](https://docs.ctfd.io/docs/api/getting-started/). No API requests or real flag submissions were made. The target platform version and its precise file response schema remain unknown.
+
+## Validation and limitations
+
+- Focused CTFd adapter tests passed **9/9**.
+- Full CTF Racer suite: **70/70 passed** with NVM Node v24.19.0 / npm 11.17.0.
+- No model was called and no CTF challenge was attempted in this adapter milestone.
+- Same-origin/HTTPS URL checks are pure validation; they do not enforce DNS, TLS, redirects, response limits, or runtime egress. Codex networking remains disabled-or-broad, so live integration is not ready.
+- Before connecting: technically scoped host allowlist inherited by subprocesses, controller-only credential custody and solver denial proof, target-version schema validation, bounded downloads, artifact provenance/hash checks, redirect enforcement, idempotent/rate-limited submit behavior, and explicit operator enablement.
+
+## Forensics cohort and next priority
+
+The three-case observational cohort remains 2/3 executed: `deedeedee` was verified in 221.78s; `onlythisprogram` ended unsolved at its declared 600s budget. `Watchword` was withdrawn before solver execution after preparation exposed answer-bearing guidance, and must not be reused. No fresh Forensics replacement was selected or run during adapter development. Next: commit/push this validated offline adapter, then select and preregister a genuinely untouched offline Forensics replacement with artifact and sandbox checks. This does not imply causal checklist benefit.
+
+---
+
+# Prior checkpoint report — 2026-11-06 Crypto cohort
+
+
 
 CTF Racer research evidence commit `5728205` and its follow-up checkpoint documentation are committed and pushed to the existing development branch; `git rev-parse HEAD` is authoritative for the current tip. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its pre-existing untracked `....` is preserved.
 

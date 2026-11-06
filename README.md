@@ -425,7 +425,7 @@ Generated manifests are stored under:
 runs/_intake/intake-<name>-<timestamp>.json
 ```
 
-This keeps platform-specific watchers thin: CTFd, custom APIs, or manual downloads only need to materialize normalized challenge directories. The solver/race core remains platform-agnostic.
+This keeps platform-specific watchers thin: CTFd, custom APIs, or manual downloads only need to materialize normalized challenge directories. The solver/race core remains platform-agnostic. An offline-only CTFd-shaped adapter and end-to-end deterministic mock are documented in [`docs/CTFD_OFFLINE_ADAPTER.md`](docs/CTFD_OFFLINE_ADAPTER.md); it makes no platform requests and cannot submit real flags.
 
 ### Zero-token race status
 

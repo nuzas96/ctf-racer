@@ -6,7 +6,8 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 
 - The pre-registered observational evidence-ranking cohort is 2/3 executed: `deedeedee` verified at 221.78s; `onlythisprogram` unsolved at its planned 600s wall limit. Neither case demonstrates causal checklist improvement; the focused checklist was available but not opened in either trajectory.
 - The planned `Watchword` case was withdrawn before solver start after answer-bearing source guidance appeared in the orchestration audit. Select and preregister an untouched Forensics replacement.
-- Live CTF platform/API integration and networked local-service evaluation remain gated on technically enforced host-scoped egress and controller-only credential handling. Offline/mock adapter work is eligible.
+- Offline CTFd mock adapter milestone is implemented and validated 69/69; it reuses intake/race and has no live transport or credential path. Live platform/API integration and networked local-service evaluation remain gated on technically enforced host-scoped egress and controller-only credential handling.
+- The observational hypothesis cohort remains 2/3 executed; Watchword is withdrawn before solver start. A fresh untouched Forensics replacement remains open, but does not block offline adapter work.
 
 ## Completed / verified
 
@@ -26,11 +27,10 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 
 ## Next milestones
 
-1. **Improve ELF32 reverse-analysis readiness** — use a separate archived development fixture to measure deterministic detection and tool prep for `qemu-i386`/Ghidra; Palo Alto itself is now contaminated development material.
-2. **Generalize HVIF methodology** — apply the new extractor/converter workflow to a different authorized `.rdef` or public benign icon sample; preserve the current skill change unless evidence reveals a generic defect.
-3. **Broaden isolated development coverage** — choose an untouched NYU development case outside reverse and forensics, verify artifacts and isolation, then preregister one bounded Luna run.
-4. **Measure model usage and retrieval** — retain Luna Medium baseline; compare alternatives only with repeated controlled trials and current documented economics. SDK stream exposes token usage, but no hard token/cost ceiling is enforced yet.
-5. **Formalize held-out hygiene** — register source commit/hash, verifier custody, exposure and contamination transitions before any test-split run.
+1. **Checkpoint the offline CTFd adapter** — review and push validated work on the existing development branch.
+2. **Replace the withdrawn Forensics cohort case** — select a genuinely untouched offline development fixture, protect answer material and verify the actual solver boundary before preregistering one Luna Medium attempt. Do not use Watchword.
+3. **Prepare for authorized live platform integration** — only after host-scoped egress and controller-only secret custody can be technically demonstrated; then validate the target CTFd instance's versioned schemas without enabling submission by default.
+4. **Continue category-diverse development coverage** — retain the Luna Medium single-primary baseline and avoid repeating exposed challenges as fresh cases.
 
 ## Dependencies
 

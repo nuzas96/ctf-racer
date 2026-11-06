@@ -1,23 +1,28 @@
-# Current continuation checkpoint — 2026-11-06
+# Current continuation checkpoint — 2026-11-06 (offline CTFd adapter)
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, research evidence commit `5728205` and the follow-up checkpoint documentation are committed and pushed. Run `git rev-parse HEAD` to identify the current branch tip. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28` resumed at `ce713b3f72f5293e70a883be098c663e4bc405cc`; adapter work is in progress on the same branch. Skills V2 is at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its pre-existing untracked `....` was left untouched. Do not merge into main.
 
-## Completed in this continuation
+## Current adapter checkpoint
 
-- `onlythisprogram` was locally untouched before this attempt: no prior run state/workspace existed. The pinned archive artifact SHA-256 and Git blob matched. One actual Codex sandbox probe denied 16 source, writeup, secret, and verifier paths through direct, symlink, and hardlink access while controller reads remained possible. Network was disabled.
-- One Luna Medium primary ran via `ctf-solve + ctf-crypto`, four rounds, no retry/escalation, 600s wall bound. It completed no answer; raw runner state is `environment_interrupted / wall_timeout` at 599.362s. For the preregistered time-bounded metric this is **unsolved within declared budget**, not an infrastructure failure. There is no verified flag or TTF. Safe summary: `docs/reports/experiments/EXP-2026-11-06-NYU-ONLYTHISPROGRAM-COHORT-2/summary.json`.
-- It identified a source-supported 256-byte repeating XOR construction at about 57s; first meaningful artifact experiment was about 38s. English-frequency scoring did not yield coherent plaintext. An aligned cross-file relation was interesting but incomplete and consumed later rounds. No reusable tool or skill change is supported by this single result.
-- Canonical and installed `ctf-solve`, `ctf-crypto` and `ctf-solve/references/triage-routing.md` hashes matched before execution. `ctf-crypto/stream-ciphers.md` was opened at about 43s. The evidence-ranking checklist was available, but not opened or explicitly used. A is confirmed, B not demonstrated, C untested.
-- Do not run `Watchword`: preflight archive search surfaced answer-bearing source guidance in the orchestration session. The solver was never launched on it. Treat it as exposed and select a fresh untouched Forensics replacement before completing the observational cohort.
+- Existing platform-neutral recursive intake, persistent watch queue, race scheduler and controller verifier are reused. `auto_submit` remains false.
+- Added `src/ctfd-mock.js` and `docs/CTFD_OFFLINE_ADAPTER.md`. The module consumes sanitized local challenge/file snapshots and local attachment bytes; there is no HTTP/socket client, credential path, or real submit.
+- It normalizes IDs/categories/descriptions/files, validates artifact hashes and same-origin HTTPS attachment/redirect URLs without fetching, detects new/updated/unchanged/stale/already-solved state, and uses existing intake and race (`concurrency=1`, `freshRetries=0`).
+- An explicit injected executor supplies the candidate. The controller independently verifies it in memory. Opt-in mock submission only runs on verified candidates and records status/latency, not the candidate. Default is off.
+- Official CTFd docs reviewed: API v1 challenge list, per-challenge files and attempt endpoint; API guide documents token auth. No request was made. Links and version limitations are in `docs/CTFD_OFFLINE_ADAPTER.md`.
+- Focused deterministic tests: 9/9 passed; full CTF Racer suite: 70/70 passed. A deterministic timing sample was recorded in the ledger. Ledger JSONL (71 records), `research:status`, and `git diff --check` passed after final code changes.
+- The observational cohort remains 2/3. `deedeedee` solved at 221.78s; `onlythisprogram` was unsolved within its planned 600s bound. `Watchword` was withdrawn before solver start; do not reuse it. Select a new untouched Forensics replacement separately from adapter work.
 
-## Next actions and platform readiness
+## Exact next steps
 
-1. Run CTF Racer and ledger/report validations, commit and push the current evidence updates.
-2. Select and preregister a replacement untouched Forensics development case without opening writeups/reference solutions; verify artifact hash, verifier custody and actual sandbox isolation.
-3. Complete the third observational cohort case; record checklist loading/use separately. The cohort cannot establish causal checklist benefit.
-4. **Platform integration:** not ready for live API or networked challenge execution. The Codex runtime supports network off or broad network on, not local/host-scoped egress. Start with an offline/mock adapter if desired. Before live integration, require a technically enforced platform-host allowlist, controller-only credential storage, solver credential denial, TLS/redirect checks, artifact integrity, and explicit no-submit default. Re-probe actual solver isolation after environment/policy changes.
+1. Run final ledger JSONL, `research:status`, and `git diff --check` validations.
+2. Commit and push the verified adapter checkpoint only to the existing CTF Racer branch. Keep Skills V2 untouched and do not merge either main branch.
+3. Next evaluation priority: select and preregister a fresh offline Forensics development replacement, establish artifact/verifier custody and actual sandbox isolation, then run one bounded Luna Medium primary if all gates pass.
 
-CTF Racer tests rerun: 61/61 passed on Node v24.18.0 with NVM npm 11.17.0. `research:status`, JSONL parsing, and `git diff --check` passed. Continue one Luna Medium solver and network-disabled offline artifacts. Do not rerun `deedeedee`, `onlythisprogram`, or other exposed cases as fresh evaluations.
+Live CTFd readiness remains **not ready**. Requirements: technically enforced platform-host egress inherited by solver children; controller-only credentials with denial proof; target instance version and API/file schema validation; bounded response/download transport; artifact provenance and hash checks; redirect enforcement; idempotent/rate-limited submit handling; explicit operator activation with real submission disabled by default. Do not enable broad solver networking.
+
+---
+
+# Historical checkpoints
 
 ---
 
