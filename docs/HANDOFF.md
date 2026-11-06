@@ -1,21 +1,26 @@
-# Current continuation checkpoint — 2026-11-06 Mandiant transfer evaluation
+# Current continuation checkpoint — 2026-11-06 Mandiant tool diagnosis
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, starting HEAD `e69a1e28e3e1d6e296c8231b61f3e16523acd256`. Preserve dirty unrelated `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; do not stage them. Skills V2 remains `b8008de2ad3bc2a2757f84dea752b758a5a35f7b` on its existing branch; preserve untracked `....`. The earlier selected Reverse challenge `odd` and its provenance records remain intact and untouched.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, HEAD `4c70f7fad3b7a1e1a31c10e26b4f99afaff55fa0`. Preserve pre-existing dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; neither was edited or staged. Skills V2 remains `b8008de2ad3bc2a2757f84dea752b758a5a35f7b` with untracked `....` preserved. Keep the selected Reverse case `odd` untouched.
 
-## Latest experiment
+## Completed this checkpoint
 
-Fresh offline NYU CTF Bench Forensics `Mandiant` ran once with Luna Medium, one persistent solver, `ctf-solve + ctf-forensics`, networking disabled, 36-round / 3600-second bounds and no retry/escalation. Both artifact hashes matched the pinned archive. The actual host Codex sandbox denied 17 protected probes by direct/symlink/hardlink access while controller verification remained available; boundary is same-UID and host-specific. The runner ended at 3599.002s after 22 rounds with `environment_interrupted / wall_timeout`. No candidate was emitted, no flag was verified, and TTF is null. This is no solve within the pre-registered time-bounded evaluation. The opaque JPEG trailer remains the final technical blocker.
+- Inspected saved Mandiant trace/workspace without opening answer material. Original result remains 22 rounds / 3599.002s, no candidate and no verified flag, interrupted at declared wall cap.
+- Confirmed player-side tail structure: canonical Base64 fields are 64 and 13,440 bytes; second field is 210 × 64 bytes. The origin/key/transform/framing remain unresolved.
+- Stegoveritas 1.10 was validated in isolated Python 3.11 on independent benign PNG-trailing and JPEG-Steghide examples (both exact). Mandiant output exactly duplicated the already recovered trailer.
+- OutGuess 1:0.4-2 was tested in a bounded offline container; independent benign payload recovered exactly. 15 candidate keys × two Mandiant framings returned no payload. This does not exhaust OutGuess or other algorithms. `stegdetect` is absent and upstream says unmaintained; not a required blocker.
+- No Luna rerun or Skills V2 change: no new evidence justified them.
+- Diagnosed dirty CTFd Bad FD as fixture omission of denied `docs/`; probe fails when the path is missing and passes when created. Kept test failure unresolved. See report and appended ledger row.
+- An accidental package-helper invocation briefly installed `libexempi-dev`; it was removed and verified absent. Do not invoke the helper again.
 
-Safe summary: `docs/reports/experiments/EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER/summary.json`; append-only result record: `EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER`. Installed Skills V2 version matched. Trace proves opening `pdf-analysis.md`, `stego-image.md`, `stego-advanced.md`, and `stuck-recovery.md`; `modern-ciphers.md` was opened in the trace but the final path verifier did not verify it. No permanent skill change is justified by this one unresolved case. Details and limits are in the summary and solver workspace `PROGRESS.md`.
+Evidence: `docs/reports/experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json`. Full report: `docs/reports/LATEST.md`.
 
-The pcapin follow-up's 3233.426s cumulative active time is a descriptive reference only; different artifacts and task difficulty do not support a causal speed or transfer claim. No consolidated token count or cost is recorded.
+## Immediate next steps
 
-## Resume next
-
-1. Verify current branch and worktree. Preserve unrelated CTFd edits and all historical records.
-2. Run the NVM full test suite, ledger JSONL validation, `research:status`, and `git diff --check`.
-3. Review the Mandiant report for answer-free accuracy, commit only the research ledger/report/state/handoff updates, and push this branch if safe. Do not touch Skills V2 unless there is separately validated reusable evidence.
-4. Next capability priority: diagnose the Mandiant trailer hypothesis/tool gap from saved player-side trace without reading its answer-bearing README/writeup; alternatively select a different untouched Forensics transfer case only after custody checks. Do not rerun Mandiant as fresh or claim a skill-transfer gain. Keep `odd` selected for its existing later research.
+1. Validate JSONL, `npm run research:status`, and `git diff --check`.
+2. Run tests and preserve the known CTFd fixture failure in reporting; do not edit the pre-existing dirty files in this checkpoint.
+3. Commit only the new answer-free diagnosis report and research-state/ledger updates. Push only if the configured remote is safe and reachable.
+4. For Mandiant, require a new player-evidence-backed, cheap discriminating hypothesis before another solver budget. Otherwise advance to a separate uncontaminated development challenge. Do not touch `odd`.
+5. A future separately approved fix should create the denied `docs/` directory in the transport fixture and rerun the failing test plus full suite.
 
 # Current continuation checkpoint — 2026-11-06 pcapin follow-up and isolation correction
 

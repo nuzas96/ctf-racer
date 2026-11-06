@@ -1,3 +1,23 @@
+# Latest development report — 2026-11-06
+
+## Mandiant hard-challenge diagnosis
+
+The original Mandiant Luna run remains unsolved within its 3600-second budget (22 rounds; 3599.002 seconds; wall-time interruption; no candidate or verified flag). This checkpoint used zero model tokens. Player-side evidence establishes a structured post-JPEG-EOI tail: 64-byte and 13,440-byte decoded fields, with 210 64-byte blocks in the latter. The transform/key/framing remain unknown. Prior trace experiments covered StegSeek/Steghide, F5/JSteg and JPEG metadata/coefficient paths, image transforms/channels, common cipher/KDF families and decompression; those tests were meaningful but not exhaustive.
+
+Stegoveritas 1.10 worked in an isolated Python 3.11 venv after the host shim's Python 3.13 import failed. It passed exact extraction on two independent benign payload examples. Its Mandiant run returned only the identical already known tail. OutGuess 1:0.4-2 passed exact extraction on an independent benign JPEG in a network-disabled constrained container; 30 Mandiant tests (15 clue-derived keys × two framings) produced no payload. `stegdetect` remains absent and upstream-unmaintained; it was not needed to validate the tested approaches. No new solver hypothesis emerged, so no Luna continuation or skill upgrade was warranted.
+
+The dirty transport integration test failure is reproducibly tied to an absent denied `projectRoot/docs` directory in its fixture: the actual sandbox probe fails while that path is absent and passes once present. Full suite evidence remains 87 pass / 1 failure; 70 tests pass with this test excluded. This is not yet fixed, and the unrelated dirty test/source files were left unchanged.
+
+A stegoveritas helper invocation accidentally ran its apt helper and temporarily installed `libexempi-dev`; it was removed and its absence confirmed. No package changes remain from that incident.
+
+Evidence: [diagnosis summary](experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json). No flag was obtained. No general solving capability or solve-rate improvement is claimed. Skills V2 and the `odd` selection are unchanged.
+
+### Next measurable work
+
+Resolve the transport test fixture's missing directory in a separate change and verify the exact test plus full suite. For Mandiant, only resume if a player-side observation supports a new discriminating experiment; otherwise use the time on a separate uncontaminated hard development case. Keep `odd` untouched.
+
+---
+
 # Latest report — 2026-11-06 fresh Forensics transfer evaluation
 
 ## Mandiant result

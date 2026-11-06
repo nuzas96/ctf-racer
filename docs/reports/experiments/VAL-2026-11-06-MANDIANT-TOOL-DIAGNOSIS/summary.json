@@ -1,0 +1,82 @@
+{
+  "experiment_id": "VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS",
+  "record_type": "deterministic_tool_and_fixture_diagnosis",
+  "classification": "exposed development follow-up; no model solver run",
+  "challenge": {
+    "id": "nyu-dev-2015-mandiant-image-transfer-2026-11-06",
+    "category": "forensics",
+    "player_workspace": "runs/nyu-dev-2015-mandiant-image-transfer-2026-11-06/workspace",
+    "reference_answers_writeups_and_verifier_material_used": false
+  },
+  "established_player_side_facts": {
+    "artifact_chain": "PDF attachment/archive/Base64 JPEG was established in the original Luna trace",
+    "post_eoi_tail": {
+      "strict_base64_fields_bytes": [64, 13440],
+      "ciphertext_block_count_at_64_bytes": 210,
+      "caveat": "These structural facts do not identify the transform, key, framing, or plaintext."
+    },
+    "stegoveritas_tail_comparison": "The generated trailing_data.bin exactly matched the already extracted 18014-byte player-side tail (SHA-256 7497b9e5f36ee742a72bd75afd3de0d3551bb5be6303c1c63ed2e429d51fc1d3); it added no new payload evidence."
+  },
+  "original_trace_hypotheses": {
+    "tested": [
+      "StegSeek full seed scan and clue-derived Steghide passwords",
+      "F5 coefficient indicator; JPEG quantization-table usage; JSteg coefficient ordering/packing variants",
+      "PDF/PNG metadata, trailing data, image transforms/channels/planes, zsteg on supplied PNG",
+      "bounded common stream/block/authenticated cipher layouts and password derivations including AES, XOR, RC4, ChaCha/Salsa, PBKDF2, and EVP_BytesToKey",
+      "strict compression/decompression checks"
+    ],
+    "still_plausible": [
+      "an untested custom transform/key derivation or ciphertext framing",
+      "another steganographic algorithm or interpretation of the already recovered tail",
+      "a clue interpretation not equivalent to the tested direct crypto/password guesses"
+    ],
+    "not_claimed": "No exhaustive exclusion of cipher, steganography, key, or framing families."
+  },
+  "tool_validation": {
+    "stegoveritas": {
+      "system_shim_issue": "Shim points to a Python 3.13 interpreter where module import fails; package's binwalk dependency uses removed imp module.",
+      "isolated_recovery": "Installed pinned stegoveritas 1.10 in an ignored Python 3.11 venv under runs/_research-cache/tooling; --help and bounded analysis worked.",
+      "benign_validation": [
+        "PNG with known 27-byte appended payload: trailing-data extraction exactly matched source bytes.",
+        "JPEG with known Steghide payload: password-based extraction exactly matched source bytes."
+      ],
+      "mandiant_result": "Exit 0 on bounded option set; output included the same known post-EOI tail and no independently verified plaintext or flag."
+    },
+    "outguess": {
+      "tool": "Debian trixie outguess 1:0.4-2 in controlled image sha256:c0a6336ed0a5a08e2736129e5ce8f401e7c854ddd0b7c558cb8a18b7d822c647; base image debian:trixie-slim sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2",
+      "execution_boundary": "Network disabled at run time; read-only root; bounded memory, CPU, and PIDs; only explicit input/output mounts.",
+      "benign_validation": "Known embedded JPEG payload recovered byte-for-byte with its known key.",
+      "mandiant_test": "30 bounded extractions: 15 clue-derived keys across two framings (full JPEG plus tail, and JPEG through EOI); no non-empty payload.",
+      "limitation": "Rejects only the tested candidate keys and framings, not OutGuess generally."
+    },
+    "stegdetect": "Unavailable in configured local package sources. Upstream mirror labels it unmaintained; it is a detector rather than a general extractor. Not a justified blocker after the validated OutGuess and Stegoveritas checks."
+  },
+  "resource_side_effect": "An accidental invocation of stegoveritas_install_deps --help ran its apt helper and installed libexempi-dev. It was immediately removed; dpkg-query verified it absent afterward. No other package was installed. Do not invoke that helper again.",
+  "solver_decision": "No Luna rerun: deterministic tool validation produced no new Mandiant clue or credible hypothesis. Repeating the one-hour trajectory would not be justified.",
+  "skills_v2": "No changes; tool behavior and method did not demonstrate a reusable solving improvement.",
+  "outcome": {
+    "flag": "none",
+    "independently_verified": false,
+    "remaining_blocker": "The origin and interpretation of the high-entropy post-EOI data remain unknown; no supported candidate transform/key/framing has emerged.",
+    "classification": "diagnostic follow-up; not a fresh benchmark and not a new solver failure"
+  },
+  "transport_test_diagnosis": {
+    "test": "pre-existing dirty test/ctfd-transport.test.js Codex isolation probe",
+    "failure": "bwrap: Can't write data to file <denied path>: Bad file descriptor",
+    "root_cause": "Fixture omits creation of denied projectRoot/docs. Direct isolated probe reproduced the error when docs was absent and passed once it existed. Changing CODEX_HOME only moved the same error to a different nonexistent denied path.",
+    "interpretation": "Reproducible fixture setup failure, not evidence of a production transport regression. Dirty source/test files were not modified.",
+    "validation": "70 tests passed with this integration test excluded; full suite previously reported 87 passed and this one test failed; the failing test also reproduced standalone. Preserve failure until fixture owner repairs it."
+  },
+  "validation_and_sources": {
+    "model_tokens": 0,
+    "source_urls": [
+      "https://github.com/bannsec/stegoVeritas",
+      "https://pypi.org/project/stegoveritas/",
+      "https://packages.debian.org/trixie/amd64/outguess",
+      "https://metadata.ftp-master.debian.org/changelogs//main/o/outguess/outguess_0.4-2_copyright",
+      "https://github.com/resurrecting-open-source-projects/outguess",
+      "https://github.com/abeluck/stegdetect"
+    ],
+    "license_note": "Stegoveritas GitHub repository and PyPI metadata report different licenses (GPL-2.0 versus MIT); do not redistribute or make it a project dependency without resolving the discrepancy. OutGuess Debian copyright identifies mixed legacy license terms; its repository is archived."
+  }
+}

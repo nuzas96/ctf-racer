@@ -208,3 +208,12 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Result:** No candidate or verified flag; valid attempt ended at 3599.002 seconds (`wall_timeout`) after 22 rounds. Initial PDF/archive/Base64-JPEG extraction succeeded in the first minute, but high-entropy trailer decoding remained unresolved. Tool limitation: `stegoveritas` module and outguess/stegdetect unavailable. Full answer-free summary: `docs/reports/experiments/EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER/summary.json`.
 - **Interpretation:** This is one fresh observational non-solve, not evidence against or for a causal Skills V2 transfer effect. No skill change accepted. pcapin cumulative 3233.426 seconds is not a directly comparable TTF.
 - **Next:** investigate only hypotheses supported by player-side evidence or select another truly untouched Forensics case with independent custody checks. Do not rerun Mandiant or pcapin as fresh. Preserve the existing `odd` Reverse selection unchanged.
+
+
+## RQ-025 — Identify the Mandiant post-EOI transform without repeating rejected probes
+
+- **Evidence:** The original Luna trajectory established a PDF/archive/Base64 image chain and a structured JPEG trailer with decoded fields of 64 and 13,440 bytes. It tested StegSeek/Steghide, F5/JSteg variants, image metadata/planes, common cipher/KDF families and decompression checks without producing a candidate. Later deterministic tool validation showed Stegoveritas output duplicates the known tail; bounded OutGuess tests of 15 clue-derived keys across two framings also produced no payload.
+- **Interpretation:** Tools unavailable during the original run did not block these validated benign checks, but current tests still do not identify or eliminate all encodings, stego methods, keys or framing. The current blocker is lack of a player-evidence-backed new discriminator.
+- **Decision:** Do not spend another full Luna budget until a new cheap test is justified by an observable clue. Mandiant remains exposed development material. No Skills V2 update and no solve-rate claim.
+- **Evidence record:** `docs/reports/experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json`; transport fixture diagnosis is separately appended as `DIAG-2026-11-06-CTFD-BAD-FD-FIXTURE`.
+- **Status:** Open; next priority is either a genuinely new Mandiant discriminator or an uncontaminated hard development challenge. Keep the previously selected `odd` Reverse case untouched.

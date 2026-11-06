@@ -1,15 +1,24 @@
-# Project state — 2026-11-06 Mandiant transfer evaluation
+# Project state — 2026-11-06 Mandiant tool diagnosis
 
-## Current checkpoint
+## Current verified checkpoint
 
-CTF Racer is on `research/bootstrap-continuity-2026-10-28` at starting checkpoint `e69a1e28e3e1d6e296c8231b61f3e16523acd256` plus this uncommitted research record. Skills V2 remains at `b8008de2ad3bc2a2757f84dea752b758a5a35f7b`; preserve its untracked `....`. Existing dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js` are unrelated and must remain unstaged. Existing `odd` Reverse selection/provenance is unchanged.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, HEAD `4c70f7fad3b7a1e1a31c10e26b4f99afaff55fa0`. Existing unrelated modifications to `src/ctfd-transport.js` and `test/ctfd-transport.test.js` remain untouched and unstaged. Skills V2 is `b8008de2ad3bc2a2757f84dea752b758a5a35f7b` on its existing branch; preserve its untracked `....`. The previously selected Reverse challenge `odd` remains untouched.
 
-- Fresh Mandiant Forensics transfer evaluation: artifact hashes/provenance, installed skill version, network-disabled mode, controller verifier custody and actual same-UID host Codex sandbox probes passed. Luna Medium used one persistent solver, four verified focused references plus one auxiliary trace-opened reference, 22 rounds, and 3599.002 seconds of a 3600-second wall budget. First meaningful experiment was at about 37 seconds. No candidate was emitted or independently verified; TTF is null. Terminal state: `environment_interrupted / wall_timeout`; classify as unsolved within the declared time-bounded attempt, with wall cancellation recorded separately.
-- Technical progress: player-side PDF attachment/archive/Base64 image chain and exact 64-byte/13,440-byte trailer fields were validated. Standard steghide, F5 indicator, JPEG DQT, JSteg, and bounded cipher/KDF probes did not recover recognizable answer plaintext. Primary blocker is unresolved high-entropy JPEG trailer transform/key framing; `stegoveritas` module unavailable and `outguess`/`stegdetect` absent.
-- Skills V2 was not changed. One unresolved challenge does not validate new general Forensics methodology. pcapin's 3233.426s cumulative active time is only descriptive and cannot support a causal speed comparison. No durable consolidated token/cost total is available.
-- Detailed answer-free experiment summary: `docs/reports/experiments/EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER/summary.json`.
+## Mandiant outcome and diagnosis
 
-**Next action:** run all relevant local validations, inspect staged diffs, commit only the research updates, and push the existing development branch. Thereafter, investigate an independently supported Mandiant method or select a different untouched Forensics transfer case without altering the existing `odd` selection.
+The original Luna Medium run is unchanged: 22 rounds, 3599.002 seconds, no candidate, no independently verified flag, terminal wall-time interruption. This checkpoint did not rerun Luna. Player-side evidence establishes a PDF/archive/Base64 image chain and a post-EOI data tail with Base64 fields of 64 and 13,440 bytes (the latter is 210 64-byte blocks). The specific key, transform and framing remain unknown. The trace tested StegSeek/Steghide, F5/JSteg indicators and variants, metadata/trailing/image-plane methods, common ciphers/KDFs and strict decompression checks. None produced answer plaintext; these do not exhaust all approaches.
+
+Stegoveritas 1.10 was usable in an isolated Python 3.11 venv after the system shim failed under Python 3.13 (`imp` dependency failure). It exactly extracted a known benign PNG trailer and known benign JPEG Steghide payload. Its bounded Mandiant pass only reproduced the already known trailer. Debian OutGuess 1:0.4-2 in an offline, resource-bounded container recovered a benign known payload; 30 bounded Mandiant attempts (15 candidate keys × two framings) yielded no nonempty extraction. These tests do not rule out the broader method families. `stegdetect` remains unavailable and its upstream mirror marks it unmaintained; it is not currently a blocker. No skill update is justified and no new solver experiment was run. Details: `docs/reports/experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json`.
+
+An accidental `stegoveritas_install_deps --help` invocation ran its apt helper and installed `libexempi-dev`; that package was removed and its absence verified. No other package was installed. Do not rerun that helper.
+
+## Test diagnosis
+
+The pre-existing dirty CTFd transport isolation test fails in `bwrap` with `Bad file descriptor` because its fixture denies a `projectRoot/docs` path that it never creates. The failure reproduces in isolation; creating the directory makes the actual probe pass. `CODEX_HOME` changes only which missing denied path fails. This supports a fixture setup defect, not a demonstrated transport regression. The dirty test/source files were not edited. The suite previously had 87 passing and this one failing test; 70 tests pass with that test excluded. Keep the failure visible until the fixture is repaired.
+
+## Next action
+
+Do not spend another full Mandiant budget absent a new player-evidence-supported discriminating test. Preserve current tool validation and wait for a new concrete hypothesis or select a separate uncontaminated development case. Keep `odd` untouched. Resolve the CTFd test fixture by adding the denied directory in a separately authorized change, then rerun the exact test and full suite.
 
 ---
 
