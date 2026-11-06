@@ -9,7 +9,24 @@ Do not rerun previous exposed challenges as fresh or use their reference answers
 Current development checkpoints still stand: CTF Racer `3d09d02bde188f6b6bcdf48f2598633865afb80b` (controller-only CTFd transport; 81/81 tests reported) and Skills V2 `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`. Verify the worktrees' actual HEADs before changes; preserve pre-existing untracked Skills V2 `....`. No merge to main. All CTFd network calls/submissions remain disabled pending separate explicit authorization. Networked solver challenges remain blocked by the lack of proven local-only egress.
 
 ---
- 
+
+# Current continuation checkpoint — 2026-11-06 unsolved challenge follow-ups
+
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, starting checkpoint `3d09d02bde188f6b6bcdf48f2598633865afb80b`; verify actual `git rev-parse HEAD` and status. Skills V2 remains `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`, branch `research/ctf-forensics-hvif-2026-10-29`, with untracked `....` preserved. Current dirty transport files `src/ctfd-transport.js` and `test/ctfd-transport.test.js` were present before this follow-up work and must not be reset or swept into challenge-solving commits.
+
+## This checkpoint
+
+- `onlythisprogram` follow-up resumed the verified original persistent thread `01a1af93-3af3-7200-803d-1be53c04672a` in the original workspace. Player-side cryptanalysis recovered/decrypted the artifacts and answer text. Luna did not emit a flag candidate. Controller tested 56 bounded representations against its isolated verifier; one matched. Independently verified follow-up, with controller-assisted normalization. Follow-up verification elapsed upper bound 2388.83s; cumulative upper bound including original 599.362s attempt is 2988.192s. The original benchmark remains unchanged and unsolved within budget.
+- `pcapin` follow-up resumed original thread `01a1afd2-903a-7953-929e-3e403a7e3264` in the original workspace. It derived the per-record XOR rule and reconstructed a 5569-byte PNG with all chunk CRCs/full DEFLATE valid. Two answer-text candidates were rejected. Run ended at 2128.261s after three consecutive stalls (not the 3600s wall limit); no verified flag. Original 599.259s time-bounded result is unchanged.
+- Both runs used Luna Medium, one persistent solver, actual isolation checks, networking disabled, and no retries/escalation. Both are exposed development follow-ups, not fresh evaluation. No skill update accepted.
+- Detailed safe summaries: `docs/reports/experiments/EXP-2026-11-06-ONLYTHISPROGRAM-FOLLOWUP-1/summary.json` and `docs/reports/experiments/EXP-2026-11-06-NYU-PCAPIN-FOLLOWUP-1/summary.json`. Append-only ledger has separate follow-up records.
+
+## Resume next
+
+1. Read current project state, these notes, research queue, latest report and appended ledger records. Verify Git status before edits.
+2. Run `npm test` using NVM Node/npm. Preserve unrelated dirty transport changes.
+3. Investigate PCAPIN image-text ambiguity using separate benign examples first; keep any work on this challenge explicitly development-only. Consider answer normalization as a methodology question, not a benchmark pass.
+4. Do not rerun either original attempt as a fresh benchmark. Do not inspect reference answers/writeups for solving. Skills V2 untracked `....` must remain untouched.
 # Current continuation checkpoint — 2026-11-06 (controller-only CTFd transport)
 
 CTF Racer branch `research/bootstrap-continuity-2026-10-28` contains pushed transport checkpoint `d80f93aa4bdf1ccf15dd9f1a6ff9de787dd7ca94` (confirm with `git rev-parse HEAD`). Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked file `....`. Do not merge to main.

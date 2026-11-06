@@ -1,3 +1,24 @@
+# Latest report — 2026-11-06 unsolved challenge continuation
+
+## Result
+
+Two previously time-bounded, exposed development challenges were continued from their actual recovered original Codex threads. The original benchmark records remain unchanged. Both continuations used Luna Medium, a single persistent solver, isolated player workspaces, network-disabled execution, no retries and no model escalation.
+
+- **onlythisprogram (Crypto):** independently verified after the solver recovered/decrypted the player-side answer text. Luna did not emit a candidate; the controller tested 56 bounded answer representations against its private digest and found one match. Follow-up verification time is an upper bound of 2388.83s; cumulative upper bound is 2988.192s. This is a controller-assisted development follow-up, not a fresh benchmark success.
+- **pcapin (Forensics):** no verified flag after 2128.261s and 20 continuation turns; terminated by three consecutive stalls, not by the 3600s budget. Recovered per-record XOR logic and a complete 5569-byte PNG, validated by all PNG chunk CRCs, successful full DEFLATE and `pngcheck`. Two proposed text candidates were rejected by the controller verifier. Final text reading remains the blocker.
+
+## Integrity, usage and validation
+
+Both original thread IDs were verified against local Codex history and saved workspace paths. Pre-run access probes denied source/cache/writeup/verifier paths while controller verification remained functional. Networking was disabled. `onlythisprogram` completed-turn usage: 15,718,468 input / 114,168 output / 79,650 reasoning tokens (one interrupted turn unavailable). `pcapin`: 133,906,305 input / 1,736,070 output / 1,274,843 reasoning tokens. No cost estimate is available. Full Racer suite passed 88/88; research status, ledger parsing and diff check passed.
+
+Detailed summaries and safe telemetry are under `docs/reports/experiments/EXP-2026-11-06-{ONLYTHISPROGRAM,NYU-PCAPIN}-FOLLOWUP-1/`. New append-only records are in `docs/EXPERIMENT_LEDGER.jsonl`. No Skills V2 change was justified.
+
+## Next priority
+
+Use independent benign low-resolution text images to test a deterministic transcription workflow, then apply any validated technique to the exposed PCAPIN development artifact. Preserve the raw PNG and avoid answer/writeup leakage. Separately assess whether controller-side normalization of a solver-recovered answer is reusable and safe. Select untouched material for future evaluations; neither follow-up counts as fresh evidence.
+
+---
+
 # Latest research report — 2026-11-06 (controller-only CTFd transport)
 
 ## Implementation
