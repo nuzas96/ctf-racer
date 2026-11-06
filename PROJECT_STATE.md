@@ -1,5 +1,18 @@
 # CTF Racer — Current Project State
 
+
+## Strategy priority — 2026-11-06: hard-challenge solving capability
+
+User decision: pause further CTF platform-adapter/transport expansion and prioritize solving **difficult, unfamiliar, authorized CTF challenges** using the existing agent. The aim is to improve independently verified Solve Rate first and Time To Flag second; token savings are not the priority. This is a research-priority change, **not** a claim that the current solver has improved.
+
+**Frozen baseline:** one persistent primary solver per challenge; `gpt-6-luna` / medium; `ctf-solve` and one category skill; controller-only verifier, reproducible workspace, artifact-provenance and sandbox preflights. Do not switch models, build swarms or merge development branches into main without specific evidence.
+
+**Observed evidence:** Four independently verified fresh development solves: Networking 1 (36.718s), deedeedee (221.78s), Tutorial (411.937s), and Return of the Wieners (572.671s). Additional valid bounded unsolved examples include STFU, Cloudb, onlythisprogram, and pcapin. The three-case observational checklist cohort was one solve and two unsolved; the focused hypothesis checklist was available but not opened, so causal benefit is untested. These different difficulty cases are not a general SR estimate.
+
+**Next research priority:** (1) Analyze existing difficult challenge trajectories and identify repeatable technical/reasoning bottlenecks without reading private answers; (2) design and test optional **Deep Solve Mode**, preserving the same solver thread, validated findings and scripts across continuation checkpoints, with a predeclared longer wall/resource budget, progress- and stall-aware review, and no default restart-from-zero; (3) retain existing fixed-budget **Benchmark Mode** unchanged for controlled comparisons; (4) evaluate one or more genuinely untouched, meaningfully difficult development challenges with isolated reference answers and independent verification. Measure actual TTF and outcome, and distinguish time-limited failure from infrastructure failure. Deep Solve Mode is **proposed, not yet implemented or validated**.
+
+**Paused:** further CTFd/rCTF adapter development, live API connections and auto-submission. Preserve the already tested CTFd mock/controller transport. Networked Web/Pwn experiments remain gated on appropriate solver network isolation; use offline material while unresolved. Do not retest exposed cases as fresh, leak flags into skills or bypass tool/network safeguards.
+
 Last grounded: 2026-11-06 (America/New_York). Historical benchmark evidence below retains its original dates.
 
 This file is the compact source-of-truth checkpoint for the current implementation state. Read it together with `ARCHITECTURE.md`, `benchmarks/suite.json`, and the latest master Google Doc section before proposing architecture changes.
