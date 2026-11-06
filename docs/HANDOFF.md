@@ -1,3 +1,15 @@
+# Active research directive — 2026-11-06: hard-challenge capability first
+
+The user has changed priorities: **temporarily pause further platform integration**. Work toward an autonomous CTF solver that succeeds on **hard and novel challenges**, rather than adding more infrastructure. Preserve the last verified platform code and documentation; it is completed offline baseline, not a live platform.
+
+Frozen initial solver: `gpt-6-luna`, medium reasoning, one persistent solver thread per challenge with `ctf-solve` plus one category skill. The next task is to study difficult bounded-unsolved trajectories (especially onlythisprogram / pcapin, plus STFU / Cloudb), then develop an evidence-based **Deep Solve Mode** with longer predeclared operational budget, persisted findings, progress/stall-aware continuation and no default fresh restart. Keep the current fixed-budget Benchmark Mode for fair comparisons. **Deep Solve Mode is not implemented yet.** More time is an opportunity, not proof of improved performance.
+
+Do not rerun previous exposed challenges as fresh or use their reference answers to tune skills. Select genuinely untouched, challenging, authorized offline development artifacts with strong provenance, independent controller verification and sandbox isolation. Run a meaningful solver evaluation once the needed small methodology/tool change is independently validated. Explicitly record success, verified TTF, interim evidence and unsolved-within-budget outcomes. A single run does not establish a causal or generalized Solve Rate improvement.
+
+Current development checkpoints still stand: CTF Racer `3d09d02bde188f6b6bcdf48f2598633865afb80b` (controller-only CTFd transport; 81/81 tests reported) and Skills V2 `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`. Verify the worktrees' actual HEADs before changes; preserve pre-existing untracked Skills V2 `....`. No merge to main. All CTFd network calls/submissions remain disabled pending separate explicit authorization. Networked solver challenges remain blocked by the lack of proven local-only egress.
+
+---
+ 
 # Current continuation checkpoint — 2026-11-06 (controller-only CTFd transport)
 
 CTF Racer branch `research/bootstrap-continuity-2026-10-28` contains pushed transport checkpoint `d80f93aa4bdf1ccf15dd9f1a6ff9de787dd7ca94` (confirm with `git rev-parse HEAD`). Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked file `....`. Do not merge to main.
