@@ -1,6 +1,6 @@
 # Current continuation checkpoint — 2026-11-06
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, prior pushed checkpoint `d60b1013cfd45d23108ace13ec0d84c24e10a923`; this session's evidence updates are pending commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, latest CTF Racer checkpoint `5728205` (full SHA is recorded by `git rev-parse HEAD` and pushed to origin). Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
 
 ## Completed in this continuation
 

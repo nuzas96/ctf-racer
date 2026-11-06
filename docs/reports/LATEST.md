@@ -1,5 +1,7 @@
 # Current research report — 2026-11-06
 
+CTF Racer checkpoint `5728205` is committed and pushed to the existing development branch. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its pre-existing untracked `....` is preserved.
+
 ## Cohort continuation: Crypto case
 
 NYU CTF Bench development Crypto `onlythisprogram` was untouched locally before the run and was pre-registered in `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3`. Source commit: `4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9`, GPL-2.0. The player tarball (679,376 bytes) matched SHA-256 `014c32fe360e962cd08727051a7ff61a7a0f23d638478871f2dfdcbe18539058` and pinned Git blob `feb1ed71463251a177d6de9d0597693440a7fa8d`. The private controller verifier remained separate.
