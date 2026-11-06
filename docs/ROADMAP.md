@@ -2,6 +2,12 @@
 
 This roadmap tracks gates, not promises. Update it when evidence changes priorities.
 
+## Current gate status — 2026-11-06
+
+- The pre-registered observational evidence-ranking cohort is 2/3 executed: `deedeedee` verified at 221.78s; `onlythisprogram` unsolved at its planned 600s wall limit. Neither case demonstrates causal checklist improvement; the focused checklist was available but not opened in either trajectory.
+- The planned `Watchword` case was withdrawn before solver start after answer-bearing source guidance appeared in the orchestration audit. Select and preregister an untouched Forensics replacement.
+- Live CTF platform/API integration and networked local-service evaluation remain gated on technically enforced host-scoped egress and controller-only credential handling. Offline/mock adapter work is eligible.
+
 ## Completed / verified
 
 - Frozen autonomous-first execution policy and independent controller verification.

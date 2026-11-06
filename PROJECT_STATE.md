@@ -1,10 +1,19 @@
 # CTF Racer — Current Project State
 
-Last grounded: 2026-10-29 (America/New_York). Historical benchmark evidence below is dated 2026-10-01.
+Last grounded: 2026-11-06 (America/New_York). Historical benchmark evidence below retains its original dates.
 
 This file is the compact source-of-truth checkpoint for the current implementation state. Read it together with `ARCHITECTURE.md`, `benchmarks/suite.json`, and the latest master Google Doc section before proposing architecture changes.
 
 For session continuation, also read `docs/HANDOFF.md` and `docs/reports/LATEST.md`. Research milestones, open questions, decisions, and append-only experiment evidence live in their respective files under `docs/`; do not duplicate the ledger here.
+
+## Current checkpoint — 2026-11-06
+
+- CTF Racer branch `research/bootstrap-continuity-2026-10-28` currently contains this session's validated, uncommitted records; the final pushed SHA is recorded in the handoff. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on its development branch; preserve its pre-existing untracked `....`.
+- The observational hypothesis cohort now has two executed cases: Reverse `deedeedee` solved/verified in 221.78s; Crypto `onlythisprogram` reached the planned 600s cap after four rounds, no candidate and no TTF. Raw runner state: `environment_interrupted / wall_timeout`; for the preregistered wall-bounded metric classify as unsolved within budget, not an infrastructure defect. Safe summary: `docs/reports/experiments/EXP-2026-11-06-NYU-ONLYTHISPROGRAM-COHORT-2/summary.json`.
+- `onlythisprogram` artifact and pinned Git blob verified; actual sandbox denied 16 cache/source/writeup/secret/verifier paths by direct, symlink, and hardlink probes. Controller reads remained available; network was disabled. Installed `ctf-solve`, `ctf-crypto` and triage-reference hashes matched canonical Skills V2 before run.
+- Checklist A (available) is confirmed, B (used) is not demonstrated: `ctf-solve/references/triage-routing.md` was not opened. The solver opened `ctf-crypto/stream-ciphers.md` at about 43s. C (causal effect) remains untested. First meaningful artifact experiment was about 38s; first explicit repeated-XOR hypothesis was recorded about 57s.
+- The preregistered Forensics case `Watchword` was withdrawn before solver start after answer-bearing source guidance appeared during audit. It was not attempted; select a fresh replacement before completing the cohort.
+- Live CTF platform integration is not ready: current Codex egress offers disabled networking or broad networking, not a host-scoped allowlist. Offline/local parser and mock adapter work can proceed; live platform/API use and networked service solving must wait for restricted egress and controller-only credential handling.
 
 ## Current checkpoint — 2026-10-29
 
@@ -14,7 +23,7 @@ For session continuation, also read `docs/HANDOFF.md` and `docs/reports/LATEST.m
 - The three-case observational development cohort is preregistered across Reverse, Crypto and Forensics. Reverse is complete; next are offline Crypto `onlythisprogram`, then Forensics `Watchword`. In this first run the hypothesis checklist was available before analysis, but its focused reference was not opened. Availability is confirmed; checklist adherence and causal effect are not.
 - Two benign local Pwn runtime fixtures passed across ELF32/i386 and ELF64/x86-64. This validated runtime provenance and rejection of an incompatible cross-ABI libc offset, not exploitation or solve-rate improvement. Canonical `ctf-pwn` received a focused runtime provenance gate.
 - A separate failure in `ctf-reverse` readiness tooling (`/var/tmp` is read-only in the solver sandbox) was fixed by using the platform-selected temporary directory and validated on the existing benign ELF32 fixture both locally and inside the actual Codex sandbox. No Ghidra startup test was run.
-- Current validation rerun: CTF Racer 61/61; Skills V2 strict validator 14 skills / 230 Markdown / 0 errors / 0 warnings, routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing, and `git diff --check` passed.
+- Current validation rerun: CTF Racer 61/61 passed on Node v24.18.0 with NVM npm 11.17.0; Skills V2 source was unchanged and its existing validation remains 14 skills / 230 Markdown / 0 errors / 0 warnings, routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing, and `git diff --check` passed.
 
 ## Locked execution architecture
 
@@ -76,7 +85,7 @@ Reverse:
 
 ## Next benchmark expansion
 
-The older CSAW TrustDinOIDC and Diamond Dogs service candidates remain inactive until the solver can reach a local service without broad host networking. The current preregistered offline cohort is `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3`: Reverse `deedeedee` (completed), Crypto `onlythisprogram` (next), and Forensics `Watchword` (third). Keep all as development material; this observational cohort cannot establish causal checklist gains.
+The older CSAW TrustDinOIDC and Diamond Dogs service candidates remain inactive until the solver can reach a local service without broad host networking. The pre-registered offline cohort `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3` now has Reverse `deedeedee` completed and Crypto `onlythisprogram` attempted unsolved within its wall budget. Forensics `Watchword` was withdrawn before solver start after answer-bearing source guidance surfaced during audit; select an untouched replacement before continuing. The cohort is observational and cannot establish causal checklist gains.
 
 ## Current implementation boundary
 

@@ -1,3 +1,31 @@
+# Current research report — 2026-11-06
+
+## Cohort continuation: Crypto case
+
+NYU CTF Bench development Crypto `onlythisprogram` was untouched locally before the run and was pre-registered in `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3`. Source commit: `4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9`, GPL-2.0. The player tarball (679,376 bytes) matched SHA-256 `014c32fe360e962cd08727051a7ff61a7a0f23d638478871f2dfdcbe18539058` and pinned Git blob `feb1ed71463251a177d6de9d0597693440a7fa8d`. The private controller verifier remained separate.
+
+Before the model call, the actual bundled Codex sandbox denied 16 cache/source/writeup/secret/verifier paths by direct, symlink and hardlink probes; controller reads remained available. Network-disabled namespace checks passed. Installed/canonical Skills V2 file hashes matched at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`.
+
+Conditions: GPT-6 Luna Medium, one persistent solver, `ctf-solve + ctf-crypto`, four rounds, one attempt, no retry/escalation, network off, 600s wall cap. The runner stopped at **599.362s** after four rounds with raw terminal state `environment_interrupted / wall_timeout`. There was no verifier candidate, no verified flag, and no TTF. Because this was the pre-registered time budget, classify its time-bounded outcome as **unsolved within budget**, not an infrastructure defect. Completed-turn usage: 1,921,337 input (1,764,480 cached), 13,943 output and 4,898 reasoning tokens; fourth-turn usage was unavailable after cancellation; cost unavailable.
+
+The first meaningful artifact experiment was about 38s after launch; the explicit 256-byte repeating-XOR hypothesis was recorded about 57s. That construction was supported by the supplied source and output. Per-column English-frequency scoring yielded no coherent plaintext; an apparent aligned cross-file relation and expected binary headers were investigated but not confirmed. Later rounds focused on increasingly specific binary structure without a verified answer. This is one unsolved development observation, not evidence of lower general solve rate or an infrastructure fault. No reusable skill/controller change was accepted.
+
+## Checklist evidence and remaining cohort
+
+Availability (A) was confirmed: installed `ctf-solve`, `ctf-crypto`, and the focused triage-reference files matched canonical hashes before the run. Actual references loaded: `ctf-crypto/stream-ciphers.md` at about 43s. The evidence-ranking reference `ctf-solve/references/triage-routing.md` was **not opened**, and explicit checklist use was not demonstrated (B). Causal effect (C) remains untested. Cohort outcome is 2/3 executed: `deedeedee` solved/verified in 221.78s; `onlythisprogram` unsolved within its budget.
+
+The preregistered Forensics `Watchword` case was not run. Answer-bearing source guidance surfaced in the orchestration session during the local cache audit, so it is withdrawn from the untouched cohort; no solver attempt occurred. A fresh Forensics replacement must be selected and preregistered.
+
+## Platform integration readiness
+
+Live platform/API integration is **not ready** under current egress controls: Codex network is disabled or broad, with no host-scoped allowlist. Offline parsing and mock adapter development can proceed. Before live use, require enforced platform-host egress, controller-only credential custody with solver denial, TLS and redirect validation, artifact hash/provenance checks, and explicit no-submit-by-default behavior. Do not enable networked service challenges under prompt-only restrictions.
+
+## Validation and continuation
+
+CTF Racer tests rerun: 61/61 passed on Node v24.18.0 with NVM npm 11.17.0. `research:status`, ledger JSONL parsing, and `git diff --check` passed. Safe summary: `docs/reports/experiments/EXP-2026-11-06-NYU-ONLYTHISPROGRAM-COHORT-2/summary.json`. Exact continuation point and next measurable tasks are in `docs/HANDOFF.md`.
+
+---
+
 # Current research report — 2026-10-29
 
 ## Architecture and checkpoint
@@ -40,9 +68,9 @@ The reverse readiness helper hit read-only `/var/tmp` while preparing checksec s
 - Skills V2 commits pushed on the existing research branch: `8fc26d9` (Pwn runtime provenance), `d1ecf9d` (primary source links), and `fe88a1a` (writable temp root). The pre-existing untracked `....` remains untouched.
 - CTF Racer network probe, experiment evidence and checkpoint updates are committed and pushed at `63158bd`; no main branch changes.
 
-## Next priority
+## Prior next-priority note — superseded 2026-11-06
 
-Run the pre-registered offline Crypto case `onlythisprogram` through CTF Racer with the same Luna Medium, single-primary, network-disabled policy; record first named-hypothesis test, checklist-reference load time, and whether evidence-ranking behavior is actually observed. Follow it with the pre-registered Forensics `Watchword` case. Keep the Pwn service challenge gate open until local-only egress can be enforced without changing host-global networking.
+The Crypto case `onlythisprogram` was attempted as described above and ended unsolved at its planned wall budget. `Watchword` was withdrawn before solver start after answer-bearing guidance surfaced during audit; preregister a fresh untouched Forensics replacement. Keep the Pwn service challenge gate open until local-only egress can be enforced without changing host-global networking.
 
 Safe experiment record: `docs/reports/experiments/EXP-2026-10-29-NYU-DEEDEEDDEE-HYPOTHESIS-COHORT-1/summary.json`. The ledger is append-only; historical experiment evidence has not been rewritten.
 

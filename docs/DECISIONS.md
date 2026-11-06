@@ -96,3 +96,10 @@
 - **Decision:** Readiness tools that create small isolated config homes must use the platform-selected writable temp directory instead of hardcoding `/var/tmp`.
 - **Evidence:** The fresh `deedeedee` trajectory observed a read-only `/var/tmp` failure in `reverse_readiness.py`. After correction, all five benign ELF32 readiness tests passed both locally and in the actual Codex sandbox, including the checksec status assertion.
 - **Consequence:** Canonical Skills V2 `ctf-reverse` helper uses `tempfile` default selection; Ghidra startup itself remains unvalidated.
+
+
+## D-016 — Keep platform networking out of the solver until egress and credentials are scoped
+
+- **Decision:** Permit offline parsing and mock adapter work, but do not enable a live platform connector or networked solver until platform-host egress is technically allowlisted and credentials remain controller-only.
+- **Evidence:** The actual Codex sandbox supports network-disabled execution, which cannot reach runner-host loopback, or broader network-enabled execution. It has no target-host allowlist. No live platform call was made.
+- **Consequence:** Validate API contracts offline first. Before live use, test host/redirect restrictions, TLS, credential denial in solver and child processes, artifact integrity, and no-submit-by-default behavior.

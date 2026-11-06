@@ -1,21 +1,23 @@
-# Current continuation checkpoint — 2026-10-29
+# Current continuation checkpoint — 2026-11-06
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, checkpoint `8773c046a1c170b7cb283eefef73b3b13346f0df`, pushed to origin. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, prior pushed checkpoint `d60b1013cfd45d23108ace13ec0d84c24e10a923`; this session's evidence updates are pending commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. No main branch was changed.
 
-## Verified current results
+## Completed in this continuation
 
-- Codex network permission is not host-scoped. In the actual bundled solver sandbox, network-disabled mode separates the network namespace from the host, child processes inherit it, only loopback is present, route tables contain no external path, and a controlled runner-host loopback listener is unreachable. This cannot support local challenge services while preserving model transport. Do not run network-enabled service challenges under a prompt-only localhost restriction; no host firewall was changed. Use offline challenges unless a technically enforced local-only path is demonstrated.
-- Two benign local Pwn runtime fixtures (ELF32/i386 and ELF64/x86-64) validated ABI/interpreter/runtime inspection and rejection of a cross-ABI libc offset. They shared glibc 2.42 and did not test exploitation. Skills V2 `ctf-pwn` now has a short runtime provenance gate, pushed in `8fc26d9` and source references in `d1ecf9d`.
-- Fresh NYU development Reverse `deedeedee`, pre-registered in cohort `COHORT-2026-10-29-EVIDENCE-RANKING-OBSERVATIONAL-3`, solved independently in one Luna Medium round at 221.78s. One primary, `ctf-solve + ctf-reverse`, max four rounds/600s, no retry/escalation, network disabled. Safe summary: `docs/reports/experiments/EXP-2026-10-29-NYU-DEEDEEDDEE-HYPOTHESIS-COHORT-1/summary.json`. No flag is recorded in tracked files.
-- Checklist exposure: A, available and hash-matched before solving, yes. B, use, not demonstrated: focused `triage-routing.md` was not opened and no explicit competing-hypothesis notes appeared. C, causal performance effect, untested. The run had one well-supported path, corrected a D array/key assumption, and forward-checked 499 layers; do not claim checklist benefit.
-- The other two pre-registered cohort cases are Crypto `onlythisprogram`, then Forensics `Watchword`. They remain untouched and must be revalidated for integrity/isolation before their own runs. This three-case observational cohort cannot alone establish causality.
-- Reverse readiness helper's hardcoded `/var/tmp` temp-home failure was fixed in Skills V2 `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; five tests pass locally and in the actual sandbox.
+- `onlythisprogram` was locally untouched before this attempt: no prior run state/workspace existed. The pinned archive artifact SHA-256 and Git blob matched. One actual Codex sandbox probe denied 16 source, writeup, secret, and verifier paths through direct, symlink, and hardlink access while controller reads remained possible. Network was disabled.
+- One Luna Medium primary ran via `ctf-solve + ctf-crypto`, four rounds, no retry/escalation, 600s wall bound. It completed no answer; raw runner state is `environment_interrupted / wall_timeout` at 599.362s. For the preregistered time-bounded metric this is **unsolved within declared budget**, not an infrastructure failure. There is no verified flag or TTF. Safe summary: `docs/reports/experiments/EXP-2026-11-06-NYU-ONLYTHISPROGRAM-COHORT-2/summary.json`.
+- It identified a source-supported 256-byte repeating XOR construction at about 57s; first meaningful artifact experiment was about 38s. English-frequency scoring did not yield coherent plaintext. An aligned cross-file relation was interesting but incomplete and consumed later rounds. No reusable tool or skill change is supported by this single result.
+- Canonical and installed `ctf-solve`, `ctf-crypto` and `ctf-solve/references/triage-routing.md` hashes matched before execution. `ctf-crypto/stream-ciphers.md` was opened at about 43s. The evidence-ranking checklist was available, but not opened or explicitly used. A is confirmed, B not demonstrated, C untested.
+- Do not run `Watchword`: preflight archive search surfaced answer-bearing source guidance in the orchestration session. The solver was never launched on it. Treat it as exposed and select a fresh untouched Forensics replacement before completing the observational cohort.
 
-## Validation and exact next action
+## Next actions and platform readiness
 
-CTF Racer full suite: 61/61 passed with NVM Node 24.19.0/npm 11.17.0, including actual-sandbox loopback denial. Verified changes are committed and pushed at CTF Racer `63158bd` on the existing development branch. Skills V2 strict validator: 14 skills / 230 Markdown / 0 errors / 0 warnings; routing 50/50 plus 5/5 edge cases. `research:status`, ledger JSONL parsing and `git diff --check` passed. Experiment evidence is append-only; the current ledger has preregistration, fixture provenance, result, and correction records.
+1. Run CTF Racer and ledger/report validations, commit and push the current evidence updates.
+2. Select and preregister a replacement untouched Forensics development case without opening writeups/reference solutions; verify artifact hash, verifier custody and actual sandbox isolation.
+3. Complete the third observational cohort case; record checklist loading/use separately. The cohort cannot establish causal checklist benefit.
+4. **Platform integration:** not ready for live API or networked challenge execution. The Codex runtime supports network off or broad network on, not local/host-scoped egress. Start with an offline/mock adapter if desired. Before live integration, require a technically enforced platform-host allowlist, controller-only credential storage, solver credential denial, TLS/redirect checks, artifact integrity, and explicit no-submit default. Re-probe actual solver isolation after environment/policy changes.
 
-Next: commit and push the reviewed Racer changes, then pre-register and run the untouched offline Crypto case `onlythisprogram` under Luna Medium with the same isolation and verifier preflights. Capture whether the focused checklist reference actually loads, first useful test time, hypotheses/evidence/disconfirmation, and independent answer verification. Do not tune on `deedeedee`; continue treating it as development/regression material. After that, run `Watchword` only after fresh provenance and isolation checks.
+CTF Racer tests rerun: 61/61 passed on Node v24.18.0 with NVM npm 11.17.0. `research:status`, JSONL parsing, and `git diff --check` passed. Continue one Luna Medium solver and network-disabled offline artifacts. Do not rerun `deedeedee`, `onlythisprogram`, or other exposed cases as fresh evaluations.
 
 ---
 
