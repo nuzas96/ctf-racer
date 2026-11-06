@@ -4,9 +4,9 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 
 ## Current gate status — 2026-11-06
 
-- Offline CTFd mock adapter is implemented and pushed in `3ce81565806f752a428e52bed81e47da3626e79b`; its deterministic suite passed 70/70. It reuses normalized intake, watch/race plumbing and independent verification, with no live transport, credentials or submission.
+- Offline CTFd mock adapter is implemented and pushed in `3ce81565806f752a428e52bed81e47da3626e79b`; it reuses normalized intake, watch/race plumbing and independent verification.
 - The observational hypothesis cohort completed with Reverse `deedeedee` verified at 221.78s; Crypto `onlythisprogram` unsolved within its 600s wall budget; Forensics `pcapin` unsolved at 599.259s/600s. `Watchword` was withdrawn before solver start. Checklist availability was confirmed, but the focused triage checklist was not opened in any of these runs. No causal improvement claim is supported.
-- Live platform connection remains gated. Preserve network-disabled solvers; research a controller-only narrow transport and test host allowlist, TLS/DNS, redirect, body/time, credential and submission controls against local mocks before authorized instance access.
+- Controller-only transport is implemented in `src/ctfd-transport.js`; local TLS transport/isolation suites pass 11/11 and 16/16, and the full suite passes 81/81. Exact-origin/IP pinning and TLS/redirect/size/time checks apply to this client; they are not kernel-enforced controller egress. The solver remains network-disabled. No live credentials or platform calls were used. Next gates: validate target-specific schemas offline, then require explicit authorization and an approved read-only smoke test before any real connection.
 
 ## Completed / verified
 
@@ -26,9 +26,9 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 
 ## Next milestones
 
-1. **Validate a controller-only CTFd transport boundary** — implement only after deterministic mock-server tests specify host allowlist, TLS/DNS and redirect policy, request/download time and size limits, private credentials, and solver network denial. Keep live submission disabled.
-2. **Validate target-specific CTFd schemas offline** — pin the authorized instance/API version and sanitized challenge/file response fixtures before any real connection.
-3. **Continue category-diverse evaluation only on untouched cases** — cohort cases are now development-exposed; preregister new material and retain Luna Medium with one primary solver. No causal checklist claim until a matched/ablation design exists.
+1. **Pin an authorized target contract offline** — capture CTFd version/OpenAPI schemas and sanitized pagination, attachment, authentication, and attempt-verdict fixtures. No live endpoint before explicit authorization.
+2. **Prepare a read-only live gate** — only after authorization, target URL/version, secret provider, exact hostname/IP/TLS review, bounded attachment handling, and a clear separation from disabled solver networking. Obtain separate operator approval before actual flag submissions.
+3. **Continue fresh CTF capability evaluation separately** — all current cohort cases are development-exposed; use only newly preregistered material.
 
 ## Dependencies
 

@@ -1,25 +1,30 @@
-# Current continuation checkpoint — 2026-11-06 (offline CTFd plus completed Forensics replacement)
+# Current continuation checkpoint — 2026-11-06 (controller-only CTFd transport)
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28` includes pushed adapter commit `3ce81565806f752a428e52bed81e47da3626e79b`; this Forensics experiment record set is the current checkpoint (use `git rev-parse HEAD` for the exact commit). Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`. Preserve the pre-existing untracked Skills V2 file `....`. Do not merge either branch into main.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28` starts this milestone at `8985a77b36c71633668870aa08c6b56ef8e97640`; transport source/tests/docs are in the current worktree and should be committed after final validation. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked file `....`. Do not merge to main.
 
-## Current verified state
+## Current changes
 
-- Offline CTFd mock adapter is committed and pushed. It reuses existing intake, the one-primary race scheduler and independent verifier. It contains no HTTP/socket transport, credentials, or live-submit implementation. Mock submission is opt-in and defaults off. Full Racer tests passed 70/70 after this checkpoint's documentation updates.
-- The observational three-challenge cohort now has all evaluation slots resolved: `deedeedee` verified at 221.78s; `onlythisprogram` unsolved within 600s; Forensics replacement `pcapin` unsolved at 599.259s at the declared 600s cap. `Watchword` was withdrawn before solver execution and was not attempted. Do not reuse `pcapin` or the other cohort cases as fresh evaluation.
-- `pcapin` was run once through the standard Luna Medium pipeline, one persistent primary, `ctf-solve + ctf-forensics`, 4-round max, network disabled. Actual verifier-isolation and artifact checks passed. No answer candidate was produced; raw runner terminal status is `environment_interrupted / wall_timeout`, correctly scored as unsolved within its preregistered wall budget, not infrastructure failure. Token usage unavailable after cancellation; TTF not applicable. Safe record: `docs/reports/experiments/EXP-2026-11-06-NYU-PCAPIN-COHORT-3/summary.json`.
-- The `triage-routing.md` checklist was available and synchronized before the run but was not opened. The focused `ctf-forensics/references/network-pcap.md` was opened at ~35s. First meaningful PCAP test ~44s; named framing/XOR hypothesis ~57s. Global-key PNG hypothesis was rejected after CRC/DEFLATE failure; subsequent per-record seed/mask investigation did not recover a validated payload. Cohort is observational and cannot establish a causal checklist benefit.
-- CTFd is **not ready for a live connection**. No API requests or actual flag submissions were made. Safest future design keeps credentials and network transport controller-only and gives the solver artifact-only, network-disabled input. Before live use, implement a narrowly scoped controller transport with hostname/TLS/DNS and redirect enforcement, bounded responses/downloads, target-instance schema tests, provenance/hash validation, rate-limited idempotent submit behavior, and explicit operator activation. Keep live submission off until separately approved.
+- Added `src/ctfd-transport.js`, a controller-only HTTPS client and orchestration wrapper around the existing `ctfd-mock` adapter, normalized intake, race scheduler and independent verifier.
+- Client restricts its own requests to one configured HTTPS origin and exact operator-provided IP addresses. It resolves per request, rejects any DNS answer outside the set, pins the selected address into the socket lookup, preserves hostname SNI/certificate checks, rejects redirects, and applies timeout/body/item/snapshot limits.
+- Challenge list, per-challenge files, and attachment downloads flow to the existing offline adapter. It rejects multi-page listings and unknown response schemas. Candidate POSTs require explicit client-level and cycle-level opt-ins, and occur only after independent verifier acceptance.
+- Submission journal is a mode-0600 direct child of `runs/_ctfd-controller`; an exclusive lock protects concurrent local clients. Only candidate SHA-256, status and timestamps persist. Duplicate candidates, active submissions, uncertain network outcomes, attempt-limit and rate-limit paths are handled without automatic resubmission.
+- `src/race.js` strips CTFd-prefixed environment variables from the solver CLI child. `src/verifier-isolation.js` denies/probes `runs/_ctfd-controller` along with verifier material. Do not claim this means controller egress is kernel-enforced: policy is application-level in this client. The solver remains network-disabled.
+- Official CTFd API/authentication references and current source semantics are documented in `docs/CTFD_CONTROLLER_TRANSPORT.md`. Current CTFd API source is `master`, not a pinned target contract. No live instance or credential was used.
+
+## Validation completed
+
+- Focused test command: `node --test test/ctfd-transport.test.js test/verifier-isolation.test.js` — 16/16 passed. Transport-only run after sandbox-integrated fixture — 11/11 passed.
+- Coverage: local TLS mock challenge/file reads, download hashes, update/stale behavior, existing scheduler, candidate verifier gate, accepted/rejected/duplicate/rate-limited outcomes, timeout uncertainty and duplicate suppression, DNS drift/IP binding, TLS trust/hostname failure, redirects, response limits, pagination fail-closed, solver env filtering, private path placement, and actual Codex sandbox denial of controller/verifier canaries and loopback connection.
+- Full suite: `/home/nuzhmi/.nvm/versions/node/v24.19.0/bin/npm test` — 81/81 passed, 0 failed (3.70s). `npm run research:status`, ledger JSONL parse, and `git diff --check` passed before final ledger append; rerun them after documentation updates.
 
 ## Exact next steps
 
-1. Run `npm test`, ledger JSONL parse, `npm run research:status`, `git diff --check`, and repository-state checks; record results.
-2. Commit and push the Forensics experiment checkpoint to the existing CTF Racer branch only. Keep Skills V2 unchanged and preserve `....`.
-3. For platform work, design and test a controller-only CTFd transport boundary against a local mock server (host allowlist, DNS/redirect/TLS policy, size/time bounds, solver network denial) before considering any authorized instance. Do not attach real credentials or enable live submission.
-4. If further solving evaluation is desired, preregister a new untouched challenge outside this completed cohort; do not claim the observational runs establish causal performance gains.
+1. Rerun repository checks after final ledger/report edits, then commit and push verified changes to `research/bootstrap-continuity-2026-10-28` only. Keep Skills V2 unchanged and preserve `....`.
+2. Before any authorized connection, obtain explicit automation authorization, target URL/version/OpenAPI and auth details, controller secret provider, exact host/IP/TLS review, approved read-only smoke test, and separately approved flag submissions. Keep solver networking off; network-dependent challenge targets require a separate policy boundary.
 
-## Live platform readiness
+## Platform readiness
 
-Not ready. The offline adapter validates local fixtures, not network policy. The unresolved host-specific Codex network restriction should not be bypassed by giving the solver broad egress; a controller-owned narrow API client is the candidate direction. Real integration additionally requires authorized instance/version and API schema evidence, private credential custody, artifact retrieval policy, independent verifier custody, duplicate/stale update behavior, submission idempotency/rate limits, and explicit operator enablement.
+Prepared for further offline/mock development. **Not ready for a real CTFd connection.** The transport limits its own network requests but does not provide kernel-enforced controller egress. CTFd pagination beyond one page is deliberately rejected. Path-prefixed base URLs and untested file/attempt schema variants are unsupported until fixtures validate them. Local submission journaling cannot deduplicate activity from other machines or external clients.
 
 # Historical checkpoints
 

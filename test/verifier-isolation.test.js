@@ -17,12 +17,13 @@ test("verifier isolation config requires normalized absolute deny paths", () => 
   assert.match(verifierIsolationConfigOverrides(["/tmp/secret"], { allowChallengeNetwork: true })[1], /network=\{enabled=true\}/);
 });
 
-test("default verifier denies challenge sources, private answers, auth and controller research cache", () => {
+test("default verifier denies challenge sources, verifier material, auth, controller state and research cache", () => {
   const projectRoot = path.join(os.tmpdir(), "example-project");
   fs.mkdirSync(path.join(projectRoot, "runs", "_research-cache"), { recursive: true });
   const paths = verifierReadPaths({ projectRoot, sourceDir: path.join(projectRoot, "local-challenges", "case"), codexHome: "/home/tester/.codex" });
   assert.ok(paths.includes(path.join(projectRoot, "local-challenges")));
   assert.ok(paths.includes(path.join(projectRoot, "runs", "_verifiers")));
+  assert.ok(paths.includes(path.join(projectRoot, "runs", "_ctfd-controller")));
   assert.ok(!paths.includes(path.join(projectRoot, "local-challenges", "case")));
   assert.ok(paths.includes("/home/tester/.codex/auth.json"));
   assert.ok(paths.includes(path.join(projectRoot, "runs", "_research-cache")));
@@ -72,6 +73,10 @@ test("Codex sandbox denies verifier canary and confirms network-disabled tools c
     fs.mkdirSync(archiveDir);
     const archiveReadme = path.join(archiveDir, "README.md");
     fs.writeFileSync(archiveReadme, "flag{test-only-answer}\n", { mode: 0o600 });
+    const ctfdPrivateDir = path.join(projectRoot, "runs", "_ctfd-controller");
+    fs.mkdirSync(ctfdPrivateDir, { recursive: true, mode: 0o700 });
+    const ctfdJournal = path.join(ctfdPrivateDir, "controller-canary.json");
+    fs.writeFileSync(ctfdJournal, '{"controller_only":"offline-canary"}\n', { mode: 0o600 });
     const deniedPaths = [
       ...verifierReadPaths({ projectRoot, sourceDir, codexHome, additionalPaths: [archiveDir] }),
       path.join(codexHome, "auth.json"),
@@ -103,11 +108,11 @@ test("Codex sandbox denies verifier canary and confirms network-disabled tools c
     assert.equal(result.network_isolation.ipv4_route_count, 0);
     assert.equal(result.network_isolation.ipv6_nonloopback_route_count, 0);
     assert.equal(result.network_isolation.runner_loopback_connect, "denied");
-    assert.deepEqual(result.probe_file_access, {
-      0: { direct_denied: true, symlink_denied: true, hardlink_denied: true },
-      1: { direct_denied: true, symlink_denied: true, hardlink_denied: true },
-      2: { direct_denied: true, symlink_denied: true, hardlink_denied: true },
-    });
+    const controllerIndex = verifierProbeFiles({ projectRoot, sourceDir, codexHome, additionalFiles: [archiveReadme] }).indexOf(ctfdJournal);
+    assert.ok(controllerIndex >= 0);
+    assert.equal(result.probe_file_access[controllerIndex].direct_denied, true);
+    assert.equal(result.probe_file_access[controllerIndex].symlink_denied, true);
+    assert.equal(result.probe_file_access[controllerIndex].hardlink_denied, true);
     assert.equal(result.canary_link_count, 1);
   } finally {
     await new Promise((resolve) => localService.close(resolve));

@@ -1,3 +1,43 @@
+# Latest research report — 2026-11-06 (controller-only CTFd transport)
+
+## Implementation
+
+Added `src/ctfd-transport.js` as a controller-owned client and workflow wrapper around the existing CTFd snapshot adapter, normalized intake, race scheduler, and independent verifier. It retrieves challenge metadata and per-challenge attachment metadata, downloads bytes, validates file hashes through the existing adapter, detects current/stale snapshots there, and submits only candidates independently verified in controller memory.
+
+Transport policy for this client:
+
+- One configured HTTPS origin and fixed API route allowlist.
+- Per-request DNS resolution; all answers must be in the configured exact IP set, and the chosen address is pinned into the HTTPS socket lookup. HTTP Host and TLS SNI/hostname verification still use the configured hostname.
+- TLS verification remains enabled; redirects are rejected. Request/DNS/snapshot time and JSON, per-file, aggregate artifact, item-count and submit-body sizes are bounded.
+- Secret-safe generic errors; token held in a private controller object field and used only in the Authorization header. No request logging.
+- Submission false by default and needs two opt-ins. The existing independent verifier gates every candidate. A mode-0600 journal under `runs/_ctfd-controller` plus an exclusive local lock suppresses duplicate submissions and uncertain-result retries after a crash; only candidate hashes/status/timestamps persist. Per-challenge attempt/rate limits apply; transport never retries automatically.
+- `src/race.js` removes CTFd-prefixed environment variables from solver child environments. The existing Codex permission profile now denies/probes `runs/_ctfd-controller` with verifier material.
+
+The normal single-primary Luna architecture and model policy are unchanged.
+
+## API contract and limitations
+
+The client follows documented CTFd API v1 routes for challenge list, per-challenge files, and attempt POST. It supports the documented `{success,data}` form, string attempt statuses, and legacy boolean plugin verdicts seen in current CTFd source. It fails closed on multi-page challenge lists and unknown response shapes. Path-prefixed origins and untested target-specific schemas are unsupported. Source research and version caveats are in [`docs/CTFD_CONTROLLER_TRANSPORT.md`](../CTFD_CONTROLLER_TRANSPORT.md); official sources: [CTFd API reference](https://docs.ctfd.io/docs/api/redoc/), [token guide](https://docs.ctfd.io/docs/api/getting-started/), [CTFd challenge API source](https://github.com/CTFd/CTFd/blob/master/CTFd/api/v1/challenges.py).
+
+The client applies application-level restrictions to its own sockets. It does **not** enforce kernel- or process-wide controller egress. Solver networking remains disabled. Local journal locking cannot deduplicate submissions from other machines or separate journals. No real API credential, real platform request, Luna call or live flag submission was used.
+
+## Deterministic validation
+
+A local TLS fixture tests challenge/file discovery, attachment transfer/integrity, snapshot update/stale handling, existing scheduler and verifier integration, accepted/rejected/duplicate/rate-limited submissions, disabled-by-default behavior, uncertain timeout recovery without resend, DNS drift and IP pinning, TLS hostname/trust failures, redirect denial, response caps, pagination fail-closed, environment credential filtering, and private journal constraints. The fixture invokes an actual Codex sandbox isolation probe with controller/verifier canaries while the local HTTPS listener is active. The deterministic solver fixture is a child process; no model was called.
+
+Focused results: transport test `11/11`; transport plus verifier-isolation tests `16/16`. The full CTF Racer suite passed `81/81` (0 failures, 3.70 seconds). `npm run research:status`, JSONL ledger parsing, and `git diff --check` passed. The validation record is appended to `docs/EXPERIMENT_LEDGER.jsonl`.
+
+## Remaining live-connection gate
+
+1. Explicit platform authorization and written automation rules.
+2. Exact platform URL, CTFd version/OpenAPI schema, authentication mechanism and expected attachment/attempt response shapes.
+3. Dedicated controller-only secret provider and reviewed host/IP/TLS policy.
+4. Approved read-only discovery smoke test and bounded artifact download/provenance validation.
+5. Separate operator approval before any actual attempt POST; submission stays disabled by default.
+6. Separate controls for network-dependent target solving; do not broaden solver networking to reach CTFd.
+
+---
+
 # Latest research report — 2026-11-06 (offline CTFd and Forensics cohort)
 
 ## Current outcomes

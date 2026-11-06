@@ -184,7 +184,7 @@ Relevant policy fields:
 
 Round-level diagnostics are written into `state.json`.
 
-Current next gate: add validated Web + Pwn/service benchmark coverage before repeated-run robustness testing or any multi-agent/concurrency change. Broader preflight modules, CTFd intake, and dashboarding remain future work.
+Current platform gate: a controller-only CTFd transport is being tested against local TLS fixtures. The existing Luna solver stays network-disabled; no live platform request or submission is configured. See `docs/CTFD_CONTROLLER_TRANSPORT.md` for remaining authorization and target-schema requirements.
 
 
 ## Inspect an existing run without calling the model
@@ -425,7 +425,7 @@ Generated manifests are stored under:
 runs/_intake/intake-<name>-<timestamp>.json
 ```
 
-This keeps platform-specific watchers thin: CTFd, custom APIs, or manual downloads only need to materialize normalized challenge directories. The solver/race core remains platform-agnostic. An offline-only CTFd-shaped adapter and end-to-end deterministic mock are documented in [`docs/CTFD_OFFLINE_ADAPTER.md`](docs/CTFD_OFFLINE_ADAPTER.md); it makes no platform requests and cannot submit real flags.
+This keeps platform-specific watchers thin: adapters materialize normalized challenge directories while the solver/race core remains platform-agnostic. The offline CTFd snapshot adapter and deterministic mock are documented in [`docs/CTFD_OFFLINE_ADAPTER.md`](docs/CTFD_OFFLINE_ADAPTER.md). The separate controller-owned CTFd HTTPS client is documented in [`docs/CTFD_CONTROLLER_TRANSPORT.md`](docs/CTFD_CONTROLLER_TRANSPORT.md); it has only been used with local TLS fixtures and is not configured for a real platform.
 
 ### Zero-token race status
 
@@ -480,4 +480,4 @@ Default polling is controlled by:
 }
 ```
 
-The watcher is platform-neutral. A future CTFd/custom-platform adapter should only download/materialize normalized challenge directories into the watched root.
+The watcher is platform-neutral. The CTFd controller transport can fetch and validate normalized challenge inputs for the existing intake path; it does not pass credentials or platform transport to solver processes. Other platform adapters should follow the same boundary.

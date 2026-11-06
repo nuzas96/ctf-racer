@@ -1,6 +1,6 @@
 # Offline CTFd adapter (mock-only)
 
-Status: local snapshot materialization and mocked submission are implemented. No CTFd HTTP client, credential reader, or live submission path exists.
+Status: the offline snapshot adapter remains network-free. A separate controller-owned HTTPS transport is implemented and tested only against loopback TLS fixtures; no real platform request, credential, or live submission has been used. See [`CTFD_CONTROLLER_TRANSPORT.md`](CTFD_CONTROLLER_TRANSPORT.md).
 
 ## Existing components reused
 
@@ -20,18 +20,18 @@ Metrics reported separately: intake, queue, injected solver, independent verific
 
 ## Current CTFd API mapping and evidence
 
-The official CTFd API reference documents challenge-list `GET /api/v1/challenges`, challenge-file `GET /api/v1/challenges/{challenge_id}/files`, and challenge-attempt `POST /api/v1/challenges/attempt` endpoints. Challenge list fields include ID, name, description, category, type, state and `solved_by_me`; the documented response is wrapped in `success` and `data`. The official API getting-started guide says API requests use an access token in `Authorization: Token ...`. This adapter intentionally does not implement those requests or accept credentials. See the [official CTFd API reference](https://docs.ctfd.io/docs/api/redoc/) and [API access guide](https://docs.ctfd.io/docs/api/getting-started/).
+The official CTFd API reference documents challenge-list `GET /api/v1/challenges`, challenge-file `GET /api/v1/challenges/{challenge_id}/files`, and challenge-attempt `POST /api/v1/challenges/attempt` endpoints. Challenge list fields include ID, name, description, category, type, state and `solved_by_me`; the documented response is wrapped in `success` and `data`. The official API getting-started guide says API requests use an access token in `Authorization: Token ...`. This module remains fixture-only; `src/ctfd-transport.js` implements those request semantics in a separate controller-owned layer described in [`CTFD_CONTROLLER_TRANSPORT.md`](CTFD_CONTROLLER_TRANSPORT.md). See the [official CTFd API reference](https://docs.ctfd.io/docs/api/redoc/) and [API access guide](https://docs.ctfd.io/docs/api/getting-started/).
 
-The challenge attempt operation is represented only by an in-process simulation. Current public API documentation and CTFd instances may differ by version/plugins; before any real adapter is designed, capture the authorized instance's version/OpenAPI shape and confirm attachment metadata/response formats. Never point this mock module at a live origin.
+The challenge attempt operation in this module is still represented only by an in-process simulation. The separate transport refuses unknown response schemas and is not configured for any platform. Current CTFd instances may differ by version/plugins; before live use, capture the authorized instance's version/OpenAPI shape and confirm attachment metadata, pagination, signed URL, and verdict formats. Never point this mock module at a live origin.
 
 ## Security boundary and live-integration blockers
 
 - The adapter makes no HTTP/socket calls. URL checks are preflight validation only, not proof of DNS, TLS, proxy, redirect, or egress enforcement.
 - No real API credentials or flags are included in fixtures/tests. Input response keys commonly used for secrets/answers are rejected, and the normalized challenge deliberately excludes private data.
 - Attachment URLs must resolve to HTTPS on the configured origin under `/files/`; redirect validation requires the same HTTPS origin. These functions are unit-checked, but no redirect is followed.
-- No host-scoped solver network boundary is available in the current Codex runtime. Do not enable broad solver networking to reach a CTF platform.
-- Before authorized live integration: enforce a platform-host egress allowlist at the transport/runtime boundary, keep credentials in a controller-only secret store, prove solver/child-process denial, validate real platform and attachment schemas, enforce response-size/time limits and redirect policy, implement idempotent/rate-limited submission with explicit operator enablement, and test cleanup/recovery. Keep real submission disabled by default.
+- The transport applies an exact configured HTTPS-origin and resolved-IP allowlist to its own requests, but this is application-level enforcement. It does not restrict all networking from the controller process or alter host egress policy. The solver remains network-disabled; do not enable broad solver networking to reach a CTF platform.
+- Before authorized live integration: record authorization and platform automation rules, pin the target version/schema, provide controller-only credentials, complete an approved read-only smoke test, validate actual attachment integrity/limits, and obtain separate approval before actual flag submission. Network-dependent challenge solving remains a separate boundary. Keep real submission disabled by default.
 
 ## Deterministic validation
 
-Run `npm test`; `test/ctfd-mock.test.js` covers URL/redirect denial, category mapping, attachment integrity, new/unchanged/updated/stale/solved detection, independent verification, default-disabled submission, mock acceptance/rejection, deduplication, and separate timing fields. The end-to-end test uses the actual intake and race modules with a deterministic injected solver, not a model call.
+Run `npm test`; `test/ctfd-mock.test.js` covers local snapshot intake and simulated submission. `test/ctfd-transport.test.js` covers the controller HTTPS client and loopback end-to-end path. Both use deterministic solver fixtures and make no model calls.

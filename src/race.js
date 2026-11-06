@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
 import { loadPolicy } from "./config.js";
 import { precheckSuite } from "./suite.js";
+import { solverEnvironment } from "./solver-env.js";
 
 function safeId(value) {
   return String(value ?? "challenge").replace(/[^a-zA-Z0-9._-]/g, "-");
@@ -96,7 +97,7 @@ export async function spawnSolve({ projectRoot, sourceDir, challenge, attempt })
   const exitCode = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliPath, "solve", sourceDir], {
       cwd: projectRoot,
-      env: process.env,
+      env: solverEnvironment(process.env),
       stdio: ["ignore", "pipe", "pipe"],
     });
 

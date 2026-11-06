@@ -23,6 +23,7 @@ export function verifierReadPaths({ projectRoot, codexHome = process.env.CODEX_H
   const paths = [
     path.resolve(projectRoot, "local-challenges"),
     path.resolve(projectRoot, "runs", "_verifiers"),
+    path.resolve(projectRoot, "runs", "_ctfd-controller"),
     path.resolve(codexHome, "auth.json"),
     ...validateAbsolutePaths(additionalPaths, "additional verifier deny paths"),
   ];
@@ -33,16 +34,14 @@ export function verifierReadPaths({ projectRoot, codexHome = process.env.CODEX_H
   return [...new Set(paths.map((item) => path.resolve(item)))].sort();
 }
 
-export function verifierProbeFiles({ projectRoot, sourceDir, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), additionalFiles = [] }) {
+export function verifierProbeFiles({ projectRoot, sourceDir, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), verifierRoot = path.join(projectRoot, "runs", "_verifiers"), additionalFiles = [] }) {
   const files = [path.resolve(sourceDir, "challenge.json"), ...validateAbsolutePaths(additionalFiles, "additional verifier probe files")];
   const authPath = path.resolve(codexHome, "auth.json");
   if (fs.existsSync(authPath)) files.push(authPath);
-  const privateRoot = path.resolve(projectRoot, "runs", "_verifiers");
-  fs.mkdirSync(privateRoot, { recursive: true, mode: 0o700 });
-  const rootStat = fs.lstatSync(privateRoot);
-  if (!rootStat.isDirectory() || rootStat.isSymbolicLink() || rootStat.uid !== process.getuid() || (rootStat.mode & 0o077) !== 0) {
-    throw new Error("controller verifier directory must be owned by the controller and mode 0700 or stricter");
-  }
+  const privateRoots = [...new Set([
+    path.resolve(verifierRoot),
+    path.resolve(projectRoot, "runs", "_ctfd-controller"),
+  ])];
   const visit = (directory) => {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const full = path.join(directory, entry.name);
@@ -53,13 +52,20 @@ export function verifierProbeFiles({ projectRoot, sourceDir, codexHome = process
         visit(full);
       }
       else if (entry.isFile()) {
-        if (stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0 || stat.nlink !== 1) throw new Error(`unsafe verifier file custody: ${full}`);
+        if (stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0 || stat.nlink !== 1) throw new Error(`unsafe controller-private file custody: ${full}`);
         files.push(full);
       }
       else throw new Error(`non-regular entry found in controller verifier directory: ${full}`);
     }
   };
-  visit(privateRoot);
+  for (const privateRoot of privateRoots) {
+    fs.mkdirSync(privateRoot, { recursive: true, mode: 0o700 });
+    const rootStat = fs.lstatSync(privateRoot);
+    if (!rootStat.isDirectory() || rootStat.isSymbolicLink() || rootStat.uid !== process.getuid() || (rootStat.mode & 0o077) !== 0) {
+      throw new Error("controller-private directory must be owned by the controller and mode 0700 or stricter");
+    }
+    visit(privateRoot);
+  }
   return [...new Set(files)].sort();
 }
 
