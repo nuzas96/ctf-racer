@@ -1,6 +1,6 @@
 # Current continuation checkpoint — 2026-11-06 (controller-only CTFd transport)
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28` starts this milestone at `8985a77b36c71633668870aa08c6b56ef8e97640`; transport source/tests/docs are in the current worktree and should be committed after final validation. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked file `....`. Do not merge to main.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28` contains pushed transport checkpoint `d80f93aa4bdf1ccf15dd9f1a6ff9de787dd7ca94` (confirm with `git rev-parse HEAD`). Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked file `....`. Do not merge to main.
 
 ## Current changes
 
@@ -19,7 +19,7 @@ CTF Racer branch `research/bootstrap-continuity-2026-10-28` starts this mileston
 
 ## Exact next steps
 
-1. Rerun repository checks after final ledger/report edits, then commit and push verified changes to `research/bootstrap-continuity-2026-10-28` only. Keep Skills V2 unchanged and preserve `....`.
+1. The transport milestone is committed and pushed. For follow-up work, check both Git worktrees, read this handoff and the latest report, then confirm the authorized target's CTFd API/version schema offline.
 2. Before any authorized connection, obtain explicit automation authorization, target URL/version/OpenAPI and auth details, controller secret provider, exact host/IP/TLS review, approved read-only smoke test, and separately approved flag submissions. Keep solver networking off; network-dependent challenge targets require a separate policy boundary.
 
 ## Platform readiness

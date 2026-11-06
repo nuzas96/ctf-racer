@@ -8,7 +8,7 @@ For session continuation, also read `docs/HANDOFF.md` and `docs/reports/LATEST.m
 
 ## Current checkpoint — 2026-11-06
 
-- CTF Racer branch `research/bootstrap-continuity-2026-10-28` resumes at `8985a77b36c71633668870aa08c6b56ef8e97640` with controller-only CTFd transport work in the current worktree. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. This milestone does not change Skills V2.
+- CTF Racer branch `research/bootstrap-continuity-2026-10-28` now contains controller-only CTFd transport commit `d80f93aa4bdf1ccf15dd9f1a6ff9de787dd7ca94`, pushed to origin. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; preserve its pre-existing untracked `....`. This milestone does not change Skills V2.
 - Offline CTFd snapshot adapter `src/ctfd-mock.js` remains network-free and reuses existing normalized intake, single-primary race scheduling and independent verifier. Prior baseline after that milestone: 70/70 tests.
 - New `src/ctfd-transport.js` is controller-owned. It uses a configured HTTPS origin, explicit exact-IP resolution allowlist and per-request pinned connection, default TLS chain/hostname verification, fixed CTFd routes, redirect denial, request/snapshot/response/artifact bounds, and sanitized snapshots passed into the existing adapter. It has no CLI or live-platform configuration.
 - Submissions remain disabled by default and require explicit client and cycle opt-ins; only independently verified candidates are sent. A mode-0600 journal and cross-instance lock record candidate hashes/status/timestamps (never raw candidate/token), suppress duplicate and uncertain retries, and apply attempt/rate bounds. No automatic request retry exists.
