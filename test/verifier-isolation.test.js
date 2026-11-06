@@ -17,13 +17,14 @@ test("verifier isolation config requires normalized absolute deny paths", () => 
   assert.match(verifierIsolationConfigOverrides(["/tmp/secret"], { allowChallengeNetwork: true })[1], /network=\{enabled=true\}/);
 });
 
-test("default verifier denies challenge sources, verifier material, auth, controller state and research cache", () => {
+test("default verifier denies challenge sources, verifier material, auth, controller state, research cache, and controller docs", () => {
   const projectRoot = path.join(os.tmpdir(), "example-project");
   fs.mkdirSync(path.join(projectRoot, "runs", "_research-cache"), { recursive: true });
   const paths = verifierReadPaths({ projectRoot, sourceDir: path.join(projectRoot, "local-challenges", "case"), codexHome: "/home/tester/.codex" });
   assert.ok(paths.includes(path.join(projectRoot, "local-challenges")));
   assert.ok(paths.includes(path.join(projectRoot, "runs", "_verifiers")));
   assert.ok(paths.includes(path.join(projectRoot, "runs", "_ctfd-controller")));
+  assert.ok(paths.includes(path.join(projectRoot, "docs")));
   assert.ok(!paths.includes(path.join(projectRoot, "local-challenges", "case")));
   assert.ok(paths.includes("/home/tester/.codex/auth.json"));
   assert.ok(paths.includes(path.join(projectRoot, "runs", "_research-cache")));
@@ -69,6 +70,10 @@ test("Codex sandbox denies verifier canary and confirms network-disabled tools c
     fs.mkdirSync(codexHome, { recursive: true });
     fs.writeFileSync(path.join(sourceDir, "challenge.json"), '{"flag_sha256":"test-only"}\n', { mode: 0o600 });
     fs.writeFileSync(path.join(codexHome, "auth.json"), '{"test":"credential-canary"}\n', { mode: 0o600 });
+    const docsDir = path.join(projectRoot, "docs");
+    fs.mkdirSync(path.join(docsDir, "reports"), { recursive: true });
+    fs.writeFileSync(path.join(docsDir, "EXPERIMENT_LEDGER.jsonl"), '{"verifier_digest":"ledger-canary"}\n', { mode: 0o600 });
+    fs.writeFileSync(path.join(docsDir, "reports", "LATEST.md"), "controller report canary\n", { mode: 0o600 });
     const archiveDir = path.join(root, "archive");
     fs.mkdirSync(archiveDir);
     const archiveReadme = path.join(archiveDir, "README.md");
@@ -101,6 +106,15 @@ test("Codex sandbox denies verifier canary and confirms network-disabled tools c
     });
     assert.equal(result.controller_verification, true);
     assert.equal(result.controller_access_to_probe_files, true);
+    const docsProbeIndexes = verifierProbeFiles({ projectRoot, sourceDir, codexHome, additionalFiles: [archiveReadme] })
+      .map((file, index) => ({ file, index }))
+      .filter(({ file }) => file.startsWith(docsDir + path.sep));
+    assert.equal(docsProbeIndexes.length, 2);
+    for (const { index } of docsProbeIndexes) {
+      assert.equal(result.probe_file_access[index].direct_denied, true);
+      assert.equal(result.probe_file_access[index].symlink_denied, true);
+      assert.equal(result.probe_file_access[index].hardlink_denied, true);
+    }
     assert.equal(result.network_isolation.passed, true, JSON.stringify(result.network_isolation));
     assert.equal(result.network_isolation.separate_from_host, true);
     assert.equal(result.network_isolation.child_inherits_solver_namespace, true);

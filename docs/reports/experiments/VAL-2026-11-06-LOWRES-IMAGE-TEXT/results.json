@@ -1,0 +1,326 @@
+[
+  {
+    "example": "sample_a",
+    "channel": "gray",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "gray",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "gray",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: Rid kite",
+    "exact": false
+  },
+  {
+    "example": "sample_a",
+    "channel": "r",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "r",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "r",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: Rid kite",
+    "exact": false
+  },
+  {
+    "example": "sample_a",
+    "channel": "g",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "g",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "g",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: Rid kite",
+    "exact": false
+  },
+  {
+    "example": "sample_a",
+    "channel": "b",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "b",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: R7d_kite",
+    "exact": true
+  },
+  {
+    "example": "sample_a",
+    "channel": "b",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: R7d_kite",
+    "recognized": "Serial: Rid kite",
+    "exact": false
+  },
+  {
+    "example": "sample_b",
+    "channel": "gray",
+    "scale": "native",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "gray",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "gray",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_?2",
+    "exact": false
+  },
+  {
+    "example": "sample_b",
+    "channel": "r",
+    "scale": "native",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "r",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "r",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_?2",
+    "exact": false
+  },
+  {
+    "example": "sample_b",
+    "channel": "g",
+    "scale": "native",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "g",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "g",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_?2",
+    "exact": false
+  },
+  {
+    "example": "sample_b",
+    "channel": "b",
+    "scale": "native",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "b",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_92",
+    "exact": true
+  },
+  {
+    "example": "sample_b",
+    "channel": "b",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "burst=amber_92",
+    "recognized": "burst=amber_?2",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "gray",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "gray",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "gray",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "r",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "r",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "r",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "g",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "g",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "g",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "b",
+    "scale": "native",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "b",
+    "scale": "lanczos4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  },
+  {
+    "example": "ambiguity_control",
+    "channel": "b",
+    "scale": "nearest4",
+    "psm": 7,
+    "expected": "Serial: O0l1-58",
+    "recognized": "Serial: 0011-58",
+    "exact": false
+  }
+]

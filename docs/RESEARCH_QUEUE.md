@@ -188,6 +188,14 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 
 ## 2026-11-06 follow-up priorities
 
-1. **PCAPIN final answer interpretation (development only):** complete PNG reconstruction is independently integrity-validated, but two image-text candidates failed the private verifier. Investigate typography, exact symbols, scaling/interpolation and likely challenge answer conventions without reading writeups or verifier metadata. Use separate benign reference images and preserve the raw PNG. Do not count this exposed case as fresh evaluation.
-2. **Answer normalization boundary:** onlythisprogram was accepted after controller-side testing of 56 bounded representations of solver-recovered answer text. Assess whether this is a general safe output-parsing improvement; keep verifier custody/controller role explicit and avoid generic brute-force wrappers. Validate independently before changing canonical skills or controller.
+1. **PCAPIN follow-up 2 complete:** original persistent thread resumed; native pixel map and repeated glyph-mask comparison yielded a candidate accepted by the independent verifier. The crop helper is challenge-specific and not promoted. This is exposed development evidence, not fresh SR data.
+2. **Answer normalization decision:** onlythisprogram was accepted after controller-side testing of 56 bounded representations of solver-recovered answer text. Do not automate verifier-guided representation enumeration; require player-side/public-format support for exact output.
 3. After development work, select a genuinely untouched challenge for future evaluation; these two follow-ups are not fresh benchmark observations.
+
+
+## 2026-11-06 current next-evaluation plan
+
+- Selected pending preparation gates: NYU CTF Bench development/2014/CSAW-Finals/rev/odd, pinned binary SHA-256 95ce8fd187706d779b2449c4cc13ec69012d2bf39ff772fdd0fec1e6eb83df75, source commit 4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9. No run exists. The binary presents malformed ELF32 metadata; difficulty is not inferred from points. Isolate challenge metadata/test-solver material, prepare private verifier, verify sandbox access denial, then preregister before Luna execution.
+- Candidate audit contamination: withdraw Rock, Sleeping_Guard, Broken_Box, and wyvern from untouched evaluation; details in append-only AUDIT-2026-11-06-CHALLENGE-CANDIDATE-CUSTODY.
+- OCR skill improvement accepted only as candidate-generation/uncertainty handling, validated on 2 positive benign fixtures and 1 negative control. Pixel-mask transcription needs separate cross-image tests before reuse.
+- Before any further solver run, retain the docs-denial preflight: actual sandbox denial of ledger/report files is demonstrated on this host, with same-UID limitations stated. Correction is recorded as `ISO-2026-11-06-CONTROLLER-DOCS-DENIAL`.

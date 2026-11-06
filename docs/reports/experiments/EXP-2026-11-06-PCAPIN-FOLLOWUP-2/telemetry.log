@@ -1,0 +1,2 @@
+{"at":"2026-11-06T11:58:30.051Z","turn":1,"event":"turn.started"}
+{"at":"2026-11-06T12:06:48.363Z","turn":1,"event":"turn.completed","usage":{"input_tokens":13710571,"cached_input_tokens":13132288,"cache_write_input_tokens":0,"output_tokens":148012,"reasoning_output_tokens":108345}}

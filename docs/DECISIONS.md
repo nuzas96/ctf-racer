@@ -110,3 +110,23 @@
 - **Evidence:** `src/ctfd-transport.js` pins each connection to an explicitly configured DNS address allowlist, preserves TLS hostname verification, rejects redirects and unrecognized API schemas, bounds requests/responses/downloads, and uses a private journal with cross-instance locking and duplicate suppression. Local TLS tests exercise challenge and attachment reads, scheduler/verifier handoff, accepted/rejected/rate-limited results, timeout uncertainty and duplicate recovery. The actual Codex sandbox probe denies controller journal/verifier canaries and cannot reach the local mock listener. Solver child environment filtering removes CTFd-prefixed variables.
 - **Limit:** Application-level restrictions apply to sockets opened by this client only. They do not enforce process-wide or kernel egress policy for the controller. CTFd has no idempotency key on the attempt endpoint, so local journaling cannot prevent duplicates from another host or independent state store. No real instance or credential was used; target-version pagination/attachment/verdict schemas remain to be tested.
 - **Consequence:** Before an authorized live connection, require explicit event authorization, target URL/version/schema, controller secret provider, approved read-only smoke test, and separate operator approval for actual flag submission. Keep challenge solver networking disabled; networked challenge targets need their own boundary.
+
+
+## D-018 — Treat low-resolution OCR as candidate generation, not transcription truth
+
+- **Decision:** For short raster text, preserve the original and compare native grayscale and color channels with moderate Lanczos enlargements. Keep multiple OCR readings and resolve disagreement from pixel/context evidence; do not vote or normalize by expected flag syntax.
+- **Evidence:** Two independent benign low-resolution examples yielded exact OCR with native grayscale and 4x Lanczos; a confusable O/0 and l/1 control failed all tested variants. On pcapin, those validated variants remained inconsistent; a solver-side native pixel map and repeated glyph mask comparison then supported the emitted candidate accepted by the independent verifier.
+- **Limit:** OCR tested on only two positive fixtures. The pcapin pixel crop helper hardcodes dimensions and regions and is not reusable evidence. No Solve Rate or TTF improvement is claimed.
+- **Consequence:** Canonical forensics reference updated narrowly; no generic OCR decoder or candidate-format engine added.
+
+## D-019 — Keep controller-assisted answer normalization out of the solver
+
+- **Decision:** Do not add automatic enumeration of answer wrappers/format variants based on verifier responses.
+- **Evidence:** onlythisprogram's plaintext answer was recovered in the player artifact but Luna did not emit a candidate; controller checked 56 bounded representations and found one digest match. This is a retrospective development result and does not establish a generally justified transform.
+- **Consequence:** Require exact candidate construction from player evidence and public format instructions. Controller verifier remains final confirmation, not a search oracle.
+
+## D-020 — Deny controller research documents to solver processes
+
+- **Decision:** Include the project `docs/` tree in the solver sandbox deny policy and automatically probe the experiment ledger and latest report. Controller reports can contain verifier digests, private outcome metadata, or other information unnecessary to challenge analysis.
+- **Evidence:** A zero-token probe after the pcapin solver completed could read its report through the actual Codex sandbox. The report was written after that solver turn; no evidence shows the digest was available during the completed run. After the policy change, direct/symlink/hardlink reads of that report were denied, controller access worked, and network-disabled isolation remained valid. Regression tests cover report and ledger probes.
+- **Limit:** This is the host-specific Codex permission-profile boundary using the same UID, not a separate UID/container guarantee. Continue proving actual path denial before each solver execution.

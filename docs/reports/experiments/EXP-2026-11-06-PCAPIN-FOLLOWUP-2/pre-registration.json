@@ -1,0 +1,38 @@
+{
+  "experiment_id": "EXP-2026-11-06-PCAPIN-FOLLOWUP-2",
+  "classification": "exposed development follow-up; not a fresh benchmark",
+  "challenge": {
+    "id": "nyu-dev-2015-pcapin-cohort-3",
+    "name": "pcapin",
+    "category": "forensics",
+    "source_commit": "4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9",
+    "artifact_sha256": "869dd78ea6b263d9c864351b9f92bfa954c46fef91fe51a1febb6ab9f4501a41"
+  },
+  "solver": {
+    "policy": "resume original persistent thread if possible; otherwise new continuation using only saved player-side workspace",
+    "thread_id": "01a1afd2-903a-7953-929e-3e403a7e3264",
+    "model": "gpt-6-luna",
+    "reasoning_effort": "medium",
+    "primary_solvers": 1,
+    "max_additional_wall_seconds": 900,
+    "max_additional_turns": 8,
+    "automatic_retries": 0,
+    "model_escalation": false,
+    "network_enabled": false,
+    "verifier_feedback_policy": "candidate is independently checked only after solver emits it; no digest/hash/partial match feedback"
+  },
+  "validated_method_transfer": {
+    "benign_validation_report": "docs/reports/experiments/VAL-2026-11-06-LOWRES-IMAGE-TEXT/summary.md",
+    "method": "preserve source; compare grayscale and RGB channels at native size and moderate 4x Lanczos; Tesseract single-line OCR; retain disagreements",
+    "transfer_outcome_before_solver": "24 bounded pcapin OCR outputs disagree; no exact transcription or flag inferred"
+  },
+  "gates": {
+    "artifact_hash_rechecked": true,
+    "actual_codex_sandbox_verifier_probe_required_before_resume": true,
+    "network_disabled_and_child_namespace_probe_required": true,
+    "controller_verifier_readable_only_by_controller": true,
+    "candidate_raw_not_persisted_in_controller_report": true
+  },
+  "stop_rules": ["900-second deadline", "8 continuation turns", "three consecutive no-progress stalls", "low-storage threshold"],
+  "status": "PRE_REGISTERED"
+}

@@ -1,3 +1,34 @@
+# Latest report — 2026-11-06 pcapin continuation and raster-text validation
+
+## Post-run verifier-isolation correction
+
+A zero-token actual-sandbox audit after the pcapin solver had ended found the project `docs/` tree readable. The follow-up report now contains a candidate digest, but it was generated after solver completion; there is no evidence the value was available during that run. To protect future solver runs, `verifierReadPaths()` now denies project `docs/`, and the probe automatically checks `docs/EXPERIMENT_LEDGER.jsonl` and `docs/reports/LATEST.md`. A retest used the pcapin summary as an explicit probe and passed direct, symlink, and hardlink denial; controller reads passed and network-disabled namespace checks remained satisfied. Deterministic regression test also exercises the ledger and latest-report canaries. This is same-UID, host-specific Codex permission-profile isolation, not separate-UID/container isolation. See ledger correction `ISO-2026-11-06-CONTROLLER-DOCS-DENIAL`.
+
+## Outcomes
+
+- **pcapin follow-up 2:** resumed the verified original persistent thread 01a1afd2-903a-7953-929e-3e403a7e3264 in its saved player workspace. The exact artifact hash and actual Codex sandbox denial probe passed; networking remained disabled. In one Luna Medium continuation turn, the solver used native-resolution pixel inspection and repeated glyph-mask comparison to produce a candidate that the controller-only SHA-256 verifier independently accepted. Follow-up TTF was **505.904s**. Active solver time including the original 599.259s run and first 2128.261s follow-up is **3233.426s**. The old benchmark and follow-up 1 entries remain unchanged; this is exposed development evidence, not a fresh benchmark or generalization claim. Raw candidate/response is not stored in the report. Usage: 13,710,571 input (13,132,288 cached), 148,012 output, 108,345 reasoning; cost unavailable.
+- **onlythisprogram review:** previous continuation recovered answer text from the decrypted player artifact, but Luna did not emit a final candidate. Controller-side checking of 56 bounded representations found one digest match. This documents the answer-format bottleneck; it does not justify automating verifier-guided candidate enumeration. No raw answer is repeated here.
+
+## Low-resolution image-text validation
+
+Two independently generated benign raster samples were processed by 36 bounded Tesseract 5.5.0 runs (grayscale/R/G/B; native, 4x Lanczos and 4x nearest; PSM 7). Grayscale native and 4x Lanczos produced exact text for both samples. A confusable O/0 and l/1 negative control had **0/12** exact readings. Nearest-neighbor and threshold variants were unreliable. The same method on pcapin produced competing readings; it did not alone yield the solution.
+
+**Accepted Skills V2 change:** three concise lines in ctf-forensics/references/ascii-art-text-recovery.md describe preserving the original, comparing native grayscale/channel and moderate Lanczos OCR, and retaining ambiguity rather than voting among OCR outputs. Commit b8008de2ad3bc2a2757f84dea752b758a5a35f7b; installed reference hash matches. Skills validators: 0 errors/warnings; routing 50/50 and 5/5 edge cases. The successful pcapin pixel-map helper has fixed dimensions and crop constants, remains in the challenge workspace, and was **not** promoted as reusable.
+
+## Integrity note and next selection
+
+A candidate-inventory helper parsed metadata for three unrelated benchmark candidates whose JSON files contain answer fields, though it printed only keys/types and did not use values. A test-solver data blob for another candidate was read only to establish size/hash/type. Those four candidates are withdrawn from untouched evaluation. This does not affect pcapin, whose reference material remained isolated.
+
+Next challenge selected, pending artifact-list and verifier preparation gates: NYU CTF Bench 2014 CSAW Finals Reverse **odd**, source commit 4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9, player binary SHA-256 95ce8fd187706d779b2449c4cc13ec69012d2bf39ff772fdd0fec1e6eb83df75 (153 bytes). It is offline and its pinned ELF32/i386 bytes have invalid byte-order/section-header metadata, a concrete byte-level reverse-engineering task. The challenge README, notes, JSON and test solver were not opened. No prior ledger run or run directory was found. Preregister and prove isolation before Luna execution.
+
+## Validation and branch state
+
+- Benign OCR fixture script rerun reproduced both positive results (8/12 exact variants each) and the ambiguity control (0/12). After the docs-denial change, focused isolation tests passed 5/5; actual sandbox re-probe passed direct/symlink/hardlink denial; full Racer suite passed 88/88. After the corrective ledger and validation appends: `npm run research:status` passed, all 89 ledger lines parsed as JSON, and staged/unstaged `git diff --check` passed.
+- Skills V2 branch pushed at b8008de2ad3bc2a2757f84dea752b758a5a35f7b; pre-existing untracked .... preserved.
+- CTF Racer source/test modifications in src/ctfd-transport.js and test/ctfd-transport.test.js remain unrelated and untouched.
+
+---
+
 # Latest report — 2026-11-06 unsolved challenge continuation
 
 ## Result

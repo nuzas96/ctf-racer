@@ -11,6 +11,8 @@ This roadmap tracks gates, not promises. Update it when evidence changes priorit
 3. **Design Deep Solve Mode:** allow more time for demanding work with explicit up-front wall/resource limits, in-thread continuation, periodic evidence checkpoints and safe interruption/resumption. Avoid automatic from-scratch retries. Maintain fixed-budget Benchmark Mode for comparable results. Deep Solve Mode is **not implemented** at this checkpoint.
 4. **Prove capability on fresh challenge(s):** preregister new, challenging offline artifacts, independently check hash/provenance and solver/verifier separation, then measure verified outcome, TTF, time to first useful test and hypothesis changes. No solve-rate gain claim without independent comparative evidence.
 
+**Latest follow-up:** pcapin later solved and independently verified from the recovered image in a second continuation (505.904s), but remains exposed development material. Next selected preparation target is NYU 2014 CSAW Finals Reverse odd (153-byte malformed ELF32); no solver run until verifier isolation passes.
+
 The current networking limitation remains: the Codex solver cannot reach host-loopback services with enforced local-only egress. Do not enable broad solver network access or real CTF platform submission as part of this priority shift. Do not switch to Sol, swarms, or redesign the controller without evidence.
 
 

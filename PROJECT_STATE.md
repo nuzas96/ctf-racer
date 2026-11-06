@@ -1,3 +1,30 @@
+# Project state — 2026-11-06 pcapin follow-up 2
+
+## 2026-11-06 verifier-documentation isolation correction
+
+After the pcapin continuation completed, an actual Codex sandbox probe found that project `docs/` was readable. The newly written follow-up report includes a verifier candidate digest; the probe established this report was readable after the solver had ended, so there is no evidence it was exposed during the run. The runner now denies the whole project `docs/` tree, and default probes include the experiment ledger and latest report. A zero-token retest against the actual pcapin report passed direct, symlink and hardlink denial while controller reads remained available; same-UID Codex permission-profile limitations are unchanged. Regression tests cover ledger/latest-report canaries. See `ISO-2026-11-06-CONTROLLER-DOCS-DENIAL` in the append-only ledger.
+
+Reviewed follow-up validation: CTF Racer 88/88 tests passed; the benign OCR script reproduced both positive results (8/12 exact variants each) and the ambiguity control (0/12). Actual docs-denial sandbox probe passed. Preserve unrelated dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js` edits; do not stage them. Skills V2 is pushed at `b8008de2ad3bc2a2757f84dea752b758a5a35f7b`; preserve `....`.
+
+**Next action:** complete the offline `odd` Reverse candidate gates stated below only after final docs-denial tests and review. `odd` remains selected, not preregistered or attempted. Withdraw Rock, Sleeping_Guard, Broken_Box and wyvern per the existing custody audit.
+
+## Current state
+
+CTF Racer remains on research/bootstrap-continuity-2026-10-28; starting checkpoint 892c903c28da153f87b3956c59a84c38cdedb24a (verify HEAD on resume). Skills V2 is now pushed at b8008de2ad3bc2a2757f84dea752b758a5a35f7b on research/ctf-forensics-hvif-2026-10-29; preserve its untracked .... . Unrelated dirty Racer files src/ctfd-transport.js and test/ctfd-transport.test.js remain untouched.
+
+- Luna Medium, one primary, network-disabled policy is unchanged.
+- pcapin follow-up 2 resumed original thread 01a1afd2-903a-7953-929e-3e403a7e3264; verifier/artifact sandbox gates passed; independently verified in 505.904s. Active cumulative solve time across original and both follow-ups is 3233.426s. This exposed development continuation does not change the original 599.259s unsolved benchmark entry and is not fresh generalization evidence.
+- onlythisprogram remains a separately verified exposed follow-up: decrypted player evidence yielded answer text; controller tested 56 bounded representations because Luna did not emit a candidate. Do not create an automated verifier-guided normalization mechanism.
+- Small-image OCR method validated on two benign examples and one ambiguity negative control. Canonical ctf-forensics/references/ascii-art-text-recovery.md now gives a limited native/grayscale/channel/Lanczos workflow with explicit non-oracle caveats. The pcapin pixel-map/crop helper remains challenge-specific.
+- Next selected challenge: NYU CTF Bench 2014 CSAW Finals Reverse odd, pinned source commit 4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9, 153-byte player binary SHA-256 95ce8fd187706d779b2449c4cc13ec69012d2bf39ff772fdd0fec1e6eb83df75. It appears to require byte-level recovery of malformed ELF32 metadata. It is selected but not yet pre-registered/prepared or attempted.
+- Candidate audit note: Rock, Sleeping_Guard, Broken_Box, and wyvern are withdrawn from untouched evaluations after limited controller-side metadata/test-solver file inspection; see ledger audit note. No source answer values were output or used.
+
+## Exact next action
+
+Prepare odd from the pinned Git blob without touching the dirty archive checkout: inspect only player-facing README/artifact list as needed, isolate all source answer/test-solver material, derive a controller-only verifier, verify artifact integrity and actual sandbox denial, then pre-register one Luna Medium run. If the artifact cannot be prepared without exposing reference material, choose a different untouched offline challenge.
+
+---
+
 # Project state — 2026-11-06 challenge follow-ups
 
 ## Current verified state

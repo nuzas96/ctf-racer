@@ -22,6 +22,9 @@ function validateAbsolutePaths(items, label) {
 export function verifierReadPaths({ projectRoot, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), additionalPaths = [] }) {
   const paths = [
     path.resolve(projectRoot, "local-challenges"),
+    // Controller research records can contain verifier hashes and candidate outcomes.
+    // The solver workspace does not need this project-owned documentation tree.
+    path.resolve(projectRoot, "docs"),
     path.resolve(projectRoot, "runs", "_verifiers"),
     path.resolve(projectRoot, "runs", "_ctfd-controller"),
     path.resolve(codexHome, "auth.json"),
@@ -36,6 +39,10 @@ export function verifierReadPaths({ projectRoot, codexHome = process.env.CODEX_H
 
 export function verifierProbeFiles({ projectRoot, sourceDir, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), verifierRoot = path.join(projectRoot, "runs", "_verifiers"), additionalFiles = [] }) {
   const files = [path.resolve(sourceDir, "challenge.json"), ...validateAbsolutePaths(additionalFiles, "additional verifier probe files")];
+  const ledgerPath = path.resolve(projectRoot, "docs", "EXPERIMENT_LEDGER.jsonl");
+  const latestReportPath = path.resolve(projectRoot, "docs", "reports", "LATEST.md");
+  if (fs.existsSync(ledgerPath)) files.push(ledgerPath);
+  if (fs.existsSync(latestReportPath)) files.push(latestReportPath);
   const authPath = path.resolve(codexHome, "auth.json");
   if (fs.existsSync(authPath)) files.push(authPath);
   const privateRoots = [...new Set([

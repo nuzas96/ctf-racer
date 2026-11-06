@@ -1,3 +1,25 @@
+# Current continuation checkpoint — 2026-11-06 pcapin follow-up and isolation correction
+
+CTF Racer branch research/bootstrap-continuity-2026-10-28, previous pushed checkpoint 892c903c28da153f87b3956c59a84c38cdedb24a; verify current HEAD/status. Skills V2 branch research/ctf-forensics-hvif-2026-10-29 is now at b8008de2ad3bc2a2757f84dea752b758a5a35f7b. Keep untracked Skills V2 ....; keep unrelated dirty Racer edits in src/ctfd-transport.js and test/ctfd-transport.test.js untouched.
+
+## Latest verified result
+
+pcapin follow-up 2 resumed the actual original thread 01a1afd2-903a-7953-929e-3e403a7e3264 in the prior workspace. Artifact SHA-256 and actual sandbox verifier isolation passed; network disabled. One Luna Medium turn used native pixel inspection/repeated glyph-mask comparison to emit a candidate. Controller-only independent verifier accepted it. Follow-up TTF 505.904s; active time including original and follow-up 1 = 3233.426s. This is exposed development material, not a fresh evaluation. Original benchmark/follow-up 1 ledger entries remain unchanged. Safe record: docs/reports/experiments/EXP-2026-11-06-PCAPIN-FOLLOWUP-2/summary.json.
+
+Low-resolution OCR method validation and report are at docs/reports/experiments/VAL-2026-11-06-LOWRES-IMAGE-TEXT/. The canonical forensics ASCII/raster reference has one narrow evidence-backed update; see Skills V2 commit above. The challenge-specific glyph crop script stays inside pcapin's solver workspace. onlythisprogram answer normalization remains a diagnostic lesson, not a reusable brute-force mechanism.
+
+## Security correction to verify before checkpoint
+
+Post-run probing found project `docs/` was readable in the actual Codex sandbox. The pcapin report (written after the model turn ended) contains a candidate digest, but there is no evidence it existed in the readable report path during the solver turn. The `verifierReadPaths()` policy now denies the whole docs tree; automatic probes include the ledger and latest report. Retest against the pcapin summary passed direct/symlink/hardlink denial while the controller retained access. `test/verifier-isolation.test.js` covers docs ledger/report canaries. This remains same-UID, host-specific Codex permission-profile isolation, not separate UID/container isolation. New ledger correction: `ISO-2026-11-06-CONTROLLER-DOCS-DENIAL`. Full CTF Racer suite passed 88/88 after the code change; the benign OCR validation reran with the same 8/12 exact variants for each positive and 0/12 for the ambiguity control. Final `npm run research:status`, 89-record JSONL parse, and staged/unstaged `git diff --check` passed; full test suite 88/88. The suite included unrelated existing CTFd transport work in the working tree, excluded from the commit.
+
+The staged report/evidence changes and verifier-isolation source/test change are intended for the Racer checkpoint. Do not stage the unrelated pre-existing edits to `src/ctfd-transport.js` and `test/ctfd-transport.test.js`.
+
+## Next task: prepare fresh reverse case
+
+Selected pending gates: NYU CTF Bench 2014 CSAW Finals Reverse odd, pinned binary SHA-256 95ce8fd187706d779b2449c4cc13ec69012d2bf39ff772fdd0fec1e6eb83df75, source commit 4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9. Only the pinned player binary was inspected; source README, notes, challenge JSON and test solver were not opened. No ledger run or run directory exists. It is an offline 153-byte ELF32/i386 with invalid byte-order/section metadata. Next: prepare a safe player workspace and controller-only verifier; isolate and probe references including the now-denied docs tree; pre-register Luna Medium bounds; execute only when all gates pass.
+
+Integrity note: separate candidate metadata reconnaissance touched challenge.json files for Rock, Sleeping Guard and Broken Box (keys/types only, no answer values used/output); the wyvern test_solver data file was read only for size/hash/type. Withdraw those candidates from untouched benchmark use.
+
 # Active research directive — 2026-11-06: hard-challenge capability first
 
 The user has changed priorities: **temporarily pause further platform integration**. Work toward an autonomous CTF solver that succeeds on **hard and novel challenges**, rather than adding more infrastructure. Preserve the last verified platform code and documentation; it is completed offline baseline, not a live platform.
