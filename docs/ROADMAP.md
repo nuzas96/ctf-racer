@@ -2,6 +2,18 @@
 
 This roadmap tracks gates, not promises. Update it when evidence changes priorities.
 
+## Current priority — 2026-11-06: capability over integration
+
+**Priority changed by user:** concentrate on harder, unfamiliar authorized challenges to improve the CTF agent's actual solving ability. Pause further platform integration for now; keep existing offline CTFd mock/transport code and 81/81 previously reported tests as a preserved infrastructure baseline, not evidence of live readiness.
+
+1. **Analyze failure traces:** revisit onlythisprogram and pcapin (and earlier STFU/Cloudb) solely as exposed development diagnostics. Classify missed evidence, inappropriate hypotheses, tooling gaps, reference-loading failures, and time-bound effects. Do not treat reruns as fresh.
+2. **Improve the solving workflow:** keep one Luna Medium primary and actual Skills V2. Confirm focused references are loaded when needed; test small evidence-prioritization and stall/pivot improvements with unrelated benign samples before modifying canonical skills.
+3. **Design Deep Solve Mode:** allow more time for demanding work with explicit up-front wall/resource limits, in-thread continuation, periodic evidence checkpoints and safe interruption/resumption. Avoid automatic from-scratch retries. Maintain fixed-budget Benchmark Mode for comparable results. Deep Solve Mode is **not implemented** at this checkpoint.
+4. **Prove capability on fresh challenge(s):** preregister new, challenging offline artifacts, independently check hash/provenance and solver/verifier separation, then measure verified outcome, TTF, time to first useful test and hypothesis changes. No solve-rate gain claim without independent comparative evidence.
+
+The current networking limitation remains: the Codex solver cannot reach host-loopback services with enforced local-only egress. Do not enable broad solver network access or real CTF platform submission as part of this priority shift. Do not switch to Sol, swarms, or redesign the controller without evidence.
+
+
 ## Current gate status — 2026-11-06
 
 - Offline CTFd mock adapter is implemented and pushed in `3ce81565806f752a428e52bed81e47da3626e79b`; it reuses normalized intake, watch/race plumbing and independent verification.
