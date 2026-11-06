@@ -199,3 +199,12 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - Candidate audit contamination: withdraw Rock, Sleeping_Guard, Broken_Box, and wyvern from untouched evaluation; details in append-only AUDIT-2026-11-06-CHALLENGE-CANDIDATE-CUSTODY.
 - OCR skill improvement accepted only as candidate-generation/uncertainty handling, validated on 2 positive benign fixtures and 1 negative control. Pixel-mask transcription needs separate cross-image tests before reuse.
 - Before any further solver run, retain the docs-denial preflight: actual sandbox denial of ledger/report files is demonstrated on this host, with same-UID limitations stated. Correction is recorded as `ISO-2026-11-06-CONTROLLER-DOCS-DENIAL`.
+
+
+## RQ-TRANSFER-FORENSICS-2026-11-06 — Generalize pcapin methods to a fresh document/image case
+
+- **Question:** Did the validated extraction and image-analysis knowledge transfer to a distinct Forensics challenge?
+- **Experiment:** NYU CTF Bench CSAW Finals 2015 Mandiant, pinned source commit `4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9`; artifact hashes and the actual controller/verifier sandbox boundary passed. Luna Medium, one solver, network disabled, up to 36 rounds and 3600 seconds.
+- **Result:** No candidate or verified flag; valid attempt ended at 3599.002 seconds (`wall_timeout`) after 22 rounds. Initial PDF/archive/Base64-JPEG extraction succeeded in the first minute, but high-entropy trailer decoding remained unresolved. Tool limitation: `stegoveritas` module and outguess/stegdetect unavailable. Full answer-free summary: `docs/reports/experiments/EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER/summary.json`.
+- **Interpretation:** This is one fresh observational non-solve, not evidence against or for a causal Skills V2 transfer effect. No skill change accepted. pcapin cumulative 3233.426 seconds is not a directly comparable TTF.
+- **Next:** investigate only hypotheses supported by player-side evidence or select another truly untouched Forensics case with independent custody checks. Do not rerun Mandiant or pcapin as fresh. Preserve the existing `odd` Reverse selection unchanged.

@@ -1,3 +1,18 @@
+# Project state — 2026-11-06 Mandiant transfer evaluation
+
+## Current checkpoint
+
+CTF Racer is on `research/bootstrap-continuity-2026-10-28` at starting checkpoint `e69a1e28e3e1d6e296c8231b61f3e16523acd256` plus this uncommitted research record. Skills V2 remains at `b8008de2ad3bc2a2757f84dea752b758a5a35f7b`; preserve its untracked `....`. Existing dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js` are unrelated and must remain unstaged. Existing `odd` Reverse selection/provenance is unchanged.
+
+- Fresh Mandiant Forensics transfer evaluation: artifact hashes/provenance, installed skill version, network-disabled mode, controller verifier custody and actual same-UID host Codex sandbox probes passed. Luna Medium used one persistent solver, four verified focused references plus one auxiliary trace-opened reference, 22 rounds, and 3599.002 seconds of a 3600-second wall budget. First meaningful experiment was at about 37 seconds. No candidate was emitted or independently verified; TTF is null. Terminal state: `environment_interrupted / wall_timeout`; classify as unsolved within the declared time-bounded attempt, with wall cancellation recorded separately.
+- Technical progress: player-side PDF attachment/archive/Base64 image chain and exact 64-byte/13,440-byte trailer fields were validated. Standard steghide, F5 indicator, JPEG DQT, JSteg, and bounded cipher/KDF probes did not recover recognizable answer plaintext. Primary blocker is unresolved high-entropy JPEG trailer transform/key framing; `stegoveritas` module unavailable and `outguess`/`stegdetect` absent.
+- Skills V2 was not changed. One unresolved challenge does not validate new general Forensics methodology. pcapin's 3233.426s cumulative active time is only descriptive and cannot support a causal speed comparison. No durable consolidated token/cost total is available.
+- Detailed answer-free experiment summary: `docs/reports/experiments/EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER/summary.json`.
+
+**Next action:** run all relevant local validations, inspect staged diffs, commit only the research updates, and push the existing development branch. Thereafter, investigate an independently supported Mandiant method or select a different untouched Forensics transfer case without altering the existing `odd` selection.
+
+---
+
 # Project state — 2026-11-06 pcapin follow-up 2
 
 ## 2026-11-06 verifier-documentation isolation correction

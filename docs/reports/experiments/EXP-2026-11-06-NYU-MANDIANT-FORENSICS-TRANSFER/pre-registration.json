@@ -1,0 +1,97 @@
+{
+  "analysis_plan": {
+    "stop": "stop immediately on controller-verified solve; otherwise at 3600-second hard wall, 36 rounds, or existing two-consecutive-stall guard; no fresh retry",
+    "time_to_first_meaningful_experiment": "first artifact-grounded command or transformation recorded from run start",
+    "time_to_flag": "runner elapsed at first candidate independently accepted by controller",
+    "trajectory": "record meaningful hypotheses, supporting evidence, discriminating tests, disconfirmation, pivots, and actual focused references opened"
+  },
+  "challenge": {
+    "archive_commit": "4c5744f55a31a58e03d6118c9dbb1c18e5bbdfa9",
+    "artifacts": [
+      {
+        "git_blob_sha1": "2329cd10fb20e0c66993ef3719694eab266f85eb",
+        "path": "Mandiant_c920fc463eaf996489749457abc9b2eb.pdf",
+        "sha256": "fbe3387ca880f946a87524f7ae4754452b8a4ae291d3fcbf6d6595e454183cd0",
+        "size_bytes": 7013313
+      },
+      {
+        "git_blob_sha1": "fb1024bdc9643d35f731161e5339a8322cfa99cf",
+        "path": "pdf-embedded-file.png",
+        "sha256": "77f333847ba7e63ba8dfdcc43b8b6615e5e1792edbc7a9b74057e9965ef1857c",
+        "size_bytes": 73777
+      }
+    ],
+    "category": "forensics",
+    "dataset_snapshot_commit": "b899e00ae75e9c55a2521ec890125298ca6a4b0e",
+    "event": "CSAW Finals 2015",
+    "id": "nyu-dev-2015-mandiant-image-transfer-2026-11-06",
+    "license": "GPL-2.0",
+    "name": "Mandiant",
+    "source_path": "development/2015/CSAW-Finals/forensics/mandiant",
+    "source_repository": "https://github.com/NYU-LLM-CTF/NYU_CTF_Bench"
+  },
+  "classification": "fresh archived development transfer evaluation; one observational case",
+  "environment": {
+    "automatic_retries": 0,
+    "challenge_network": false,
+    "external_web_research": false,
+    "installed_skill_hashes_match": true,
+    "max_consecutive_stalls": 2,
+    "max_rounds": 36,
+    "model": "gpt-6-luna",
+    "model_escalation": false,
+    "persistent_primary_solver": true,
+    "reasoning_effort": "medium",
+    "skills": [
+      "ctf-solve",
+      "ctf-forensics"
+    ],
+    "skills_v2_commit": "b8008de2ad3bc2a2757f84dea752b758a5a35f7b",
+    "solver_threads": 1,
+    "storage_preflight": "passed before run; monitor and cancellation enabled",
+    "temporary_local_policy_override": "raise local ignored max_continuation_rounds from 4 to 36 for this run only; restore after execution",
+    "wall_budget_seconds": 3600
+  },
+  "evaluation_question": "Does current reusable Forensics knowledge about careful evidence extraction and validated low-resolution raster-text interpretation help Luna complete a distinct archived document/image challenge?",
+  "experiment_id": "EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER",
+  "freshness_and_custody": {
+    "artifact_selection_basis": "pinned tree and file types only",
+    "candidate_Kill_withdrawn_after_readme_custody_failure": true,
+    "independent_verifier": "controller SHA-256 derived from pinned challenge metadata; secret not logged in this registration",
+    "ledger_prior_mention": false,
+    "prior_attempt_or_workspace_found": false,
+    "reference_readme_copied_or_used": false,
+    "source_answer_or_verifier_digest_in_solver_workspace": false
+  },
+  "limitations": [
+    "Different challenge difficulty prevents a causal speed comparison to pcapin.",
+    "A single result is transfer evidence only and cannot establish a rate or causal skill effect.",
+    "The local Codex sandbox boundary is host-specific and same-UID; probe will run again inside the actual pipeline before model execution."
+  ],
+  "preflight": {
+    "actual_codex_sandbox_isolation": "passed before model; 17 protected probes denied direct/symlink/hardlink while controller reads worked",
+    "artifact_manifest": "both artifact SHA-256 and Git blob SHA-1 matched pinned objects",
+    "controller_verifier_self_check": "passed without emitting source answer",
+    "deterministic_preflight": "0 high findings",
+    "focused_references_expected_to_route": [
+      "ctf-forensics/references/pdf-analysis.md",
+      "ctf-forensics/references/ascii-art-text-recovery.md"
+    ],
+    "network_namespace": "host-separated; loopback only; no IPv4 routes/non-loopback IPv6 routes",
+    "skills_installed_hashes": [
+      {
+        "name": "ctf-solve",
+        "path": "/home/nuzhmi/.codex/skills/ctf-solve/SKILL.md",
+        "sha256": "3578c79776a8c484a9f8d7cdcb78b4af8fa7a28925e61f89ba244e80a6cb8a5c"
+      },
+      {
+        "name": "ctf-forensics",
+        "path": "/home/nuzhmi/.codex/skills/ctf-forensics/SKILL.md",
+        "sha256": "e64a9890a68554d39dcd848687e35ce68ac4256204b3ba3c60be642357eaa645"
+      }
+    ],
+    "storage": "/tmp and runs filesystem both above configured reserve"
+  },
+  "registered_at": "2026-11-06T16:42:13.948640+00:00",
+  "status": "PRE_REGISTERED_READY_FOR_ONE_RUN"
+}

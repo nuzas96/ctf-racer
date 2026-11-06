@@ -1,3 +1,23 @@
+# Latest report — 2026-11-06 fresh Forensics transfer evaluation
+
+## Mandiant result
+
+NYU CTF Bench development Forensics `Mandiant` (CSAW Finals 2015, GPL-2.0) was selected from the pinned archive tree without reading its answer-bearing README or reference solver. Both player artifact hashes and Git objects matched. No earlier local attempt or workspace was found. The solver used Luna Medium, one persistent thread, `ctf-solve + ctf-forensics`, the installed Skills V2 checkpoint `b8008de2ad3bc2a2757f84dea752b758a5a35f7b`, network-disabled execution, no retry/escalation, up to 36 rounds and a 3600-second cap.
+
+Artifact isolation, controller-side verifier access, and the actual Codex sandbox probe passed before solving. Seventeen protected probes were denied through direct, symlink and hardlink paths. The host-specific boundary is same-UID; it is not a separate-user/container guarantee.
+
+Luna began artifact-grounded analysis about **37 seconds** after start. It validated a PDF attachment/archive/Base64-JPEG extraction chain and found a structured JPEG trailer. It then tested a series of evidence-led media and bounded cryptographic interpretations. At 22 rounds and **3599.002 seconds**, the runner stopped with `environment_interrupted / wall_timeout`. No solver candidate was emitted, none was rejected, and the controller verified no flag. This counts as **no verified solve within the preregistered 3600-second budget**; verified TTF is unavailable. The unresolved bottleneck is the high-entropy JPEG trailer transform/key framing. `stegoveritas`'s launcher was present without the Python module; `outguess` and `stegdetect` were unavailable.
+
+The solver opened `pdf-analysis.md`, `stego-image.md`, `stego-advanced.md`, and `ctf-solve/references/stuck-recovery.md`; the trace also shows it opened `ctf-crypto/modern-ciphers.md`, but the final reference-path verifier did not verify that path. The focused ASCII-art reference was not opened. No Skills V2 update was made. One unresolved transfer case does not prove methodology benefit.
+
+Compared with pcapin's prior **3233.426 seconds cumulative active solving time**, this is descriptive only: challenge difficulty and artifacts differ, so no causal speedup or transfer claim is justified. No consolidated token or cost total was persisted. The Mandiant attempt remains a valid observational development evaluation, not an infrastructure failure unrelated to its wall-time cancellation.
+
+Candidate `Kill` was withdrawn during selection after its README proved answer-bearing; no artifacts were analyzed and no solver run occurred. No answer value is repeated here.
+
+Detailed machine-readable record: `docs/reports/experiments/EXP-2026-11-06-NYU-MANDIANT-FORENSICS-TRANSFER/summary.json`. Exact next task: preserve this trace, run project validations and checkpoint the record, then investigate a separately supported trailer interpretation or choose a new untouched Forensics case after custody checks. The prior `odd` Reverse selection remains unchanged.
+
+---
+
 # Latest report — 2026-11-06 pcapin continuation and raster-text validation
 
 ## Post-run verifier-isolation correction
