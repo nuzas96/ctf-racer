@@ -1,6 +1,6 @@
 # Current research report — 2026-11-06
 
-CTF Racer checkpoint `5728205` is committed and pushed to the existing development branch. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its pre-existing untracked `....` is preserved.
+CTF Racer research evidence commit `5728205` and its follow-up checkpoint documentation are committed and pushed to the existing development branch; `git rev-parse HEAD` is authoritative for the current tip. Skills V2 remains at `fe88a1a7c98e9852254c8c9bd01e7b37bcc4ba62`; its pre-existing untracked `....` is preserved.
 
 ## Cohort continuation: Crypto case
 
