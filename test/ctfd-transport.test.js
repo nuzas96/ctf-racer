@@ -108,6 +108,13 @@ test("local TLS CTFd transport runs snapshot -> adapter -> scheduler -> isolated
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "ctfd-e2e-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const projectRoot = path.join(root, "project");
+  // bwrap requires every denied path to exist when it stages the sandbox.
+  // Use a disposable Codex home so this probe never touches real credentials.
+  const codexHome = path.join(root, "codex-home");
+  fs.mkdirSync(codexHome, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(path.join(codexHome, "auth.json"), '{"test_only":"dummy-auth-canary"}\n', { mode: 0o600 });
+  fs.mkdirSync(path.join(projectRoot, "docs", "reports"), { recursive: true, mode: 0o700 });
+  fs.mkdirSync(path.join(projectRoot, "local-challenges"), { recursive: true, mode: 0o700 });
   const privateRoot = path.join(projectRoot, "runs", "_ctfd-controller");
   fs.mkdirSync(privateRoot, { recursive: true, mode: 0o700 });
   const verifierRoot = path.join(projectRoot, "runs", "_verifiers");
@@ -121,13 +128,21 @@ test("local TLS CTFd transport runs snapshot -> adapter -> scheduler -> isolated
   fs.writeFileSync(path.join(probeSource, "challenge.json"), '{"id":"isolation-fixture"}\n', { mode: 0o600 });
   const probeWorkspace = path.join(projectRoot, "runs", "isolation-fixture", "workspace");
   fs.mkdirSync(path.join(probeWorkspace, "solve"), { recursive: true });
-  const isolation = verifyVerifierIsolation({
-    projectRoot,
-    workspace: probeWorkspace,
-    deniedPaths: verifierReadPaths({ projectRoot }),
-    probeFiles: verifierProbeFiles({ projectRoot, sourceDir: probeSource, additionalFiles: [verifierFile, controllerCanary] }),
-    localServicePort: server.server.address().port,
-  });
+  const previousCodexHome = process.env.CODEX_HOME;
+  let isolation;
+  try {
+    process.env.CODEX_HOME = codexHome;
+    isolation = verifyVerifierIsolation({
+      projectRoot,
+      workspace: probeWorkspace,
+      deniedPaths: verifierReadPaths({ projectRoot, codexHome }),
+      probeFiles: verifierProbeFiles({ projectRoot, codexHome, sourceDir: probeSource, additionalFiles: [verifierFile, controllerCanary] }),
+      localServicePort: server.server.address().port,
+    });
+  } finally {
+    if (previousCodexHome === undefined) delete process.env.CODEX_HOME;
+    else process.env.CODEX_HOME = previousCodexHome;
+  }
   assert.equal(isolation.passed, true, JSON.stringify(isolation));
   assert.equal(isolation.network_isolation.runner_loopback_connect, "denied");
   assert.ok(Object.values(isolation.probe_file_access).every((probe) => probe.direct_denied && probe.symlink_denied && probe.hardlink_denied));
