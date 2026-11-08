@@ -216,4 +216,13 @@ Use the cycle: research -> hypothesis -> pre-registered design -> baseline -> ch
 - **Interpretation:** Tools unavailable during the original run did not block these validated benign checks, but current tests still do not identify or eliminate all encodings, stego methods, keys or framing. The current blocker is lack of a player-evidence-backed new discriminator.
 - **Decision:** Do not spend another full Luna budget until a new cheap test is justified by an observable clue. Mandiant remains exposed development material. No Skills V2 update and no solve-rate claim.
 - **Evidence record:** `docs/reports/experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json`; transport fixture diagnosis is separately appended as `DIAG-2026-11-06-CTFD-BAD-FD-FIXTURE`.
-- **Status:** Open; next priority is either a genuinely new Mandiant discriminator or an uncontaminated hard development challenge. Keep the previously selected `odd` Reverse case untouched.
+- **Status:** Closed by writeup-assisted postmortem RQ-026; no new Luna run. See `PM-2026-11-08-MANDIANT-FFC-WRITEUP`. Mandiant stays exposed; keep `odd` untouched.
+
+
+## RQ-026 — Recognize and decode Free File Camouflage JPEG trailers
+
+- **Evidence:** A writeup-assisted postmortem of the exposed Mandiant case matched the exact pinned artifacts and recovered the same 13,437-byte ELF using FFC 1.25 framing; metadata MD5 passed. The executable output matched the writeup, but this is not independent benchmark evidence.
+- **General method:** Detect duplicate JPEG EOI plus CRLF-delimited Base64 records; decrypt the first metadata record, then each payload record; validate the embedded digest before inspecting output. Treat the embedded filename as untrusted and execute extracted binaries only in isolation.
+- **Independent validation:** Two different benign JPEG fixtures with known payloads passed exact extraction; one crossed a chunk boundary. Missing-marker, wrong-password, and tamper controls rejected. Canonical change is `ctf-forensics/references/free-file-camouflage.md` and `scripts/ffc_extract.py`.
+- **Evidence limitation:** The public writeup says an organizer chat hint supplied the tool name. No claim that the exact proprietary tool is inferable from challenge bytes alone; no solve-rate or TTF gain claim.
+- **Status:** Validated technique/tooling reference accepted and pushed to Skills V2 commit `230ccb674414ec20a79ceb06a3059e93ed542991`. Mandiant remains exposed development and must not be rerun as fresh material. Future competition searches must follow event rules; no local writeup database.

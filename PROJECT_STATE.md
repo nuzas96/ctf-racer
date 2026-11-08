@@ -1,24 +1,28 @@
-# Project state — 2026-11-06 Mandiant tool diagnosis
+# Project state — 2026-11-08 Mandiant writeup-assisted postmortem
 
-## Current verified checkpoint
+## Current checkpoint
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, HEAD `4c70f7fad3b7a1e1a31c10e26b4f99afaff55fa0`. Existing unrelated modifications to `src/ctfd-transport.js` and `test/ctfd-transport.test.js` remain untouched and unstaged. Skills V2 is `b8008de2ad3bc2a2757f84dea752b758a5a35f7b` on its existing branch; preserve its untracked `....`. The previously selected Reverse challenge `odd` remains untouched.
+CTF Racer is on `research/bootstrap-continuity-2026-10-28`, checkpoint `612e6b4` plus this postmortem update. Preserve dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; no edits to them. Skills V2 now has pushed checkpoint `230ccb674414ec20a79ceb06a3059e93ed542991` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked `....`. The selected Reverse case `odd` remains untouched.
 
-## Mandiant outcome and diagnosis
+## Mandiant retrospective status
 
-The original Luna Medium run is unchanged: 22 rounds, 3599.002 seconds, no candidate, no independently verified flag, terminal wall-time interruption. This checkpoint did not rerun Luna. Player-side evidence establishes a PDF/archive/Base64 image chain and a post-EOI data tail with Base64 fields of 64 and 13,440 bytes (the latter is 210 64-byte blocks). The specific key, transform and framing remain unknown. The trace tested StegSeek/Steghide, F5/JSteg indicators and variants, metadata/trailing/image-plane methods, common ciphers/KDFs and strict decompression checks. None produced answer plaintext; these do not exhaust all approaches.
+Mandiant is **exposed development material**. The original Luna Medium result remains unchanged: 22 rounds, 3599.002s, no candidate, wall-time interrupted. No Luna rerun occurred.
 
-Stegoveritas 1.10 was usable in an isolated Python 3.11 venv after the system shim failed under Python 3.13 (`imp` dependency failure). It exactly extracted a known benign PNG trailer and known benign JPEG Steghide payload. Its bounded Mandiant pass only reproduced the already known trailer. Debian OutGuess 1:0.4-2 in an offline, resource-bounded container recovered a benign known payload; 30 bounded Mandiant attempts (15 candidate keys × two framings) yielded no nonempty extraction. These tests do not rule out the broader method families. `stegdetect` remains unavailable and its upstream mirror marks it unmaintained; it is not currently a blocker. No skill update is justified and no new solver experiment was run. Details: `docs/reports/experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json`.
+The public CSAW 2015 writeup matches the pinned artifact chain. In a separate ignored postmortem workspace, the exact PDF attachment was re-extracted, its Base64 PNG decoded, the appended 7z carved from bytes after PNG IEND, its Base64 member decoded to the same JPEG hash produced during Luna's original attempt, and the JPEG's Free File Camouflage records were decrypted. The embedded MD5 validated the recovered 13,437-byte ELF. The ELF was executed with network disabled and explicit time/CPU/memory/process/file limits; its output matched the public writeup. This is writeup-assisted reproduction, not an independent benchmark solve and not evidence of a new Luna solve.
 
-An accidental `stegoveritas_install_deps --help` invocation ran its apt helper and installed `libexempi-dev`; that package was removed and its absence verified. No other package was installed. Do not rerun that helper.
+The writeup reports an organizer chat hint explicitly naming Free File Camouflage. Therefore, Luna's failure is best described as missing a tool-specific, externally supplied technique after correctly finding the JPEG trailer. It had treated the two encoded records as generic key/ciphertext and tried direct/common cipher layouts. The artifact-only trace does not prove the exact tool was inferable without the competition hint.
 
-## Test diagnosis
+## Reusable change
 
-The pre-existing dirty CTFd transport isolation test fails in `bwrap` with `Bad file descriptor` because its fixture denies a `projectRoot/docs` path that it never creates. The failure reproduces in isolation; creating the directory makes the actual probe pass. `CODEX_HOME` changes only which missing denied path fails. This supports a fixture setup defect, not a demonstrated transport regression. The dirty test/source files were not edited. The suite previously had 87 passing and this one failing test; 70 tests pass with that test excluded. Keep the failure visible until the fixture is repaired.
+Skills V2 gained a focused FFC reference and parameterized extractor. Two independent benign synthetic JPEG carriers with known payloads passed exact round-trip extraction; a multi-record payload crossed the 2-MB chunk boundary. Missing-sentinel, wrong-password and tamper controls were rejected. The helper is explicit-password only, verifies FFC metadata MD5, never trusts the embedded output filename, and does not contain the FFC default secret or challenge answer. Installed route/reference/script hashes were synced and checked. No solve-rate or TTF benefit is claimed.
 
-## Next action
+Postmortem evidence: `docs/reports/experiments/PM-2026-11-08-MANDIANT-FFC-WRITEUP/summary.json`. Append-only record: `PM-2026-11-08-MANDIANT-FFC-WRITEUP`.
 
-Do not spend another full Mandiant budget absent a new player-evidence-supported discriminating test. Preserve current tool validation and wait for a new concrete hypothesis or select a separate uncontaminated development case. Keep `odd` untouched. Resolve the CTFd test fixture by adding the denied directory in a separately authorized change, then rerun the exact test and full suite.
+## Test state and next action
+
+The CTFd integration test remains 87/88. This full run first failed staging host `/home/nuzhmi/.codex/auth.json`; with a disposable `/tmp` Codex home and dummy auth file, the same probe advanced and failed on the fixture’s missing denied `projectRoot/docs`. A separate actual probe passes when `docs/` exists. This is a reproducible sandbox/fixture setup failure, not evidence of transport logic regression. Dirty files remain untouched.
+
+Next: retain the FFC reference as forensic knowledge. On future Competition Mode runs, use direct web searches for relevant historical writeups only when useful and permitted by event rules; do not create a local writeup database. Do not update Skills V2 during active competition solving. No new challenge was selected or started in this postmortem.
 
 ---
 

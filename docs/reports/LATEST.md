@@ -1,3 +1,27 @@
+# Latest development report — 2026-11-08
+
+## Mandiant FFC postmortem
+
+The public CSAW Finals 2015 writeup at [hoppersroppers/ctfWriteups](https://github.com/hoppersroppers/ctfWriteups/blob/main/CSAW15/FOR300-Mandiant/readme.md), pinned at repository commit `70757b883fb8213cdf536c9b362f6448eeb71a02`, matches this project's pinned NYU challenge artifacts. Recreating the chain from the original PDF produced the same JPEG hash found in Luna's prior workspace: PDF attachment Base64 -> PNG -> appended 7z -> Base64 JPEG. The public writeup identifies the final transformation as Free File Camouflage and says the competition solve required an organizer chat hint naming that tool.
+
+Static inspection of Free File Camouflage 1.25 identified a duplicate-JPEG-EOI sentinel, CRLF-delimited Base64 records, encrypted metadata followed by independently encrypted data chunks, AES-CBC/PKCS#7, and a version-specific application default password. The publisher URL is currently unavailable; the application was obtained from AfterDawn's legacy download. Its UI could not run under the installed Mono runtime because Microsoft.VisualBasic 8.0 is missing. A small compatibility extractor was built without copying vendor code. It validated FFC metadata MD5 and recovered a 13,437-byte ELF from the exact player-side JPEG.
+
+The ELF ran with network disabled, no host home mounted, read-only system and challenge mounts, and explicit 3-second wall, 2-second CPU, 256-MiB memory, one-process and 1-MiB output limits. Its output matched the public writeup. This is **writeup-assisted postmortem reproduction**, not a fresh evaluation, independent solver discovery, or benchmark verifier result. The original Luna run remains unchanged and unsolved: 22 rounds / 3599.002 seconds / no candidate / wall timeout. Luna had found the trailer but pursued generic cipher hypotheses instead of the tool-specific FFC record format. Because the writeup says an organizer supplied the tool name, we cannot claim it should have inferred FFC from artifact evidence alone.
+
+### Reusable methodology validation
+
+Canonical Skills V2 `ctf-forensics` now routes a focused FFC reference and a parameterized extractor. Two independent benign JPEG fixtures with known payloads passed exactly, including a payload spanning multiple FFC chunks. Missing sentinel, wrong password and tampered-record controls were rejected. The helper requires an explicit raw password file, checks embedded MD5, ignores the embedded filename for output placement, and contains neither the FFC default secret nor the challenge answer. This validates format handling, not solve-rate or TTF improvement. Installed route/reference/helper copies were synchronized and hash-matched against Skills V2 commit `230ccb674414ec20a79ceb06a3059e93ed542991`.
+
+Postmortem summary: [PM-2026-11-08-MANDIANT-FFC-WRITEUP](experiments/PM-2026-11-08-MANDIANT-FFC-WRITEUP/summary.json). The CTF Racer ledger is append-only; the earlier Mandiant attempt record was not modified.
+
+The CTFd integration test remains 87/88. The full run first failed while bubblewrap staged host `auth.json`; with a disposable `/tmp` Codex home, the probe advanced and failed at the fixture’s missing denied `projectRoot/docs`. A separate actual probe passes when `docs/` exists. This is a reproducible sandbox/fixture setup failure, not evidence of transport logic regression. Dirty CTFd files were not touched. `odd` remains untouched.
+
+### Next priority
+
+Do not start another challenge as part of this postmortem. Preserve FFC guidance for future forensic tasks. In Competition Mode, search the web for historical writeups only when useful and allowed by the event; maintain no local writeup database and defer any Skills V2 edits until after active competition solving.
+
+---
+
 # Latest development report — 2026-11-06
 
 ## Mandiant hard-challenge diagnosis

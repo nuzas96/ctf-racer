@@ -130,3 +130,10 @@
 - **Decision:** Include the project `docs/` tree in the solver sandbox deny policy and automatically probe the experiment ledger and latest report. Controller reports can contain verifier digests, private outcome metadata, or other information unnecessary to challenge analysis.
 - **Evidence:** A zero-token probe after the pcapin solver completed could read its report through the actual Codex sandbox. The report was written after that solver turn; no evidence shows the digest was available during the completed run. After the policy change, direct/symlink/hardlink reads of that report were denied, controller access worked, and network-disabled isolation remained valid. Regression tests cover report and ledger probes.
 - **Limit:** This is the host-specific Codex permission-profile boundary using the same UID, not a separate UID/container guarantee. Continue proving actual path denial before each solver execution.
+
+
+## D-021 — Use direct historical writeup searches only when useful and permitted
+
+- **Decision:** In future Competition Mode, direct internet searches for relevant historical CTF writeups are allowed when useful and consistent with event rules. Do not maintain a local writeup database. Do not modify canonical Skills V2 during active competition solving; queue reusable lessons for post-event validation instead.
+- **Evidence:** The Mandiant public writeup revealed that its organizer chat supplied a tool-specific Free File Camouflage hint absent from the saved player artifact description. Direct lookup enabled a writeup-assisted postmortem, while the prior in-artifact cryptographic guesses could not identify the proprietary utility.
+- **Limit:** Historical writeups can be inaccurate, challenge variants can differ, and competition rules may prohibit external assistance. Match artifact provenance and obey event policy before use. A retrospective writeup-assisted reproduction is not fresh benchmark evidence.

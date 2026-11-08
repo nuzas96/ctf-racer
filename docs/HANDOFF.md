@@ -1,26 +1,28 @@
-# Current continuation checkpoint — 2026-11-06 Mandiant tool diagnosis
+# Current continuation checkpoint — 2026-11-08 Mandiant FFC postmortem
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, HEAD `4c70f7fad3b7a1e1a31c10e26b4f99afaff55fa0`. Preserve pre-existing dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; neither was edited or staged. Skills V2 remains `b8008de2ad3bc2a2757f84dea752b758a5a35f7b` with untracked `....` preserved. Keep the selected Reverse case `odd` untouched.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, starting HEAD `612e6b4` (verify after commits). Preserve pre-existing dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not edited. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; preserve untracked `....`. Keep `odd` untouched.
 
-## Completed this checkpoint
+## Completed
 
-- Inspected saved Mandiant trace/workspace without opening answer material. Original result remains 22 rounds / 3599.002s, no candidate and no verified flag, interrupted at declared wall cap.
-- Confirmed player-side tail structure: canonical Base64 fields are 64 and 13,440 bytes; second field is 210 × 64 bytes. The origin/key/transform/framing remain unresolved.
-- Stegoveritas 1.10 was validated in isolated Python 3.11 on independent benign PNG-trailing and JPEG-Steghide examples (both exact). Mandiant output exactly duplicated the already recovered trailer.
-- OutGuess 1:0.4-2 was tested in a bounded offline container; independent benign payload recovered exactly. 15 candidate keys × two Mandiant framings returned no payload. This does not exhaust OutGuess or other algorithms. `stegdetect` is absent and upstream says unmaintained; not a required blocker.
-- No Luna rerun or Skills V2 change: no new evidence justified them.
-- Diagnosed dirty CTFd Bad FD as fixture omission of denied `docs/`; probe fails when the path is missing and passes when created. Kept test failure unresolved. See report and appended ledger row.
-- An accidental package-helper invocation briefly installed `libexempi-dev`; it was removed and verified absent. Do not invoke the helper again.
+- Read and pinned public Mandiant writeup repository at `70757b883fb8213cdf536c9b362f6448eeb71a02`. It matches the CSAW 2015 Mandiant challenge and describes the same PDF attachment -> PNG with appended 7z -> Base64 JPEG chain.
+- Reproduced that chain under ignored `runs/_postmortem/mandiant-ffc-2026-11-08/`. Final JPEG exactly matches the original Luna workspace hash.
+- Static inspection of Free File Camouflage 1.25 established duplicate EOI + CRLF/Base64 record framing, AES-CBC/PKCS#7 records, encrypted version/MD5/filename metadata, and independently encrypted data chunks. The password-derived AES key/IV scheme is version-specific. The app itself could not run under this Mono runtime (missing Microsoft.VisualBasic 8.0); a small compatibility extractor reproduced the format and passed the app's embedded MD5.
+- Recovered ELF SHA-256: `889b2ac23fd0b3c8d63051e6821d2b62f0d1f07d42c2c5f26fd9fc1a2dac1ae6`. It ran under a network-disabled bubblewrap namespace with minimal filesystem mounts and hard resource/time limits. Output matched the writeup. This is writeup-assisted postmortem, not an independent verifier result or fresh benchmark.
+- Added canonical Skills V2 reference, extractor and tests; two independent benign JPEG fixtures passed and malformed/wrong-password/tamper controls failed safely. No answer or default password is in the skill. The route and installed skill files were hash-checked.
+- Original Luna result and its ledger row remain unchanged. No model run or challenge evaluation occurred.
 
-Evidence: `docs/reports/experiments/VAL-2026-11-06-MANDIANT-TOOL-DIAGNOSIS/summary.json`. Full report: `docs/reports/LATEST.md`.
+Detailed evidence: `docs/reports/experiments/PM-2026-11-08-MANDIANT-FFC-WRITEUP/summary.json` and ignored artifact workspace above.
 
-## Immediate next steps
+## Validation
 
-1. Validate JSONL, `npm run research:status`, and `git diff --check`.
-2. Run tests and preserve the known CTFd fixture failure in reporting; do not edit the pre-existing dirty files in this checkpoint.
-3. Commit only the new answer-free diagnosis report and research-state/ledger updates. Push only if the configured remote is safe and reachable.
-4. For Mandiant, require a new player-evidence-backed, cheap discriminating hypothesis before another solver budget. Otherwise advance to a separate uncontaminated development challenge. Do not touch `odd`.
-5. A future separately approved fix should create the denied `docs/` directory in the transport fixture and rerun the failing test plus full suite.
+- Skills V2 script tests: 2/2 passed; validators and routing index passed with zero errors/warnings; installed route/reference/script hashes matched.
+- Preserve the known CTFd transport test failure: this full run was 87/88 and first failed staging the host auth path; with a disposable `/tmp` Codex home it advanced to the fixture’s missing denied `projectRoot/docs`. The same actual probe passes when `docs/` exists. No change to the dirty CTFd files in this work.
+
+## Next
+
+1. Skills V2 is committed and pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; installed route/reference/helper hashes match. Keep `....` untouched.
+2. Validate, commit and push only the CTF Racer postmortem ledger/report/state/handoff/decision updates; keep CTFd edits unstaged.
+3. Do not start another challenge in this postmortem. Future competition-mode research may use direct internet writeup searches only when useful and allowed; do not build a local writeup database or update skills during active competition solving.
 
 # Current continuation checkpoint — 2026-11-06 pcapin follow-up and isolation correction
 
