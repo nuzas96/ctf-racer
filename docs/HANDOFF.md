@@ -1,6 +1,6 @@
-# Current continuation checkpoint — 2026-11-08 Mandiant FFC postmortem
+# Current continuation checkpoint — 2026-11-08 CTFd fixture maintenance
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, starting HEAD `612e6b4` (verify after commits). Preserve pre-existing dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not edited. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; preserve untracked `....`. Keep `odd` untouched.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`, pushed HEAD `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc`. Preserve remaining dirty changes in `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not included in the fix commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; preserve untracked `....`. Keep `odd` untouched.
 
 ## Completed
 
@@ -16,13 +16,13 @@ Detailed evidence: `docs/reports/experiments/PM-2026-11-08-MANDIANT-FFC-WRITEUP/
 ## Validation
 
 - Skills V2 script tests: 2/2 passed; validators and routing index passed with zero errors/warnings; installed route/reference/script hashes matched.
-- Preserve the known CTFd transport test failure: this full run was 87/88 and first failed staging the host auth path; with a disposable `/tmp` Codex home it advanced to the fixture’s missing denied `projectRoot/docs`. The same actual probe passes when `docs/` exists. No change to the dirty CTFd files in this work.
+- Focused TLS/sandbox test passed 1/1. Full NVM Node v24.19.0 suite passed **88/88**, with 0 skipped. The actual isolation probe passed; direct, symlink, and hardlink access to protected files remained denied, controller reads worked, and solver loopback remained denied. The fixture uses its own dummy Codex `auth.json` and pre-creates denied paths including `projectRoot/docs`.
 
 ## Next
 
 1. Skills V2 is committed and pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; installed route/reference/helper hashes match. Keep `....` untouched.
-2. Validate, commit and push only the CTF Racer postmortem ledger/report/state/handoff/decision updates; keep CTFd edits unstaged.
-3. Do not start another challenge in this postmortem. Future competition-mode research may use direct internet writeup searches only when useful and allowed; do not build a local writeup database or update skills during active competition solving.
+2. The fixture correction is commit `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc`, pushed. Remaining dirty CTFd source/test work is unrelated and unstaged; preserve it.
+3. CTF Racer is paused after this maintenance checkpoint. Do not start another challenge or research task until resumed. Future competition-mode research may use direct internet writeup searches only when useful and allowed; do not build a local writeup database or update skills during active competition solving.
 
 # Current continuation checkpoint — 2026-11-06 pcapin follow-up and isolation correction
 

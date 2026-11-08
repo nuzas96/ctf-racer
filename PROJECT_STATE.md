@@ -1,8 +1,8 @@
-# Project state — 2026-11-08 Mandiant writeup-assisted postmortem
+# Project state — 2026-11-08 CTFd fixture maintenance
 
 ## Current checkpoint
 
-CTF Racer is on `research/bootstrap-continuity-2026-10-28`, checkpoint `612e6b4` plus this postmortem update. Preserve dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; no edits to them. Skills V2 now has pushed checkpoint `230ccb674414ec20a79ceb06a3059e93ed542991` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked `....`. The selected Reverse case `odd` remains untouched.
+CTF Racer is on `research/bootstrap-continuity-2026-10-28` at `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc` (fixture-only fix committed and pushed). Preserve remaining dirty changes in `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not included in the commit. Skills V2 now has pushed checkpoint `230ccb674414ec20a79ceb06a3059e93ed542991` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked `....`. The selected Reverse case `odd` remains untouched.
 
 ## Mandiant retrospective status
 
@@ -20,9 +20,9 @@ Postmortem evidence: `docs/reports/experiments/PM-2026-11-08-MANDIANT-FFC-WRITEU
 
 ## Test state and next action
 
-The CTFd integration test remains 87/88. This full run first failed staging host `/home/nuzhmi/.codex/auth.json`; with a disposable `/tmp` Codex home and dummy auth file, the same probe advanced and failed on the fixture’s missing denied `projectRoot/docs`. A separate actual probe passes when `docs/` exists. This is a reproducible sandbox/fixture setup failure, not evidence of transport logic regression. Dirty files remain untouched.
+CTFd transport integration now passes with a disposable per-test Codex home and dummy `auth.json`; the fixture pre-creates every denied path, including `projectRoot/docs`. The actual probe passed controller access and denied direct, symlink, and hardlink reads; solver loopback access remained denied. Focused test: 1/1 passed. Full suite on NVM Node v24.19.0: 88/88 passed, 0 skipped. `npm run research:status`, JSONL parsing (99 records), and `git diff --check` passed. The fix is commit `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc`; remaining CTFd source/test modifications are pre-existing and unstaged.
 
-Next: retain the FFC reference as forensic knowledge. On future Competition Mode runs, use direct web searches for relevant historical writeups only when useful and permitted by event rules; do not create a local writeup database. Do not update Skills V2 during active competition solving. No new challenge was selected or started in this postmortem.
+Pause state: maintenance complete; do not start research or challenge runs until resumed. Retain the FFC reference as forensic knowledge. On future Competition Mode runs, use direct web searches for relevant historical writeups only when useful and permitted by event rules; do not create a local writeup database. Do not update Skills V2 during active competition solving. No new challenge was selected or started in this postmortem.
 
 ---
 

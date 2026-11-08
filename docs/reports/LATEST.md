@@ -14,7 +14,7 @@ Canonical Skills V2 `ctf-forensics` now routes a focused FFC reference and a par
 
 Postmortem summary: [PM-2026-11-08-MANDIANT-FFC-WRITEUP](experiments/PM-2026-11-08-MANDIANT-FFC-WRITEUP/summary.json). The CTF Racer ledger is append-only; the earlier Mandiant attempt record was not modified.
 
-The CTFd integration test remains 87/88. The full run first failed while bubblewrap staged host `auth.json`; with a disposable `/tmp` Codex home, the probe advanced and failed at the fixture’s missing denied `projectRoot/docs`. A separate actual probe passes when `docs/` exists. This is a reproducible sandbox/fixture setup failure, not evidence of transport logic regression. Dirty CTFd files were not touched. `odd` remains untouched.
+CTFd sandbox fixture failure fixed in `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc`: the test now pre-creates denied paths, including `projectRoot/docs`, and uses a temporary Codex home with dummy auth data. The actual isolation probe passed direct, symlink, and hardlink denial while controller access worked; solver loopback remains denied. Focused test 1/1 and full suite 88/88 passed on NVM Node v24.19.0, with no skipped tests. The fix commit excludes the remaining dirty `src/ctfd-transport.js` and `test/ctfd-transport.test.js` changes. `odd` remains untouched.
 
 ### Next priority
 
