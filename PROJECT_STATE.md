@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-CTF Racer is on `research/bootstrap-continuity-2026-10-28` at `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc` (fixture-only fix committed and pushed). Preserve remaining dirty changes in `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not included in the commit. Skills V2 now has pushed checkpoint `230ccb674414ec20a79ceb06a3059e93ed542991` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked `....`. The selected Reverse case `odd` remains untouched.
+CTF Racer is on `research/bootstrap-continuity-2026-10-28`; fixture-only fix `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc` and its checkpoint documentation are committed and pushed. Preserve remaining dirty changes in `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not included in the commit. Skills V2 now has pushed checkpoint `230ccb674414ec20a79ceb06a3059e93ed542991` on `research/ctf-forensics-hvif-2026-10-29`; preserve its pre-existing untracked `....`. The selected Reverse case `odd` remains untouched.
 
 ## Mandiant retrospective status
 

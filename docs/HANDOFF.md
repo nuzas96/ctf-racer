@@ -1,6 +1,6 @@
 # Current continuation checkpoint — 2026-11-08 CTFd fixture maintenance
 
-CTF Racer branch `research/bootstrap-continuity-2026-10-28`, pushed HEAD `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc`. Preserve remaining dirty changes in `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not included in the fix commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; preserve untracked `....`. Keep `odd` untouched.
+CTF Racer branch `research/bootstrap-continuity-2026-10-28`; fixture fix `012ca75be7ebbaf7b4f3c237406a5ae3199b8bdc` is pushed, followed by the pushed checkpoint documentation update. Preserve remaining dirty changes in `src/ctfd-transport.js` and `test/ctfd-transport.test.js`; they were not included in the fix commit. Skills V2 branch `research/ctf-forensics-hvif-2026-10-29` is pushed at `230ccb674414ec20a79ceb06a3059e93ed542991`; preserve untracked `....`. Keep `odd` untouched.
 
 ## Completed
 
