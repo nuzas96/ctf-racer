@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
 import { loadPolicy } from "./config.js";
@@ -69,9 +70,10 @@ function prefixPipe(stream, write, label) {
   });
 }
 
-function compactState(state, exitCode, attempt) {
+function compactState(state, exitCode, attempt, attemptId) {
   return {
     attempt,
+    attempt_id: attemptId,
     status: state.status ?? "unknown",
     flag_verified: state.flag_verified === true,
     elapsed_ms: state.elapsed_ms ?? null,
@@ -81,8 +83,46 @@ function compactState(state, exitCode, attempt) {
     skill_proof_verified: state.skill_proof?.verified === true,
     focused_reference_status: state.skill_proof?.reference_status ?? "unknown",
     focused_reference_count: state.skill_proof?.references?.length ?? 0,
+    terminal_reason: state.terminal_reason ?? null,
     exit_code: exitCode,
+    runtime_metadata: state.runtime_metadata ?? null,
   };
+}
+
+function rejectedAttempt({ attempt, attemptId, exitCode, elapsedMs, error }) {
+  return {
+    attempt,
+    attempt_id: attemptId,
+    status: "error",
+    flag_verified: false,
+    elapsed_ms: elapsedMs,
+    rounds: 0,
+    stall_count: 0,
+    rejected_candidates: 0,
+    skill_proof_verified: false,
+    focused_reference_status: "unknown",
+    focused_reference_count: 0,
+    terminal_reason: null,
+    exit_code: exitCode,
+    runtime_metadata: null,
+    error,
+  };
+}
+
+function validateRaceRunDirectories(projectRoot, entries) {
+  const seen = new Map();
+  for (const entry of entries) {
+    const sourceDir = path.resolve(projectRoot, entry.path);
+    const challenge = loadChallenge(sourceDir);
+    const runDirectory = safeChallengeId(challenge.id);
+    const previous = seen.get(runDirectory);
+    if (previous) {
+      throw new Error(
+        `race suite has run-directory collision: challenge IDs ${JSON.stringify(previous.challengeId)} (${JSON.stringify(previous.path)}) and ${JSON.stringify(challenge.id)} (${JSON.stringify(entry.path)}) both resolve to runs/${runDirectory}`
+      );
+    }
+    seen.set(runDirectory, { challengeId: challenge.id, path: entry.path });
+  }
 }
 
 export async function spawnSolve({ projectRoot, sourceDir, challenge, attempt }) {
@@ -90,14 +130,19 @@ export async function spawnSolve({ projectRoot, sourceDir, challenge, attempt })
   const challengeId = safeChallengeId(challenge.id);
   const statePath = path.join(projectRoot, "runs", challengeId, "state.json");
   const startedMs = Date.now();
+  const attemptId = randomUUID();
   const label = `${safeId(challenge.id)}#${attempt}`;
 
   console.log(`[race][${label}] starting fresh solver`);
 
+  const childEnv = solverEnvironment(process.env);
+  delete childEnv.CTF_RACER_BENCHMARK_ATTEMPT_ID;
+  childEnv.CTF_RACER_ATTEMPT_ID = attemptId;
+
   const exitCode = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliPath, "solve", sourceDir], {
       cwd: projectRoot,
-      env: solverEnvironment(process.env),
+      env: childEnv,
       stdio: ["ignore", "pipe", "pipe"],
     });
 
@@ -108,42 +153,22 @@ export async function spawnSolve({ projectRoot, sourceDir, challenge, attempt })
   });
 
   if (!fs.existsSync(statePath)) {
-    return {
-      attempt,
-      status: "error",
-      flag_verified: false,
-      elapsed_ms: Date.now() - startedMs,
-      rounds: 0,
-      stall_count: 0,
-      rejected_candidates: 0,
-      skill_proof_verified: false,
-      focused_reference_status: "unknown",
-      focused_reference_count: 0,
-      exit_code: exitCode,
-      error: "solver produced no current state file",
-    };
+    return rejectedAttempt({ attempt, attemptId, exitCode, elapsedMs: Date.now() - startedMs, error: "solver produced no state file for this attempt" });
   }
 
-  const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
-  const stateStarted = Date.parse(state.started_at ?? state.created_at ?? "");
-  if (!Number.isFinite(stateStarted) || stateStarted < startedMs - 5000) {
-    return {
-      attempt,
-      status: "error",
-      flag_verified: false,
-      elapsed_ms: Date.now() - startedMs,
-      rounds: 0,
-      stall_count: 0,
-      rejected_candidates: 0,
-      skill_proof_verified: false,
-      focused_reference_status: "unknown",
-      focused_reference_count: 0,
-      exit_code: exitCode,
-      error: "solver state appears stale",
-    };
+  let state;
+  try {
+    state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+  } catch {
+    return rejectedAttempt({ attempt, attemptId, exitCode, elapsedMs: Date.now() - startedMs, error: "solver state is unreadable" });
   }
 
-  return compactState(state, exitCode, attempt);
+  if (!state || typeof state !== "object" || Array.isArray(state) ||
+      state.attempt_id !== attemptId || state.runtime_metadata?.attempt_id !== attemptId) {
+    return rejectedAttempt({ attempt, attemptId, exitCode, elapsedMs: Date.now() - startedMs, error: "solver state attempt ID mismatch" });
+  }
+
+  return compactState(state, exitCode, attempt, attemptId);
 }
 
 function validateRacePorts(projectRoot, entries) {
@@ -189,6 +214,7 @@ export async function runRace({
     throw new Error("fresh retries must be an integer from 0 to 3");
   }
 
+  validateRaceRunDirectories(projectRoot, check.entries);
   const entries = check.entries.filter((entry) => entry.artifact_status === "ok");
   validateRacePorts(projectRoot, entries);
 

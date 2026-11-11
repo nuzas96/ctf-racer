@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
 import { assertChallengeArtifacts } from "./artifacts.js";
-import { loadPolicy } from "./config.js";
 import { assertChallengeServiceFiles } from "./service.js";
 
 function median(values) {
@@ -50,6 +50,7 @@ export function summarizeRuns(runs) {
 function compactRun(index, state, exitCode) {
   return {
     run: index,
+    attempt_id: state.attempt_id ?? null,
     status: state.status ?? "unknown",
     flag_verified: state.flag_verified === true,
     elapsed_ms: state.elapsed_ms ?? null,
@@ -60,6 +61,7 @@ function compactRun(index, state, exitCode) {
     focused_reference_status: state.skill_proof?.reference_status ?? "unknown",
     focused_reference_count: state.skill_proof?.references?.length ?? 0,
     exit_code: exitCode,
+    runtime_metadata: state.runtime_metadata ?? null,
   };
 }
 
@@ -81,12 +83,17 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
 
   for (let index = 1; index <= runs; index++) {
     console.log("\n[ctf-racer] benchmark run " + index + "/" + runs);
+    const attemptId = randomUUID();
     const child = spawnSync(
       process.execPath,
       [cliPath, "solve", sourceDir],
       {
         cwd: projectRoot,
-        env: process.env,
+        env: {
+          ...process.env,
+          CTF_RACER_ATTEMPT_ID: attemptId,
+          CTF_RACER_BENCHMARK_ATTEMPT_ID: attemptId,
+        },
         stdio: "inherit",
       }
     );
@@ -97,11 +104,16 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
     }
 
     const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+    if (state.benchmark_attempt_id !== attemptId ||
+        state.attempt_id !== attemptId ||
+        state.runtime_metadata?.attempt_id !== attemptId) {
+      throw new Error("benchmark child produced no state for attempt " + index + ": " + statePath);
+    }
     results.push(compactRun(index, state, child.status ?? 1));
   }
 
   const summary = summarizeRuns(results);
-  const policy = loadPolicy(projectRoot);
+  const firstRuntimeMetadata = results[0]?.runtime_metadata ?? null;
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const outputDir = path.join(projectRoot, "runs", "_benchmarks", challengeId);
   fs.mkdirSync(outputDir, { recursive: true });
@@ -112,8 +124,9 @@ export function runBenchmark({ projectRoot, sourceDir, runs = 5 }) {
     challenge_title: challenge.title,
     created_at: new Date().toISOString(),
     requested_runs: runs,
-    model: policy.model,
-    reasoning: policy.model_reasoning_effort,
+    model: firstRuntimeMetadata?.configuration?.model ?? null,
+    reasoning: firstRuntimeMetadata?.configuration?.reasoning_effort ?? null,
+    runtime_metadata: firstRuntimeMetadata,
     summary,
     runs: results,
   };

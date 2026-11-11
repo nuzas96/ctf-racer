@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { loadChallenge, safeChallengeId } from "./challenge.js";
 import { continuationRoundsForRun, loadPolicy, policyForChallenge } from "./config.js";
@@ -19,9 +20,18 @@ import { readWatchStatus, runWatch } from "./watch.js";
 import { storagePreflight, startStorageMonitor } from "./storage.js";
 import { createRunControl } from "./run-control.js";
 import { assertIsolatedProfileConfig, verifierProbeFiles, verifierReadPaths, verifyVerifierIsolation } from "./verifier-isolation.js";
+import { collectRuntimeMetadata } from "./runtime-metadata.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
+const benchmarkAttemptId = process.env.CTF_RACER_BENCHMARK_ATTEMPT_ID || null;
+const controllerAttemptId = process.env.CTF_RACER_ATTEMPT_ID || null;
+if (benchmarkAttemptId && controllerAttemptId && benchmarkAttemptId !== controllerAttemptId) {
+  throw new Error("controller and benchmark attempt IDs do not match");
+}
+const attemptId = controllerAttemptId ?? benchmarkAttemptId ?? randomUUID();
+delete process.env.CTF_RACER_ATTEMPT_ID;
+delete process.env.CTF_RACER_BENCHMARK_ATTEMPT_ID;
 
 function usage() {
   console.error("Usage:");
@@ -463,8 +473,22 @@ const effectivePolicy = {
   ...policyForChallenge(policy, challenge, service),
   max_continuation_rounds: continuationRoundsForRun(policy, requestedRounds),
 };
+const skillNames = skillNamesForChallenge(challenge);
 const state = prepareWorkspace(projectRoot, sourceDir, challenge);
 const runRoot = path.join(projectRoot, "runs", safeChallengeId(challenge.id));
+state.attempt_id = attemptId;
+if (benchmarkAttemptId) {
+  state.benchmark_attempt_id = benchmarkAttemptId;
+}
+state.runtime_metadata = collectRuntimeMetadata({
+  projectRoot,
+  attemptId,
+  activeSkills: skillNames,
+  policy: effectivePolicy,
+  wallTimeoutSeconds: timeoutSeconds,
+  sandboxModeOverride: "ctf_racer_isolated",
+});
+writeState(runRoot, state);
 const preflight = runPreflight(state.workspace, challenge);
 state.preflight = {
   finding_count: preflight.findingCount,
@@ -473,6 +497,7 @@ state.preflight = {
 state.storage_log_file = storageLogPath;
 
 const controllerPrivatePaths = [
+  sourceDir,
   ...(Array.isArray(challenge.controller_private_paths) ? challenge.controller_private_paths : []),
   ...(Array.isArray(service?.controller_private_paths) ? service.controller_private_paths : []),
 ];
@@ -509,7 +534,6 @@ if (!isolation.passed) {
   throw new Error("verifier isolation probe failed; model execution was not started");
 }
 
-const skillNames = skillNamesForChallenge(challenge);
 const installedSkills = skillNames.map((name) => ({
   name,
   ...detectInstalledSkill(name, state.workspace),
